@@ -14,8 +14,36 @@ class PostController {
     }
   }
 
+  async getPostsByIdUser(req, res) {
+    try {
+      const { userId } = req.params;
+
+      const result = await PostService.getPostsByIdUser(userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách getPostsByIdUser: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lấy danh sách thất bại getPostsByIdUser: " + error.message,
+      });
+    }
+  }
+
   async createPost(req, res) {
-    const {} = req.body;
+    try {
+      const { content } = req.body;
+      const files = req.files;
+      const userId = req.user._id;
+
+      const result = await PostService.createPost(content, files, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi thêm bài viết: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lấy tạo post thất bại: " + error.message,
+      });
+    }
   }
 
   async updatePost(req, res) {}

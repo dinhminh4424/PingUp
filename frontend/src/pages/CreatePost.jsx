@@ -3,10 +3,12 @@ import { dummyUserData } from "../assets/assets";
 import { Image, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
+import { createPost } from "../services/PostServices";
 
 const CreatePost = () => {
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
+  const [error, setError] = useState("");
   const [loadings, setLoadings] = useState(false);
   const textareaRef = useRef(null);
 
@@ -22,7 +24,22 @@ const CreatePost = () => {
 
   // const user = dummyUserData;
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    try {
+      setLoadings(true);
+      const result = await createPost({ content, images });
+      setContent("");
+      setImages([]);
+      setError("");
+      return result;
+    } catch (error) {
+      console.log("Lỗi: ", error);
+      setError(error.response?.data?.message || "Đăng bài thất bại");
+      throw error;
+    } finally {
+      setLoadings(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -48,6 +65,7 @@ const CreatePost = () => {
               <p className="text-sm text-gray-500">@{user.username}</p>
             </div>
           </div>
+          {error && <p className="text-red-600"> {error}</p>}
 
           {/* Text Area */}
           <textarea

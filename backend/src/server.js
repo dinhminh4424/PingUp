@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cloudinary from "cloudinary";
 
 dotenv.config(); //Khởi tạo biên môi trường
 
@@ -15,6 +16,15 @@ app.use(
     credentials: true,
   }),
 );
+
+// ===================  CLOUDINARY Configuration ===================
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET, // Click 'View API Keys' above to copy your API secret
+});
+
+// =================== END CLOUDINARY Configuration ===================
 
 // ================================ PUBLIC ROUTER =====================================
 import AuthRoutes from "./routes/AuthRoutes.js";

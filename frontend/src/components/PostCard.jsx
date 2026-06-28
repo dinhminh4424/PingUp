@@ -1,4 +1,10 @@
-import { BadgeCheck, Heart, MessageCircle, Share2 } from "lucide-react";
+import {
+  BadgeCheck,
+  Heart,
+  MessageCircle,
+  MoreVertical,
+  Share2,
+} from "lucide-react";
 import React, { useState } from "react";
 import moment from "moment";
 import { dummyUserData } from "../assets/assets.js";
@@ -20,25 +26,32 @@ const PostCard = ({ post }) => {
   return (
     <div className="bg-white rounded-xl shadow p-4 space-y-4 w-full max-w-2xl">
       {/* user info  */}
-      <div
-        onClick={() => navigate(`/profile/${post.user._id}`)}
-        className="inline-flex items-center gap-3 cursor-pointer "
-      >
-        <img
-          src={post.user?.profile_picture}
-          alt=""
-          className="w-10 h-10 rounded-full shadow"
-        />
-        <div>
-          <div className="flex items-center space-x-1">
-            <span>{post.user.full_name}</span>
-            <BadgeCheck className="w-4 h-4 text-blue-500" />
-          </div>
-          <div className="">
-            {" "}
-            @{post.user.username} - {moment(post.createdAt).fromNow()}
+      <div className="flex justify-between items-center">
+        <div
+          onClick={() => navigate(`/profile/${post.user._id}`)}
+          className="inline-flex items-center gap-3 cursor-pointer "
+        >
+          <img
+            src={post.user?.profile_picture}
+            alt=""
+            className="w-10 h-10 rounded-full shadow"
+          />
+          <div>
+            <div className="flex items-center space-x-1">
+              <span>{post.user.full_name}</span>
+              <BadgeCheck className="w-4 h-4 text-blue-500" />
+            </div>
+            <div className="">
+              {" "}
+              @{post.user.username} - {moment(post.createdAt).fromNow()}
+            </div>
           </div>
         </div>
+
+        <button className="rounded-full hover:bg-blue-50/50 w-6 h-6 flex justify-center items-center cursor-pointer">
+          {" "}
+          <MoreVertical className="w-5 " />
+        </button>
       </div>
 
       {/* Content */}
