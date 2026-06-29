@@ -30,4 +30,6 @@ const postSchema = new mongoose.Schema(
 
 const Post = mongoose.model("Post", postSchema);
 
+postSchema.index({ createdAt: -1 });
+
 export default Post;

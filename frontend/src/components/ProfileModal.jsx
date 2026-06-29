@@ -1,9 +1,17 @@
 import React, { useState } from "react";
-import { dummyUserData } from "../assets/assets";
-import { Pencil } from "lucide-react";
+// import { dummyUserData } from "../assets/assets";
+import { useAuth } from "../contexts/AuthContext";
+import { updateInfoUser } from "../services/UserServices";
+import { LoaderCircle, Pencil } from "lucide-react";
+import toast from "react-hot-toast";
 
 const ProfileModal = ({ setShowEdit }) => {
-  const user = dummyUserData;
+  const { userCurrent } = useAuth();
+  // const user = dummyUserData;
+
+  const user = userCurrent;
+
+  // console.log("userCurrent: ", userCurrent);
   const [editForm, setEditForm] = useState({
     username: user.username,
     bio: user.bio,
@@ -13,9 +21,46 @@ const ProfileModal = ({ setShowEdit }) => {
     full_name: user.full_name,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     console.log("Submit");
+    try {
+      setLoading(true);
+      setError("");
+
+      const result = await updateInfoUser(editForm);
+
+      setEditForm({
+        username: result.username,
+        bio: result.bio,
+        location: result.location,
+        profile_picture: null,
+        cover_photo: null,
+        full_name: result.full_name,
+      });
+
+      user.profile_picture = result.profile_picture;
+      user.cover_photo = result.cover_photo;
+
+      toast.success("Cập nhật thành công!", {
+        duration: 3000,
+      });
+    } catch (error) {
+      console.log("Error: ", error);
+      toast.error("Cập nhật thất bại!", {
+        duration: 3000,
+      });
+      setError(
+        "Lỗi: " + error.response?.data?.message ||
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+      );
+      console.log("Lỗi: ", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,6 +70,7 @@ const ProfileModal = ({ setShowEdit }) => {
           <h1 className="text-2xl font-bold text-gray-900 mb-6 ">
             Edit Profile
           </h1>
+          <p className="text-red-600">{error}</p>
           <form onSubmit={handleSaveProfile} className="space-y-4">
             {/* Profile Picture */}
             <div className="flex flex-col items-start gap-3">
@@ -172,11 +218,19 @@ const ProfileModal = ({ setShowEdit }) => {
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
                 className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 transition cursor-pointer"
               >
-                Save Change
+                {loading ? (
+                  <>
+                    <LoaderCircle className="w-5 h-5 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <p>Save Change</p>
+                )}
               </button>
             </div>
           </form>

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { dummyPostsData, dummyUserData } from "../assets/assets";
+// import { dummyPostsData, dummyUserData } from "../assets/assets";
 import Loading from "../components/Loading";
 import UserProfileInfo from "../components/UserProfileInfo";
-import PostCard from "../components/PostCard";
+import PostCard from "../components/post/PostCard";
 import moment from "moment";
 import ProfileModal from "../components/ProfileModal";
-
+import { useAuth } from "../contexts/AuthContext";
+import { getUserById } from "../services/UserServices";
+import { getPostsByIdUser } from "../services/PostServices";
 const Profile = () => {
   const { profileId } = useParams();
   const [user, setUser] = useState(null);
@@ -14,9 +16,38 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("posts");
   const [showEdit, setShowEdit] = useState(false);
 
+  const { userCurrent } = useAuth();
+
+  const [error, setError] = useState("");
+
   const fetchUser = async () => {
-    setUser(dummyUserData);
-    setPosts(dummyPostsData);
+    setUser(null);
+    setPosts([]);
+
+    const id = profileId ?? userCurrent._id;
+
+    try {
+      const resultUser = await getUserById(id);
+      const resultPosts = await getPostsByIdUser(id);
+
+      // setUser(dummyUserData);
+      // setPosts(dummyPostsData);
+
+      console.log("resultUser: ", resultUser);
+
+      setUser(resultUser.user);
+      setPosts(resultPosts.posts);
+    } catch (error) {
+      console.log("Lỗi: ", error);
+      setError(error.response?.data?.message || "Đăng bài thất bại");
+      throw error;
+    }
+  };
+
+  const handleUpdatePost = (updatedPost) => {
+    setPosts((prev) =>
+      prev.map((post) => (post._id === updatedPost._id ? updatedPost : post)),
+    );
   };
 
   useEffect(() => {
@@ -38,6 +69,7 @@ const Profile = () => {
             )}
           </div>
           {/* user info */}
+          {error && <p className="text-red-700">{error}</p>}
           <UserProfileInfo
             user={user}
             posts={posts}
@@ -65,7 +97,13 @@ const Profile = () => {
           {activeTab === "posts" && (
             <div className="mt-6 flex flex-col items-center gap-6">
               {posts.map((post) => {
-                return <PostCard key={post._id} post={post} />;
+                return (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    onUpdate={handleUpdatePost}
+                  />
+                );
               })}
             </div>
           )}
