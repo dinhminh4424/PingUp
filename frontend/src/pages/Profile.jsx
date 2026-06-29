@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 // import { dummyPostsData, dummyUserData } from "../assets/assets";
 import Loading from "../components/Loading";
 import UserProfileInfo from "../components/UserProfileInfo";
-import PostCard from "../components/PostCard";
+import PostCard from "../components/post/PostCard";
 import moment from "moment";
 import ProfileModal from "../components/ProfileModal";
 import { useAuth } from "../contexts/AuthContext";
@@ -42,6 +42,12 @@ const Profile = () => {
       setError(error.response?.data?.message || "Đăng bài thất bại");
       throw error;
     }
+  };
+
+  const handleUpdatePost = (updatedPost) => {
+    setPosts((prev) =>
+      prev.map((post) => (post._id === updatedPost._id ? updatedPost : post)),
+    );
   };
 
   useEffect(() => {
@@ -91,7 +97,13 @@ const Profile = () => {
           {activeTab === "posts" && (
             <div className="mt-6 flex flex-col items-center gap-6">
               {posts.map((post) => {
-                return <PostCard key={post._id} post={post} />;
+                return (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    onUpdate={handleUpdatePost}
+                  />
+                );
               })}
             </div>
           )}

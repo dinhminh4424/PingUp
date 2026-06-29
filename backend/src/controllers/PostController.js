@@ -46,9 +46,45 @@ class PostController {
     }
   }
 
-  async updatePost(req, res) {}
+  async updatePost(req, res) {
+    try {
+      const { id } = req.params;
+      const { content, image_urls_old_remove } = req.body;
+      const files = req.files;
+      const userId = req.user._id;
 
-  async deletePost(req, res) {}
+      const result = await PostService.updatePost(
+        id,
+        content,
+        image_urls_old_remove,
+        files,
+        userId,
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi Cập nhật bài viết: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Cập nhật bài viết thất bại: " + error.message,
+      });
+    }
+  }
+
+  async deletePost(req, res) {
+    try {
+      const { id } = req.params;
+      const userId = req.user._id;
+
+      const result = await PostService.deletePost(id, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi xóa bài viết: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Xóa bài viết thất bại: " + error.message,
+      });
+    }
+  }
 
   async likePost(req, res) {}
 

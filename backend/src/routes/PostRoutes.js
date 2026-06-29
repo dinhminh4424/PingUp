@@ -4,7 +4,14 @@ import { upload } from "../middlewares/UpLoadMiddleware.js";
 
 const router = express.Router();
 
+// Post
 router.post("/create", upload.array("images"), PostController.createPost);
+
+// Put
+router.put("/:id", upload.array("image_urls_new"), PostController.updatePost);
+
+// Delete
+router.delete("/:id", PostController.deletePost);
 
 // Get
 router.get("/user/:userId", PostController.getPostsByIdUser);

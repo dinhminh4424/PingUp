@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { assets, dummyPostsData } from "../assets/assets.js";
 import Loading from "../components/Loading.jsx";
 import StoryBar from "../components/StoryBar.jsx";
-import PostCard from "../components/PostCard.jsx";
+import PostCard from "../components/post/PostCard.jsx";
 import ResentMessages from "../components/ResentMessages.jsx";
 
 import { getPost } from "../services/PostServices.js";
@@ -11,6 +11,12 @@ const Feed = () => {
   const [feeds, setFeeds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const handleUpdatePost = (updatedPost) => {
+    setFeeds((prev) =>
+      prev.map((post) => (post._id === updatedPost._id ? updatedPost : post)),
+    );
+  };
 
   const fetchFeeds = async () => {
     // setFeeds(dummyPostsData);
@@ -41,7 +47,13 @@ const Feed = () => {
         {error && <h2 className="text-red-500">{error}</h2>}
         <div className="d-4 space-y-6">
           {feeds.map((feed) => {
-            return <PostCard key={feed._id} post={feed} />;
+            return (
+              <PostCard
+                key={feed._id}
+                post={feed}
+                onUpdate={handleUpdatePost}
+              />
+            );
           })}
         </div>
       </div>

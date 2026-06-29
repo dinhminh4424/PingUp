@@ -32,3 +32,13 @@ export const createPost = async (postData) => {
   const res = await api.post("/api/posts/create", formData);
   return res.data;
 };
+
+export const updatePost = async (id, postData) => {
+  const res = await api.put(`/api/posts/${id}`, postData);
+  return res.data;
+};
+
+export const deletePost = async (id) => {
+  const res = await api.delete(`/api/posts/${id}`);
+  return res.data;
+};
