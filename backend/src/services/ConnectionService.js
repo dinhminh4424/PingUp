@@ -33,8 +33,8 @@ class ConnectionService {
       const existingRequest = await ConnectionRequest.findOne({
         $or: [
           { sender, receiver },
-          { sender: receiver, receiver: sender }
-        ]
+          { sender: receiver, receiver: sender },
+        ],
       });
 
       if (existingRequest) {
@@ -67,7 +67,7 @@ class ConnectionService {
         sender,
         receiver,
         message,
-        status: "pending"
+        status: "pending",
       });
 
       return {
@@ -92,7 +92,12 @@ class ConnectionService {
   async getConnectionStatus(user1, user2) {
     try {
       // Check follow
-      const isFollowing = await Follow.findOne({ follower: user1, following: user2 }) ? true : false;
+      const isFollowing = (await Follow.findOne({
+        follower: user1,
+        following: user2,
+      }))
+        ? true
+        : false;
 
       // Check friend connection
       const userA = user1.toString() < user2.toString() ? user1 : user2;
@@ -114,8 +119,8 @@ class ConnectionService {
       const request = await ConnectionRequest.findOne({
         $or: [
           { sender: user1, receiver: user2 },
-          { sender: user2, receiver: user1 }
-        ]
+          { sender: user2, receiver: user1 },
+        ],
       });
 
       if (request && request.status === "pending") {
@@ -123,7 +128,10 @@ class ConnectionService {
           status: 200,
           data: {
             success: true,
-            connectionStatus: request.sender.toString() === user1.toString() ? "pending_sent" : "pending_received",
+            connectionStatus:
+              request.sender.toString() === user1.toString()
+                ? "pending_sent"
+                : "pending_received",
             requestId: request._id,
             isFollowing,
           },
@@ -162,7 +170,10 @@ class ConnectionService {
       if (request.receiver.toString() !== userId.toString()) {
         return {
           status: 403,
-          data: { success: false, message: "Bạn không có quyền xác nhận lời mời này" },
+          data: {
+            success: false,
+            message: "Bạn không có quyền xác nhận lời mời này",
+          },
         };
       }
 
@@ -170,18 +181,32 @@ class ConnectionService {
       await request.save();
 
       // Tạo Connection mới
-      const userA = request.sender.toString() < request.receiver.toString() ? request.sender : request.receiver;
-      const userB = request.sender.toString() < request.receiver.toString() ? request.receiver : request.sender;
+      const userA =
+        request.sender.toString() < request.receiver.toString()
+          ? request.sender
+          : request.receiver;
+      const userB =
+        request.sender.toString() < request.receiver.toString()
+          ? request.receiver
+          : request.sender;
 
       await Connection.findOneAndUpdate(
         { userA, userB },
         { userA, userB },
-        { upsert: true, new: true }
+        { upsert: true, new: true },
       );
 
       // Tự động follow nhau khi thành bạn bè
-      await Follow.findOneAndUpdate({ follower: request.sender, following: request.receiver }, {}, { upsert: true });
-      await Follow.findOneAndUpdate({ follower: request.receiver, following: request.sender }, {}, { upsert: true });
+      await Follow.findOneAndUpdate(
+        { follower: request.sender, following: request.receiver },
+        {},
+        { upsert: true },
+      );
+      await Follow.findOneAndUpdate(
+        { follower: request.receiver, following: request.sender },
+        {},
+        { upsert: true },
+      );
 
       return {
         status: 200,
@@ -193,7 +218,10 @@ class ConnectionService {
     } catch (error) {
       return {
         status: 500,
-        data: { success: false, message: "Lỗi đồng ý kết bạn: " + error.message },
+        data: {
+          success: false,
+          message: "Lỗi đồng ý kết bạn: " + error.message,
+        },
       };
     }
   }
@@ -209,7 +237,10 @@ class ConnectionService {
       }
 
       // Người nhận hoặc người gửi đều có quyền hủy/từ chối
-      if (request.receiver.toString() !== userId.toString() && request.sender.toString() !== userId.toString()) {
+      if (
+        request.receiver.toString() !== userId.toString() &&
+        request.sender.toString() !== userId.toString()
+      ) {
         return {
           status: 403,
           data: { success: false, message: "Bạn không có quyền này" },
@@ -228,7 +259,10 @@ class ConnectionService {
     } catch (error) {
       return {
         status: 500,
-        data: { success: false, message: "Lỗi từ chối lời mời: " + error.message },
+        data: {
+          success: false,
+          message: "Lỗi từ chối lời mời: " + error.message,
+        },
       };
     }
   }
@@ -242,8 +276,8 @@ class ConnectionService {
       await ConnectionRequest.findOneAndDelete({
         $or: [
           { sender: user1, receiver: user2 },
-          { sender: user2, receiver: user1 }
-        ]
+          { sender: user2, receiver: user1 },
+        ],
       });
 
       return {
@@ -288,7 +322,86 @@ class ConnectionService {
     } catch (error) {
       return {
         status: 500,
-        data: { success: false, message: "Lỗi toggle follow: " + error.message },
+        data: {
+          success: false,
+          message: "Lỗi toggle follow: " + error.message,
+        },
+      };
+    }
+  }
+  async getPendingRequests(userId) {
+    try {
+      const requests = await ConnectionRequest.find({
+        receiver: userId,
+        status: "pending",
+      }).populate(
+        "sender",
+        "_id email username full_name bio profile_picture cover_photo location",
+      );
+
+      const senders = requests
+        .map((r) => {
+          if (!r.sender) return null;
+          const senderObj = r.sender.toObject();
+          senderObj.requestId = r._id; // Đính kèm requestId để duyệt/từ chối
+          return senderObj;
+        })
+        .filter(Boolean);
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          requests: senders,
+        },
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi lấy danh sách kết bạn chờ: " + error.message,
+        },
+      };
+    }
+  }
+
+  async getConnections(userId) {
+    try {
+      const connections = await Connection.find({
+        $or: [{ userA: userId }, { userB: userId }],
+      })
+        .populate(
+          "userA",
+          "_id email username full_name bio profile_picture cover_photo location",
+        )
+        .populate(
+          "userB",
+          "_id email username full_name bio profile_picture cover_photo location",
+        );
+
+      const friends = connections
+        .map((c) => {
+          return c.userA._id.toString() === userId.toString()
+            ? c.userB
+            : c.userA;
+        })
+        .filter(Boolean);
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          connections: friends,
+        },
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi lấy danh sách bạn bè: " + error.message,
+        },
       };
     }
   }

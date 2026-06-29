@@ -29,3 +29,13 @@ export const toggleFollow = async (profileId) => {
   const res = await api.post("/api/connection/follow", { profileId });
   return res.data;
 };
+
+export const getPendingRequests = async () => {
+  const res = await api.get("/api/connection/pending");
+  return res.data;
+};
+
+export const getConnectionsList = async () => {
+  const res = await api.get("/api/connection/list");
+  return res.data;
+};

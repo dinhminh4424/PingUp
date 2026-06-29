@@ -101,6 +101,34 @@ class ConnectionController {
       });
     }
   }
+
+  async getPendingRequests(req, res) {
+    try {
+      const userId = req.user._id;
+      const result = await ConnectionService.getPendingRequests(userId);
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lấy danh sách kết bạn chờ thất bại: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lấy danh sách kết bạn chờ thất bại: " + error.message,
+      });
+    }
+  }
+
+  async getConnections(req, res) {
+    try {
+      const userId = req.user._id;
+      const result = await ConnectionService.getConnections(userId);
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lấy danh sách bạn bè thất bại: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lấy danh sách bạn bè thất bại: " + error.message,
+      });
+    }
+  }
 }
 
 export default new ConnectionController();
