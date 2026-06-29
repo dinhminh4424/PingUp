@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Follow from "../models/Follow.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 
 class UserService {
@@ -8,12 +9,29 @@ class UserService {
         _id: id,
       });
 
+      if (!user) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy người dùng",
+          },
+        };
+      }
+
+      const followersCount = await Follow.countDocuments({ following: id });
+      const followingCount = await Follow.countDocuments({ follower: id });
+
+      const userObj = user.toObject();
+      userObj.followersCount = followersCount;
+      userObj.followingCount = followingCount;
+
       return {
         status: 200,
         data: {
           success: true,
           message: "Lấy User by id thành công: " + id,
-          user: user,
+          user: userObj,
         },
       };
     } catch (error) {

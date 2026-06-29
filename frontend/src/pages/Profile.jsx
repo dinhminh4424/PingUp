@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 // import { dummyPostsData, dummyUserData } from "../assets/assets";
 import Loading from "../components/Loading";
-import UserProfileInfo from "../components/UserProfileInfo";
+import UserProfileInfo from "../components/profile/UserProfileInfo";
 import PostCard from "../components/post/PostCard";
 import moment from "moment";
-import ProfileModal from "../components/ProfileModal";
+import ProfileModal from "../components/profile/ProfileModal";
 import { useAuth } from "../contexts/AuthContext";
 import { getUserById } from "../services/UserServices";
 import { getPostsByIdUser } from "../services/PostServices";
@@ -19,14 +19,11 @@ const Profile = () => {
   const { userCurrent } = useAuth();
 
   const [error, setError] = useState("");
-;
-
   const fetchUser = async () => {
     setUser(null);
     setPosts([]);
 
     const id = profileId ?? userCurrent._id;
-
 
     try {
       const resultUser = await getUserById(id);
@@ -34,8 +31,6 @@ const Profile = () => {
 
       // setUser(dummyUserData);
       // setPosts(dummyPostsData);
-
-      console.log("resultUser: ", resultUser);
 
       setUser(resultUser.user);
       setPosts(resultPosts.posts);
@@ -53,9 +48,7 @@ const Profile = () => {
   };
 
   const handleDeletePost = (deletePostId) => {
-    setPosts((prev) =>
-      prev.filter((post) => post._id !== deletePostId),
-    );
+    setPosts((prev) => prev.filter((post) => post._id !== deletePostId));
   };
 
   useEffect(() => {

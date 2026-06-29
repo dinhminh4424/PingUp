@@ -16,6 +16,12 @@ const connectionRequestSchema = new mongoose.Schema(
       required: true,
     },
 
+    message: {
+      // Người nhận
+      type: String,
+      default: "",
+    },
+
     status: {
       type: String,
       enum: ["pending", "accepted", "rejected", "blocked"],

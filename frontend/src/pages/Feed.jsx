@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { assets, dummyPostsData } from "../assets/assets.js";
 import Loading from "../components/Loading.jsx";
-import StoryBar from "../components/StoryBar.jsx";
+import StoryBar from "../components/story/StoryBar.jsx";
 import PostCard from "../components/post/PostCard.jsx";
 import ResentMessages from "../components/ResentMessages.jsx";
 
@@ -18,10 +18,8 @@ const Feed = () => {
     );
   };
 
-    const handleDeletePost = (deletePostId) => {
-    setFeeds((prev) =>
-      prev.filter((post) => post._id !== deletePostId),
-    );
+  const handleDeletePost = (deletePostId) => {
+    setFeeds((prev) => prev.filter((post) => post._id !== deletePostId));
   };
 
   const fetchFeeds = async () => {
