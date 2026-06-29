@@ -18,6 +18,12 @@ const Feed = () => {
     );
   };
 
+    const handleDeletePost = (deletePostId) => {
+    setFeeds((prev) =>
+      prev.filter((post) => post._id !== deletePostId),
+    );
+  };
+
   const fetchFeeds = async () => {
     // setFeeds(dummyPostsData);
 
@@ -52,6 +58,7 @@ const Feed = () => {
                 key={feed._id}
                 post={feed}
                 onUpdate={handleUpdatePost}
+                onDelete={handleDeletePost}
               />
             );
           })}

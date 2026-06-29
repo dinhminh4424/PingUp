@@ -50,6 +50,12 @@ const Profile = () => {
     );
   };
 
+  const handleDeletePost = (deletePostId) => {
+    setPosts((prev) =>
+      prev.filter((post) => post._id !== deletePostId),
+    );
+  };
+
   useEffect(() => {
     fetchUser();
   }, []);
@@ -102,6 +108,7 @@ const Profile = () => {
                     key={post._id}
                     post={post}
                     onUpdate={handleUpdatePost}
+                    onDelete={handleDeletePost}
                   />
                 );
               })}
