@@ -19,12 +19,14 @@ const Profile = () => {
   const { userCurrent } = useAuth();
 
   const [error, setError] = useState("");
+;
 
   const fetchUser = async () => {
     setUser(null);
     setPosts([]);
 
     const id = profileId ?? userCurrent._id;
+
 
     try {
       const resultUser = await getUserById(id);
