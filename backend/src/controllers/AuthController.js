@@ -1,5 +1,6 @@
 import AuthService from "../services/AuthService.js";
 
+const REFRESH_TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 ngày (ms)
 class AuthController {
   async register(req, res) {
     try {
@@ -45,7 +46,7 @@ class AuthController {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
-          maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+          maxAge: REFRESH_TOKEN_TTL_MS, // 14 days
         });
       }
 

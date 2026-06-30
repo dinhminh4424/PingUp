@@ -12,10 +12,21 @@ import CreatePost from "./pages/CreatePost";
 
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./contexts/AuthContext";
+import { useSocket } from "./contexts/SocketContext";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
 
 const App = () => {
   const { userCurrent } = useAuth();
+  const { connectSocket, disconnectSocket } = useSocket();
+
+  useEffect(() => {
+    if (userCurrent) {
+      connectSocket();
+    }
+
+    return () => disconnectSocket();
+  }, [userCurrent]);
 
   return (
     <>

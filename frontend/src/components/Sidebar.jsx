@@ -13,8 +13,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   const { logout: logoutAuth, userCurrent: user } = useAuth();
 
-  console.log("userCurrent: ", user);
-
   const handleLogout = async () => {
     try {
       const res = await logout();

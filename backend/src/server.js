@@ -3,10 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
+import { app, server } from "./socket/index.js";
 
 dotenv.config(); //Khởi tạo biên môi trường
 
-const app = express();
+// const app = express();
 
 app.use(express.json()); // cho phép phân tích json
 app.use(cookieParser());
@@ -50,7 +51,7 @@ import connectDB from "./config/db.js";
 
 connectDB().then(() => {
   // Khởi động server
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Server bắt đầu trên cổng ${PORT}`);
     console.log(`http://localhost:${PORT}`);
   });

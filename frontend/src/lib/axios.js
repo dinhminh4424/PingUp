@@ -44,7 +44,7 @@ export const updateToken = (token) => {
   }
 };
 
-const getToken = () => {
+export const getToken = () => {
   return accessToken;
 };
 
