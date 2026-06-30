@@ -4,6 +4,7 @@ import userRoutes from "./UserRoutes.js";
 import postRoutes from "./PostRoutes.js";
 import connectionRoutes from "./ConnectionRoutes.js";
 import followRoutes from "./FollowRoutes.js";
+import conversationRoutes from "./ConversationRoutes.js";
 
 const router = express.Router();
 
@@ -16,5 +17,7 @@ router.use("/posts", postRoutes);
 router.use("/connection", connectionRoutes);
 
 router.use("/follow", followRoutes);
+
+router.use("/conversation", conversationRoutes);
 
 export default router;

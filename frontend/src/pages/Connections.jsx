@@ -44,7 +44,12 @@ const Connections = () => {
     try {
       setIsLoading(true);
       setError("");
-      const [followerResult, followingResult, pendingResult, connectionsResult] = await Promise.all([
+      const [
+        followerResult,
+        followingResult,
+        pendingResult,
+        connectionsResult,
+      ] = await Promise.all([
         getFollower(),
         getFollowing(),
         getPendingRequests(),
@@ -74,8 +79,10 @@ const Connections = () => {
         toast.success(res.message || "Đã hủy theo dõi");
         setFollowing((prev) => prev.filter((u) => u._id !== targetUserId));
       }
-    } catch (err) {
-      toast.error("Không thể hủy theo dõi");
+    } catch (error) {
+      console.log("Lỗi: ", error);
+      setError(error.response?.data?.message || "Đăng bài thất bại");
+      throw error;
     }
   };
 
@@ -85,7 +92,9 @@ const Connections = () => {
         const res = await acceptConnectionRequest(user.requestId);
         if (res.success) {
           toast.success("Đã đồng ý kết bạn");
-          setPendingConnections((prev) => prev.filter((u) => u._id !== user._id));
+          setPendingConnections((prev) =>
+            prev.filter((u) => u._id !== user._id),
+          );
           setConnections((prev) => [...prev, user]);
           // Tự động thêm vào following
           if (!following.some((u) => u._id === user._id)) {
@@ -95,6 +104,7 @@ const Connections = () => {
       }
     } catch (err) {
       toast.error("Đồng ý kết bạn thất bại");
+      console.log("Lỗi: ", err);
     }
   };
 
@@ -104,11 +114,14 @@ const Connections = () => {
         const res = await rejectConnectionRequest(user.requestId);
         if (res.success) {
           toast.success("Đã từ chối lời mời kết bạn");
-          setPendingConnections((prev) => prev.filter((u) => u._id !== user._id));
+          setPendingConnections((prev) =>
+            prev.filter((u) => u._id !== user._id),
+          );
         }
       }
     } catch (err) {
       toast.error("Từ chối lời mời thất bại");
+      console.log("Lỗi: ", err);
     }
   };
 
@@ -121,10 +134,12 @@ const Connections = () => {
       }
     } catch (err) {
       toast.error("Hủy kết bạn thất bại");
+      console.log("Lỗi: ", err);
     }
   };
 
-  const currentTabItems = dataArray.find((item) => item.label === currentTab)?.value || [];
+  const currentTabItems =
+    dataArray.find((item) => item.label === currentTab)?.value || [];
 
   return !isLoading ? (
     <div className="min-h-screen bg-slate-50">
@@ -191,7 +206,7 @@ const Connections = () => {
                     alt=""
                     className="rounded-full w-12 h-12 shadow-md mx-auto"
                   />
-                   <div className="flex-1">
+                  <div className="flex-1">
                     <p className="font-medium text-slate-700">
                       {user.full_name}
                     </p>

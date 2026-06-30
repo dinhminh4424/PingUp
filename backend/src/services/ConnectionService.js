@@ -1,6 +1,7 @@
 import ConnectionRequest from "../models/ConnectionRequest.js";
 import Connection from "../models/Connection.js";
 import Follow from "../models/Follow.js";
+import Conversation from "../models/Conversation.js";
 
 class ConnectionService {
   async sendConnectionRequest(sender, receiver, message = "") {
@@ -207,6 +208,22 @@ class ConnectionService {
         {},
         { upsert: true },
       );
+
+      // Tự động tạo hộp thoại chat (direct conversation) giữa 2 người
+      const conversationExists = await Conversation.findOne({
+        type: "direct",
+        "participants.userId": { $all: [request.sender, request.receiver] },
+      });
+      if (!conversationExists) {
+        await Conversation.create({
+          type: "direct",
+          participants: [
+            { userId: request.sender, joinedAt: new Date() },
+            { userId: request.receiver, joinedAt: new Date() },
+          ],
+          lastMessageAt: new Date(),
+        });
+      }
 
       return {
         status: 200,
