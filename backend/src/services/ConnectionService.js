@@ -2,6 +2,8 @@ import ConnectionRequest from "../models/ConnectionRequest.js";
 import Connection from "../models/Connection.js";
 import Follow from "../models/Follow.js";
 import Conversation from "../models/Conversation.js";
+import User from "../models/User.js";
+import NotificationService from "./NotificationService.js";
 
 class ConnectionService {
   async sendConnectionRequest(sender, receiver, message = "") {
@@ -53,6 +55,20 @@ class ConnectionService {
           existingRequest.sender = sender;
           existingRequest.receiver = receiver;
           await existingRequest.save();
+
+          const senderUser = await User.findById(sender);
+          const senderName = senderUser
+            ? senderUser.full_name || senderUser.username
+            : "Một người dùng";
+          await NotificationService.createNotification({
+            receiver,
+            sender,
+            content: `${senderName} đã gửi cho bạn một lời mời kết bạn.`,
+            type: "friend_request",
+            referenceId: existingRequest._id,
+            link: `/profile/${sender}`,
+          });
+
           return {
             status: 200,
             data: {
@@ -69,6 +85,19 @@ class ConnectionService {
         receiver,
         message,
         status: "pending",
+      });
+
+      const senderUser = await User.findById(sender);
+      const senderName = senderUser
+        ? senderUser.full_name || senderUser.username
+        : "Một người dùng";
+      await NotificationService.createNotification({
+        receiver,
+        sender,
+        content: `${senderName} đã gửi cho bạn một lời mời kết bạn.`,
+        type: "friend_request",
+        referenceId: requestConnection._id,
+        link: `/profile/${sender}`,
       });
 
       return {
@@ -224,6 +253,19 @@ class ConnectionService {
           lastMessageAt: new Date(),
         });
       }
+
+      const accepterUser = await User.findById(userId);
+      const accepterName = accepterUser
+        ? accepterUser.full_name || accepterUser.username
+        : "Một người dùng";
+      await NotificationService.createNotification({
+        receiver: request.sender,
+        sender: userId,
+        content: `${accepterName} đã chấp nhận lời mời kết bạn của bạn.`,
+        type: "friend_accept",
+        referenceId: userId,
+        link: `/profile/${userId}`,
+      });
 
       return {
         status: 200,

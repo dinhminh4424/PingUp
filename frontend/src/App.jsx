@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Discover from "./pages/Discover";
 import Layout from "./pages/layout/Layout";
 import CreatePost from "./pages/CreatePost";
+import Notification from "./pages/Notification";
 
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./contexts/AuthContext";
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="profile" element={<Profile />} />
           <Route path="profile/:profileId" element={<Profile />} />
           <Route path="create-post" element={<CreatePost />} />
+          <Route path="notification" element={<Notification />} />
         </Route>
         <Route path="/register" element={<Register />} />
 

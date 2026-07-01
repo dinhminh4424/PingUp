@@ -40,10 +40,8 @@ const notificationSchema = new mongoose.Schema(
         "like_post",
         "comment_post",
         "reply_comment",
-        "share_post",
         "friend_request",
         "friend_accept",
-        "mention",
         "system",
       ],
       required: true,
@@ -55,10 +53,9 @@ const notificationSchema = new mongoose.Schema(
       default: null,
     },
 
-    // Collection của referenceId
-    referenceModel: {
+    // Đường dẫn chuyển hướng cho FE
+    link: {
       type: String,
-      enum: ["Post", "Conversation", "Comment", "User", ""],
       default: "",
     },
 
@@ -66,6 +63,12 @@ const notificationSchema = new mongoose.Schema(
     isRead: {
       type: Boolean,
       default: false,
+    },
+
+    // Trạng thái hành động đã thực hiện trên thông báo (ví dụ: 'none', 'accepted', 'rejected', 'clicked')
+    action: {
+      type: String,
+      default: "none",
     },
   },
   {

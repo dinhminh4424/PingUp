@@ -3,7 +3,9 @@ import PostService from "../services/PostService.js";
 class PostController {
   async getPost(req, res) {
     try {
-      const result = await PostService.getPost();
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const result = await PostService.getPost(page, limit);
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.log("Lỗi khi lấy danh sách: ", error);

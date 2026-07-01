@@ -2,8 +2,14 @@ import Post from "../models/Post.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 
 class PostService {
-  async getPost() {
+  async getPost(page = 1, limit = 10) {
     try {
+      const skip = (page - 1) * limit;
+      const total = await Post.countDocuments({
+        isActive: true,
+        isDelete: false,
+      });
+
       const posts = await Post.find({
         isActive: true,
         isDelete: false,
@@ -12,7 +18,9 @@ class PostService {
           "user",
           "_id email username full_name bio profile_picture cover_photo location ",
         )
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
 
       return {
         status: 200,
@@ -20,6 +28,12 @@ class PostService {
           success: true,
           message: "Lấy danh sách thành công",
           posts: posts,
+          pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalPosts: total,
+            hasMore: skip + posts.length < total,
+          },
         },
       };
     } catch (error) {

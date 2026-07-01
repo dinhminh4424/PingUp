@@ -28,7 +28,10 @@ class ConversationController {
         try {
           parsedMemberIds = JSON.parse(memberIds);
         } catch (e) {
-          parsedMemberIds = memberIds.split(",").map(id => id.trim()).filter(Boolean);
+          parsedMemberIds = memberIds
+            .split(",")
+            .map((id) => id.trim())
+            .filter(Boolean);
         }
       }
 
@@ -62,7 +65,7 @@ class ConversationController {
         name,
         parsedMemberIds,
         user._id,
-        imageGroup
+        imageGroup,
       );
 
       return res.status(result.status).json(result.data);
