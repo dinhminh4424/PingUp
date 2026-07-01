@@ -4,6 +4,7 @@ import Follow from "../models/Follow.js";
 import Conversation from "../models/Conversation.js";
 import User from "../models/User.js";
 import NotificationService from "./NotificationService.js";
+import { io } from "../socket/index.js";
 
 class ConnectionService {
   async sendConnectionRequest(sender, receiver, message = "") {
@@ -60,7 +61,7 @@ class ConnectionService {
           const senderName = senderUser
             ? senderUser.full_name || senderUser.username
             : "Một người dùng";
-          await NotificationService.createNotification({
+          const result = await NotificationService.createNotification({
             receiver,
             sender,
             content: `${senderName} đã gửi cho bạn một lời mời kết bạn.`,
@@ -68,6 +69,12 @@ class ConnectionService {
             referenceId: existingRequest._id,
             link: `/profile/${sender}`,
           });
+
+          // Gửi thông báo
+          io.to(receiver.toString()).emit(
+            "friend:request",
+            result.notification,
+          );
 
           return {
             status: 200,
@@ -91,7 +98,7 @@ class ConnectionService {
       const senderName = senderUser
         ? senderUser.full_name || senderUser.username
         : "Một người dùng";
-      await NotificationService.createNotification({
+      const result = await NotificationService.createNotification({
         receiver,
         sender,
         content: `${senderName} đã gửi cho bạn một lời mời kết bạn.`,
@@ -99,6 +106,9 @@ class ConnectionService {
         referenceId: requestConnection._id,
         link: `/profile/${sender}`,
       });
+
+      // Gửi thông báo
+      io.to(receiver.toString()).emit("friend:request", result.notification);
 
       return {
         status: 200,

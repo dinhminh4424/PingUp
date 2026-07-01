@@ -38,8 +38,13 @@ moment.locale("vi");
 const Notification = () => {
   const navigate = useNavigate();
 
-  const { notifications, unreadCounts, setUnreadCounts, setNotifications } =
-    useNotification();
+  const {
+    notifications,
+    unreadCounts,
+    setUnreadCounts,
+    setNotifications,
+    fetchNotificationsList: refreshContext,
+  } = useNotification();
 
   const [currentTab, setCurrentTab] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
@@ -141,7 +146,7 @@ const Notification = () => {
         setNotifications((prev) =>
           prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)),
         );
-        window.dispatchEvent(new Event("notification_updated"));
+        refreshContext();
       }
     } catch (error) {
       toast.error("Không thể đánh dấu đã đọc");
@@ -155,7 +160,7 @@ const Notification = () => {
       if (res.success) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         toast.success("Đã đánh dấu đọc tất cả");
-        window.dispatchEvent(new Event("notification_updated"));
+        refreshContext();
       }
     } catch (error) {
       toast.error("Thao tác thất bại");
@@ -171,7 +176,7 @@ const Notification = () => {
       if (res.success) {
         setNotifications((prev) => prev.filter((n) => n._id !== id));
         toast.success("Đã xóa thông báo");
-        window.dispatchEvent(new Event("notification_updated"));
+        refreshContext();
       }
     } catch (error) {
       toast.error("Không thể xóa thông báo");
@@ -202,7 +207,7 @@ const Notification = () => {
               : n,
           ),
         );
-        window.dispatchEvent(new Event("notification_updated"));
+        refreshContext();
       }
 
       // 2. Chấp nhận kết bạn thực tế
@@ -234,7 +239,7 @@ const Notification = () => {
               : n,
           ),
         );
-        window.dispatchEvent(new Event("notification_updated"));
+        refreshContext();
       }
 
       // 2. Từ chối yêu cầu kết bạn
@@ -259,7 +264,7 @@ const Notification = () => {
             n._id === notification._id ? { ...n, isRead: true } : n,
           ),
         );
-        window.dispatchEvent(new Event("notification_updated"));
+        refreshContext();
       } catch (err) {
         console.error("Lỗi khi đánh dấu đọc:", err);
       }

@@ -1,35 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { menuItemsData } from "../assets/assets";
 import { NavLink } from "react-router-dom";
 import { useNotification } from "../contexts/NotificationProvider";
 
 const MenuItems = ({ setSidebarOpen }) => {
-  const [unreadCount, setUnreadCount] = useState(0);
   const { unreadCounts } = useNotification();
-
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const total = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
-
-        console.log("Minh: ", unreadCounts);
-
-        setUnreadCount(total);
-      } catch (error) {
-        console.warn("Không thể lấy số lượng thông báo chưa đọc:", error);
-      }
-    };
-
-    fetchUnreadCount();
-
-    window.addEventListener("notification_updated", fetchUnreadCount);
-    const interval = setInterval(fetchUnreadCount, 15000); // Thống kê định kỳ mỗi 15 giây
-
-    return () => {
-      window.removeEventListener("notification_updated", fetchUnreadCount);
-      clearInterval(interval);
-    };
-  }, []);
+  const unreadCount = Object.values(unreadCounts || {}).reduce((a, b) => a + b, 0);
 
   return (
     <div className="px-6 text-gray-600 space-y-1 font-medium">
