@@ -1,7 +1,7 @@
 import React from "react";
 import { menuItemsData } from "../assets/assets";
 import { NavLink } from "react-router-dom";
-import { useNotification } from "../contexts/NotificationProvider";
+import { useNotification } from "../contexts/NotificationContext";
 
 const MenuItems = ({ setSidebarOpen }) => {
   const { unreadCounts } = useNotification();

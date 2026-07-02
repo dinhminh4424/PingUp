@@ -72,7 +72,7 @@ class ConnectionService {
 
           // Gửi thông báo
           io.to(receiver.toString()).emit(
-            "friend:request",
+            "notification:new",
             result.notification,
           );
 
@@ -108,7 +108,7 @@ class ConnectionService {
       });
 
       // Gửi thông báo
-      io.to(receiver.toString()).emit("friend:request", result.notification);
+      io.to(receiver.toString()).emit("notification:new", result.notification);
 
       return {
         status: 200,

@@ -47,14 +47,14 @@ io.on("connection", async (socket) => {
   socket.join(user._id.toString());
 
   console.log(
-    ` SOCKET.io [socket/index.js]: User ${user._id} - ${user.userName}  Kết Nối (online) Với: ${socket.id} `,
+    ` SOCKET.io [socket/index.js]: User ${user._id} - ${user.username}  Kết Nối (online) Với: ${socket.id} `,
   ); // socket.id = ID duy nhất của client.
 
   // Mỗi user có 1 room riêng theo id => mốt sau này có gì gửi vào room với id us => MỞ RỘNG DỰ ÁN
   socket.join(user._id.toString());
 
   console.log(
-    ` SOCKET.io [socket/index.js]: User ${user._id} - ${user.userName}  đã vô room: ${user._id.toString()}`,
+    ` SOCKET.io [socket/index.js]: User ${user._id} - ${user.username}  đã vô room: ${user._id.toString()}`,
   );
 
   // Sự kiện "disconnect" chạy khi:

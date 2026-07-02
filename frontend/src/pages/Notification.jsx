@@ -31,7 +31,7 @@ import {
   rejectConnectionRequest,
 } from "../services/ConnectionServices";
 
-import { useNotification } from "../contexts/NotificationProvider";
+import { useNotification } from "../contexts/NotificationContext";
 
 moment.locale("vi");
 
@@ -60,10 +60,10 @@ const Notification = () => {
 
   const tabsArray = [
     { label: "Tất cả", value: "all", icon: Bell },
-    { label: "Tin nhắn", value: "message", icon: MessageSquare },
-    { label: "Tương tác", value: "interaction", icon: Heart },
-    { label: "Bạn bè", value: "friend", icon: UserPlus },
-    { label: "Hệ thống", value: "system", icon: Info },
+    { label: "Message", value: "message", icon: MessageSquare },
+    { label: "Interaction", value: "interaction", icon: Heart },
+    { label: "Friend", value: "friend", icon: UserPlus },
+    { label: "System", value: "system", icon: Info },
   ];
 
   const fetchNotificationsList = async (pageNumber = 1, append = false) => {

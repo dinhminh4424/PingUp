@@ -20,6 +20,12 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    users_delete: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     isDelete: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
   },

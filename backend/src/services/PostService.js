@@ -1,5 +1,7 @@
 import Post from "../models/Post.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
+import { io } from "../socket/index.js";
+import Connection from "../models/Connection.js";
 
 class PostService {
   async getPost(page = 1, limit = 10) {
@@ -113,6 +115,31 @@ class PostService {
         image_urls: listImage,
         user: userId,
       });
+
+      const postWithUser = await Post.findById(post._id).populate("user");
+
+      // Socket
+
+      // Lấy danh sách bạn bè
+      const connections = await Connection.find({
+        $or: [{ userA: userId }, { userB: userId }],
+      });
+      console.log("connections:", connections);
+
+      const friends = connections
+        .map((c) => {
+          return c.userA.toString() === userId.toString() ? c.userB : c.userA;
+        })
+        .filter(Boolean);
+
+      console.log("friends:", friends);
+
+      // gửi thông báo
+      for (let i of friends) {
+        console.log("i: ", i.toString());
+
+        io.to(i.toString()).emit("post:new", { post: postWithUser });
+      }
 
       return {
         status: 200,
