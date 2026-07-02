@@ -293,6 +293,53 @@ class PostService {
       };
     }
   }
+
+  async toggleLike(id, userId) {
+    try {
+      const post = await Post.findById(id);
+      if (!post) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy bài viết",
+          },
+        };
+      }
+
+      const check = post.likes_count.include(userId);
+
+      if (check) {
+        post.likes_count.remove(userId);
+        io.to(i.toString()).emit("post:unlike", { post: postWithUser });
+      } else {
+        post.likes_count.add(userId);
+        io.to(i.toString()).emit("post:like", { post: postWithUser });
+      }
+
+      await post.save();
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: check
+            ? "Đã huỷ thích thành công"
+            : "Đã bày tỏ cảm xúc thành công",
+          post: post,
+        },
+      };
+    } catch (error) {
+      console.log("Lỗi khi bày tỏ cảm xúc: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống khi bày tỏ cảm xúc: " + error.message,
+        },
+      };
+    }
+  }
 }
 
 export default new PostService();

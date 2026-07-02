@@ -20,9 +20,9 @@ export const protectedRoute = (req, res, next) => {
       process.env.ACCESS_TOKEN_SECRET,
       async (err, decodedUser) => {
         if (err) {
-          return res.status(403).json({
+          return res.status(401).json({
             success: false,
-            message: "AssessToken không hợp lệ hoặc đã hết hạn",
+            message: "AccessToken không hợp lệ hoặc đã hết hạn",
           });
         }
 

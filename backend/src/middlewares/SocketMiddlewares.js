@@ -14,7 +14,7 @@ export const socketAuthMiddleware = async (socket, next) => {
 
     if (!token) {
       console.log(
-        "socketAuthMiddleware : UNAUTHORIZED - Token không tồn tại -  Không tìm thấy token trong handshake",
+        "socketMiddleware : UNAUTHORIZED - Token không tồn tại -  Không tìm thấy token trong handshake",
       );
       return next(
         new Error(
@@ -27,7 +27,7 @@ export const socketAuthMiddleware = async (socket, next) => {
 
     if (!decoded) {
       console.log(
-        "socketAuthMiddleware : Không mã hoá được token - Token không hợp lệ hoặc đã hết hạn",
+        "socketMiddleware : Không mã hoá được token - Token không hợp lệ hoặc đã hết hạn",
       );
       return next(
         new Error("UNAUTHORIZED - Token không hợp lệ hoặc đã hết hạn "),
@@ -37,7 +37,7 @@ export const socketAuthMiddleware = async (socket, next) => {
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
-      console.log("socketAuthMiddleware : Không tìm thấy người dùng ");
+      console.log("socketMiddleware : Không tìm thấy người dùng ");
       return next(new Error("UNAUTHORIZED - Không tìm thấy người dùng"));
     }
 
@@ -46,7 +46,7 @@ export const socketAuthMiddleware = async (socket, next) => {
     next();
   } catch (error) {
     console.error(
-      "socketAuthMiddleware.js Lỗi Khi verify JWT trong socketAuthMiddleware : ",
+      "socketMiddleware.js Lỗi Khi verify JWT trong socketMiddleware : ",
       error,
     );
     return next(new Error("UNAUTHORIZED"));
