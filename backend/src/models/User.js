@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     username: { type: "String", unique: true },
     bio: {
       type: "String",
-      default: "Bạn hãy ghi viết mô tả ngắn về bản thân đi nhóc! ",
+      default: "You should write a short description about yourself! ",
     },
     profile_picture: {
       type: "String",
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     },
     location: {
       type: "String",
-      default: "Chưa cập nhật!",
+      default: "Not updated yet!",
     },
 
     isActive: { type: Boolean, default: true },

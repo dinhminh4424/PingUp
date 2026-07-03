@@ -14,7 +14,7 @@ class ConnectionService {
           status: 400,
           data: {
             success: false,
-            message: "Bạn không thể gửi lời mời kết bạn cho chính mình",
+            message: "You can't send friend request to yourself",
           },
         };
       }
@@ -28,7 +28,7 @@ class ConnectionService {
           status: 400,
           data: {
             success: false,
-            message: "Hai người đã là bạn bè",
+            message: "You are already friends",
           },
         };
       }
@@ -47,7 +47,7 @@ class ConnectionService {
             status: 400,
             data: {
               success: false,
-              message: "Đã tồn tại lời mời kết bạn giữa hai người",
+              message: "Already exists friend request between two people",
             },
           };
         } else {
@@ -64,23 +64,22 @@ class ConnectionService {
           const result = await NotificationService.createNotification({
             receiver,
             sender,
-            content: `${senderName} đã gửi cho bạn một lời mời kết bạn.`,
+            content: `${senderName} sent you a friend request.`,
             type: "friend_request",
             referenceId: existingRequest._id,
             link: `/profile/${sender}`,
           });
 
           // Gửi thông báo
-          io.to(receiver.toString()).emit(
-            "notification:new",
-            result.notification,
-          );
+          io.to(receiver.toString()).emit("notification:new", {
+            notification: result.notification,
+          });
 
           return {
             status: 200,
             data: {
               success: true,
-              message: "Đã gửi lại lời mời kết bạn thành công",
+              message: "Successfully resent friend request",
               request: existingRequest,
             },
           };
@@ -101,20 +100,22 @@ class ConnectionService {
       const result = await NotificationService.createNotification({
         receiver,
         sender,
-        content: `${senderName} đã gửi cho bạn một lời mời kết bạn.`,
+        content: `${senderName} sent you a friend request.`,
         type: "friend_request",
         referenceId: requestConnection._id,
         link: `/profile/${sender}`,
       });
 
       // Gửi thông báo
-      io.to(receiver.toString()).emit("notification:new", result.notification);
+      io.to(receiver.toString()).emit("notification:new", {
+        notification: result.notification,
+      });
 
       return {
         status: 200,
         data: {
           success: true,
-          message: "Đã gửi lời mời thành công",
+          message: "Successfully sent friend request",
           request: requestConnection,
         },
       };
@@ -123,7 +124,7 @@ class ConnectionService {
         status: 500,
         data: {
           success: false,
-          message: "Lỗi khi gửi lời mời kết bạn: " + error.message,
+          message: "Failed to send friend request: " + error.message,
         },
       };
     }
@@ -191,7 +192,7 @@ class ConnectionService {
         status: 500,
         data: {
           success: false,
-          message: "Lỗi khi kiểm tra trạng thái kết bạn: " + error.message,
+          message: "Failed to check friend connection status: " + error.message,
         },
       };
     }
@@ -203,7 +204,7 @@ class ConnectionService {
       if (!request) {
         return {
           status: 444,
-          data: { success: false, message: "Không tìm thấy lời mời kết bạn" },
+          data: { success: false, message: "Friend request not found" },
         };
       }
 
@@ -212,7 +213,7 @@ class ConnectionService {
           status: 403,
           data: {
             success: false,
-            message: "Bạn không có quyền xác nhận lời mời này",
+            message: "You don't have permission to accept this friend request",
           },
         };
       }
@@ -271,7 +272,7 @@ class ConnectionService {
       await NotificationService.createNotification({
         receiver: request.sender,
         sender: userId,
-        content: `${accepterName} đã chấp nhận lời mời kết bạn của bạn.`,
+        content: `${accepterName} accepted your friend request.`,
         type: "friend_accept",
         referenceId: userId,
         link: `/profile/${userId}`,
@@ -281,7 +282,7 @@ class ConnectionService {
         status: 200,
         data: {
           success: true,
-          message: "Đã đồng ý kết bạn thành công",
+          message: "Accepted friend request successfully",
         },
       };
     } catch (error) {
@@ -301,7 +302,7 @@ class ConnectionService {
       if (!request) {
         return {
           status: 444,
-          data: { success: false, message: "Không tìm thấy lời mời kết bạn" },
+          data: { success: false, message: "Friend request not found" },
         };
       }
 
@@ -312,7 +313,7 @@ class ConnectionService {
       ) {
         return {
           status: 403,
-          data: { success: false, message: "Bạn không có quyền này" },
+          data: { success: false, message: "You don't have permission to do this" },
         };
       }
 
@@ -322,7 +323,7 @@ class ConnectionService {
         status: 200,
         data: {
           success: true,
-          message: "Đã từ chối/hủy lời mời kết bạn thành công",
+          message: "Rejected/Cancelled friend request successfully",
         },
       };
     } catch (error) {
@@ -330,7 +331,7 @@ class ConnectionService {
         status: 500,
         data: {
           success: false,
-          message: "Lỗi từ chối lời mời: " + error.message,
+          message: "Failed to reject friend request: " + error.message,
         },
       };
     }
@@ -353,13 +354,13 @@ class ConnectionService {
         status: 200,
         data: {
           success: true,
-          message: "Đã hủy kết bạn thành công",
+          message: "Successfully disconnected from friend",
         },
       };
     } catch (error) {
       return {
         status: 500,
-        data: { success: false, message: "Lỗi hủy kết bạn: " + error.message },
+        data: { success: false, message: "Failed to disconnect friend: " + error.message },
       };
     }
   }
@@ -374,7 +375,7 @@ class ConnectionService {
           data: {
             success: true,
             isFollowing: false,
-            message: "Đã hủy theo dõi",
+            message: "Successfully unfollowed",
           },
         };
       } else {
@@ -384,7 +385,7 @@ class ConnectionService {
           data: {
             success: true,
             isFollowing: true,
-            message: "Đã theo dõi thành công",
+            message: "Successfully followed",
           },
         };
       }
@@ -429,7 +430,7 @@ class ConnectionService {
         status: 500,
         data: {
           success: false,
-          message: "Lỗi lấy danh sách kết bạn chờ: " + error.message,
+          message: "Failed to get pending friend requests: " + error.message,
         },
       };
     }
@@ -469,7 +470,7 @@ class ConnectionService {
         status: 500,
         data: {
           success: false,
-          message: "Lỗi lấy danh sách bạn bè: " + error.message,
+          message: "Failed to get friend list: " + error.message,
         },
       };
     }

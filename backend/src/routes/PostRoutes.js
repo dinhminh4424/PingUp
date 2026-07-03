@@ -8,6 +8,7 @@ const router = express.Router();
 router.post("/create", upload.array("images"), PostController.createPost);
 
 // Put
+router.put("/:id/toggleLike", PostController.toggleLike);
 router.put("/:id", upload.array("image_urls_new"), PostController.updatePost);
 
 // Delete

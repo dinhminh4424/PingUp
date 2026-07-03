@@ -2,6 +2,9 @@ import Post from "../models/Post.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 import { io } from "../socket/index.js";
 import Connection from "../models/Connection.js";
+import User from "../models/User.js";
+import NotificationService from "./NotificationService.js";
+import Comment from "../models/Comment.js";
 
 class PostService {
   async getPost(page = 1, limit = 10) {
@@ -24,12 +27,26 @@ class PostService {
         .skip(skip)
         .limit(limit);
 
+      const postsWithCommentsCount = await Promise.all(
+        posts.map(async (post) => {
+          const commentCount = await Comment.countDocuments({
+            post: post._id,
+            isDelete: false,
+            isActive: true,
+          });
+          return {
+            ...post.toObject(),
+            comments_count: commentCount,
+          };
+        })
+      );
+
       return {
         status: 200,
         data: {
           success: true,
           message: "Lấy danh sách thành công",
-          posts: posts,
+          posts: postsWithCommentsCount,
           pagination: {
             currentPage: page,
             totalPages: Math.ceil(total / limit),
@@ -62,12 +79,26 @@ class PostService {
         )
         .sort({ createdAt: -1 });
 
+      const postsWithCommentsCount = await Promise.all(
+        posts.map(async (post) => {
+          const commentCount = await Comment.countDocuments({
+            post: post._id,
+            isDelete: false,
+            isActive: true,
+          });
+          return {
+            ...post.toObject(),
+            comments_count: commentCount,
+          };
+        })
+      );
+
       return {
         status: 200,
         data: {
           success: true,
           message: "Lấy danh sách thành công getPostsByIdUser",
-          posts: posts,
+          posts: postsWithCommentsCount,
         },
       };
     } catch (error) {
@@ -296,7 +327,7 @@ class PostService {
 
   async toggleLike(id, userId) {
     try {
-      const post = await Post.findById(id);
+      const post = await Post.findById(id).populate("user");
       if (!post) {
         return {
           status: 404,
@@ -307,14 +338,56 @@ class PostService {
         };
       }
 
-      const check = post.likes_count.include(userId);
+      const check = post.likes_count.some(
+        (id) => id.toString() === userId.toString(),
+      );
 
+      const userCurrent = await User.findById(userId);
       if (check) {
-        post.likes_count.remove(userId);
-        io.to(i.toString()).emit("post:unlike", { post: postWithUser });
+        post.likes_count = post.likes_count.filter(
+          (id) => id.toString() !== userId.toString(),
+        );
+        if (post.user._id.toString() !== userId.toString()) {
+          const result = await NotificationService.createNotification({
+            receiver: post.user,
+            sender: userCurrent._id,
+            content: `${userCurrent.username} đã bỏ thích bài viết của bạn.`,
+            type: "like_post",
+            detailType: "unlike",
+            referenceId: id,
+            link: `/post/${id}`,
+          });
+          // console.log(
+          //   "Gửi cho room post.user._id.toString(): ",
+          //   post.user._id.toString(),
+          // );
+          io.to(post.user._id.toString()).emit("post:unlike", {
+            post: post,
+            notification: result.notification,
+          });
+        }
       } else {
-        post.likes_count.add(userId);
-        io.to(i.toString()).emit("post:like", { post: postWithUser });
+        post.likes_count.push(userId);
+
+        if (post.user._id.toString() !== userId.toString()) {
+          const result = await NotificationService.createNotification({
+            receiver: post.user,
+            sender: userCurrent._id,
+            content: `${userCurrent.username} đã thích bài viết của bạn.`,
+            type: "like_post",
+            detailType: "like",
+            referenceId: id,
+            link: `/post/${id}`,
+          });
+          // console.log(
+          //   "Gửi cho room post.user._id.toString(): ",
+          //   post.user._id.toString(),
+          // );
+          io.to(post.user._id.toString()).emit("post:like", {
+            post: post,
+            notification: result.notification,
+          });
+        }
       }
 
       await post.save();

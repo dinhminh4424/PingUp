@@ -6,14 +6,23 @@ class NotificationService {
     sender,
     content,
     type,
+    detailType = "",
     referenceId = null,
     link = "",
     image_urls = [],
   }) {
     try {
       // Tránh việc gửi thông báo cho chính mình (ngoại trừ loại system)
-      if (type !== "system" && sender && receiver && sender.toString() === receiver.toString()) {
-        return { success: false, message: "Cannot send notification to yourself" };
+      if (
+        type !== "system" &&
+        sender &&
+        receiver &&
+        sender.toString() === receiver.toString()
+      ) {
+        return {
+          success: false,
+          message: "Cannot send notification to yourself",
+        };
       }
 
       const notification = await Notification.create({
@@ -21,16 +30,21 @@ class NotificationService {
         sender,
         content,
         type,
+        detailType,
         referenceId,
         link,
         image_urls,
       });
 
+      const notificationWithUser = await Notification.findById(notification._id)
+        .populate("sender", "username profile_picture email full_name")
+        .populate("receiver", "username profile_picture email full_name");
+
       // Ở đây có thể tích hợp Socket.IO emit thông báo realtime sau này
 
       return {
         success: true,
-        notification,
+        notification: notificationWithUser,
       };
     } catch (error) {
       console.error("Lỗi khi tạo thông báo:", error);
@@ -41,7 +55,13 @@ class NotificationService {
     }
   }
 
-  async getNotifications(userId, page = 1, limit = 10, tab = "all", unreadOnly = false) {
+  async getNotifications(
+    userId,
+    page = 1,
+    limit = 10,
+    tab = "all",
+    unreadOnly = false,
+  ) {
     try {
       const query = { receiver: userId };
 
@@ -69,10 +89,26 @@ class NotificationService {
 
       // Tính số lượng chưa đọc thực tế của mỗi phân loại trong toàn bộ database
       const unreadCounts = {
-        message: await Notification.countDocuments({ receiver: userId, type: "message", isRead: false }),
-        interaction: await Notification.countDocuments({ receiver: userId, type: { $in: ["like_post", "comment_post", "reply_comment"] }, isRead: false }),
-        friend: await Notification.countDocuments({ receiver: userId, type: { $in: ["friend_request", "friend_accept"] }, isRead: false }),
-        system: await Notification.countDocuments({ receiver: userId, type: "system", isRead: false }),
+        message: await Notification.countDocuments({
+          receiver: userId,
+          type: "message",
+          isRead: false,
+        }),
+        interaction: await Notification.countDocuments({
+          receiver: userId,
+          type: { $in: ["like_post", "comment_post", "reply_comment"] },
+          isRead: false,
+        }),
+        friend: await Notification.countDocuments({
+          receiver: userId,
+          type: { $in: ["friend_request", "friend_accept"] },
+          isRead: false,
+        }),
+        system: await Notification.countDocuments({
+          receiver: userId,
+          type: "system",
+          isRead: false,
+        }),
       };
 
       return {
@@ -105,7 +141,7 @@ class NotificationService {
       const notification = await Notification.findOneAndUpdate(
         { _id: notificationId, receiver: userId },
         { isRead: true },
-        { new: true }
+        { new: true },
       ).populate("sender", "_id username full_name profile_picture");
 
       if (!notification) {
@@ -113,7 +149,8 @@ class NotificationService {
           status: 444,
           data: {
             success: false,
-            message: "Không tìm thấy thông báo hoặc bạn không có quyền cập nhật",
+            message:
+              "Không tìm thấy thông báo hoặc bạn không có quyền cập nhật",
           },
         };
       }
@@ -149,7 +186,7 @@ class NotificationService {
       const notification = await Notification.findOneAndUpdate(
         { _id: notificationId, receiver: userId },
         { $set: fieldsToUpdate },
-        { new: true }
+        { new: true },
       ).populate("sender", "_id username full_name profile_picture");
 
       if (!notification) {
@@ -157,7 +194,8 @@ class NotificationService {
           status: 444,
           data: {
             success: false,
-            message: "Không tìm thấy thông báo hoặc bạn không có quyền cập nhật",
+            message:
+              "Không tìm thấy thông báo hoặc bạn không có quyền cập nhật",
           },
         };
       }
@@ -182,7 +220,10 @@ class NotificationService {
 
   async markAllAsRead(userId) {
     try {
-      await Notification.updateMany({ receiver: userId, isRead: false }, { isRead: true });
+      await Notification.updateMany(
+        { receiver: userId, isRead: false },
+        { isRead: true },
+      );
 
       return {
         status: 200,
@@ -204,7 +245,10 @@ class NotificationService {
 
   async deleteNotification(notificationId, userId) {
     try {
-      const result = await Notification.deleteOne({ _id: notificationId, receiver: userId });
+      const result = await Notification.deleteOne({
+        _id: notificationId,
+        receiver: userId,
+      });
 
       if (result.deletedCount === 0) {
         return {

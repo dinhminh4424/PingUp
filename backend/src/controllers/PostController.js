@@ -88,7 +88,29 @@ class PostController {
     }
   }
 
-  async likePost(req, res) {}
+  async toggleLike(req, res) {
+    try {
+      const userId = req.user.id;
+      const { id } = req.params;
+      if (!userId) {
+        console.log("Bạn cần đăng nhập:", error);
+        res.status(403).json({
+          success: false,
+          message: "Lỗi khi người dùng chưa đăng nhập: " + error.message,
+        });
+      }
+
+      const result = await PostService.toggleLike(id, userId);
+
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy thông tin người dùng: " + error.message,
+      });
+    }
+  }
 
   async commentPost(req, res) {}
 }

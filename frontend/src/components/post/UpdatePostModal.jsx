@@ -1,7 +1,8 @@
-import { X, Trash2, LoaderCircle } from "lucide-react";
+import { X, Trash2, LoaderCircle, Smile } from "lucide-react";
 import { useState } from "react";
 import { updatePost } from "../../services/PostServices";
 import toast from "react-hot-toast";
+import EmojiPicker from "emoji-picker-react";
 
 const UpdatePostModal = ({ post, onClose, onUpdate }) => {
   const [formUpdate, setFormUpdate] = useState({
@@ -11,6 +12,7 @@ const UpdatePostModal = ({ post, onClose, onUpdate }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleChooseImage = (e) => {
     const files = Array.from(e.target.files);
@@ -94,10 +96,21 @@ const UpdatePostModal = ({ post, onClose, onUpdate }) => {
           {/* Form */}
           <form onSubmit={handleSubmitUpdate} className="space-y-4">
             {/* Content */}
-            <div className="">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Content
-              </label>
+            <div className="relative">
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Content
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="text-gray-500 hover:text-indigo-600 transition flex items-center gap-1 text-xs font-medium cursor-pointer"
+                  title="Thêm biểu cảm"
+                >
+                  <Smile size={16} />
+                  <span>Biểu cảm</span>
+                </button>
+              </div>
               <textarea
                 rows={5}
                 value={formUpdate.content}
@@ -107,6 +120,19 @@ const UpdatePostModal = ({ post, onClose, onUpdate }) => {
                 className="w-full p-3 border border-gray-200 rounded-lg resize-none outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="What's on your mind?"
               />
+
+              {showEmojiPicker && (
+                <div className="absolute right-0 z-50 mt-1 shadow-2xl rounded-xl overflow-hidden border border-gray-150">
+                  <EmojiPicker 
+                    onEmojiClick={(emojiData) => setFormUpdate(prev => ({ ...prev, content: prev.content + emojiData.emoji }))}
+                    width={280}
+                    height={300}
+                    searchDisabled={false}
+                    skinTonesDisabled={true}
+                    previewConfig={{ showPreview: false }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Các hình ảnh cũ */}

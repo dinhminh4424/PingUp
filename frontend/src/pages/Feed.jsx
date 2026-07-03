@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { assets, dummyPostsData } from "../assets/assets.js";
+import { assets } from "../assets/assets.js";
 import Loading from "../components/Loading.jsx";
 import StoryBar from "../components/story/StoryBar.jsx";
 import PostCard from "../components/post/PostCard.jsx";
@@ -20,6 +20,7 @@ const Feed = () => {
 
     handleUpdatePost,
     handleDeletePost,
+    handleToggleLikePost,
     fetchFeeds,
   } = useFeed();
 
@@ -60,6 +61,7 @@ const Feed = () => {
                 post={feed}
                 onUpdate={handleUpdatePost}
                 onDelete={handleDeletePost}
+                onToggleLikePost={handleToggleLikePost}
               />
             );
           })}

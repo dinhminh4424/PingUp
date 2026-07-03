@@ -11,9 +11,12 @@ import moment from "moment";
 import { useNavigate } from "react-router-dom";
 import UpdatePostModal from "./UpdatePostModal.jsx";
 import DeletePostModal from "./DeletePostModal.jsx";
+import DetailPostModal from "./DetailPostModal.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { toggleLike } from "../../services/PostServices.js";
+import toast from "react-hot-toast";
 
-const PostCard = ({ post, onUpdate, onDelete }) => {
+const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
   const postWithHashTag = post.content.replace(
     /(#\w+)/g,
     '<span class="text-indigo-600">$1</span>',
@@ -26,10 +29,36 @@ const PostCard = ({ post, onUpdate, onDelete }) => {
   const currentUser = userCurrent;
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleLike = () => {};
+  const handleLike = async () => {
+    let check = likes.includes(currentUser._id);
+    let likeList = likes;
+
+    try {
+      if (check) {
+        setLikes((prev) => prev.filter((id) => id !== currentUser._id));
+      } else {
+        setLikes((prev) => [...prev, currentUser._id]);
+      }
+
+      const result = await toggleLike(post._id);
+
+      console.log("Result: ", result);
+
+      if (result.success) {
+        onToggleLikePost(result.post);
+      }
+    } catch (error) {
+      console.log("Lỗi: ", error);
+      toast.error("Bày tỏ cảm xúc bài viết thất bại!", {
+        duration: 3000,
+      });
+      setLikes(likeList);
+    }
+  };
 
   return (
     <>
@@ -142,9 +171,12 @@ const PostCard = ({ post, onUpdate, onDelete }) => {
             />
             <span>{likes.length}</span>
           </div>
-          <div className="flex items-center gap-1">
+          <div 
+            onClick={() => setShowDetailModal(true)}
+            className="flex items-center gap-1 cursor-pointer hover:text-blue-500 transition-colors"
+          >
             <MessageCircle className="w-4 h-5" />
-            <span>{9}</span>
+            <span>{post.comments_count || 0}</span>
           </div>
           <div className="flex items-center gap-1">
             <Share2 className="w-4 h-5" />
@@ -165,6 +197,15 @@ const PostCard = ({ post, onUpdate, onDelete }) => {
         <DeletePostModal
           post={post}
           onClose={() => setShowDeleteModal(false)}
+          onDelete={onDelete}
+        />
+      )}
+
+      {showDetailModal && (
+        <DetailPostModal
+          post={post}
+          onClose={() => setShowDetailModal(false)}
+          onUpdate={onUpdate}
           onDelete={onDelete}
         />
       )}

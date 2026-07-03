@@ -46,6 +46,11 @@ const notificationSchema = new mongoose.Schema(
       ],
       required: true,
     },
+    // Loại chi tiết: Thích bài viết, bỏ thích bài viết
+    detailType:{
+      type: String,
+      default: "",
+    },
 
     // Id đối tượng liên quan (post, conversation...)
     referenceId: {

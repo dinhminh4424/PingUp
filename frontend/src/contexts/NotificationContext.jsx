@@ -2,6 +2,15 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { getNotifications } from "../services/NotificationServices";
 import { useSocket } from "./SocketContext";
 import toast from "react-hot-toast";
+import {
+  Bell,
+  Heart,
+  HeartOff,
+  UserCheck,
+  UserPlus,
+  MessageSquare,
+  MessageCircle
+} from "lucide-react";
 
 const NotificationContext = createContext();
 
@@ -36,12 +45,30 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleNewNotification = (notification) => {
+    const handleNewNotification = (data) => {
+      const notification = data.notification;
       console.log("Nhận thông báo mới từ socket: ", notification);
 
+      let toastIcon = <Bell className="text-slate-500 w-5 h-5" />;
+      if (notification.type === "like_post") {
+        if (notification.detailType === "unlike") {
+          toastIcon = <HeartOff className="text-gray-400 w-5 h-5" />;
+        } else {
+          toastIcon = <Heart className="text-rose-500 fill-rose-500 w-5 h-5" />;
+        }
+      } else if (notification.type === "friend_accept") {
+        toastIcon = <UserCheck className="text-indigo-500 w-5 h-5" />;
+      } else if (notification.type === "friend_request") {
+        toastIcon = <UserPlus className="text-amber-500 w-5 h-5" />;
+      } else if (notification.type === "message") {
+        toastIcon = <MessageSquare className="text-blue-500 w-5 h-5" />;
+      } else if (notification.type === "comment_post" || notification.type === "reply_comment") {
+        toastIcon = <MessageCircle className="text-emerald-500 w-5 h-5" />;
+      }
+
       // Hiển thị toast thông báo
-      toast(notification.content || "Bạn có thông báo mới!", {
-        icon: "🔔",
+      toast(notification.content || "You have new notification!", {
+        icon: toastIcon,
         duration: 4000,
         style: {
           borderRadius: "12px",
@@ -58,9 +85,15 @@ export const NotificationProvider = ({ children }) => {
       let category = "";
       if (notification.type === "message") {
         category = "message";
-      } else if (["like_post", "comment_post", "reply_comment"].includes(notification.type)) {
+      } else if (
+        ["like_post", "comment_post", "reply_comment"].includes(
+          notification.type,
+        )
+      ) {
         category = "interaction";
-      } else if (["friend_request", "friend_accept"].includes(notification.type)) {
+      } else if (
+        ["friend_request", "friend_accept"].includes(notification.type)
+      ) {
         category = "friend";
       } else if (notification.type === "system") {
         category = "system";
@@ -75,9 +108,13 @@ export const NotificationProvider = ({ children }) => {
     };
 
     socket.on("notification:new", handleNewNotification);
+    socket.on("post:like", handleNewNotification);
+    socket.on("post:unlike", handleNewNotification);
 
     return () => {
       socket.off("notification:new", handleNewNotification);
+      socket.off("post:like", handleNewNotification);
+      socket.off("post:unlike", handleNewNotification);
     };
   }, [socket]);
 

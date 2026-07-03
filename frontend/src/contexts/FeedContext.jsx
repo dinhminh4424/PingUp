@@ -27,6 +27,12 @@ export const FeedProvider = ({ children }) => {
     setFeeds((prev) => prev.filter((post) => post._id !== deletePostId));
   };
 
+  const handleToggleLikePost = (likePost) => {
+    setFeeds((prev) =>
+      prev.map((post) => (post._id === likePost._id ? likePost : post)),
+    );
+  };
+
   const fetchFeeds = async (pageNumber = 1, append = false) => {
     try {
       if (pageNumber === 1) {
@@ -84,11 +90,15 @@ export const FeedProvider = ({ children }) => {
       toast(
         <div className="flex items-center gap-3">
           <img
-            src={post.user?.profile_picture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"}
+            src={
+              post.user?.profile_picture ||
+              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"
+            }
             alt=""
             className="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-gray-100"
             onError={(e) => {
-              e.target.src = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+              e.target.src =
+                "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
             }}
           />
 
@@ -147,6 +157,7 @@ export const FeedProvider = ({ children }) => {
 
         handleUpdatePost,
         handleDeletePost,
+        handleToggleLikePost,
         fetchFeeds,
       }}
     >

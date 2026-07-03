@@ -5,9 +5,11 @@ import {
   BellOff,
   MessageSquare,
   Heart,
+  HeartOff,
   MessageCircle,
   UserPlus,
   UserCheck,
+  UserX,
   Info,
   Check,
   Trash2,
@@ -59,7 +61,7 @@ const Notification = () => {
   const loaderRef = useRef(null);
 
   const tabsArray = [
-    { label: "Tất cả", value: "all", icon: Bell },
+    { label: "All", value: "all", icon: Bell },
     { label: "Message", value: "message", icon: MessageSquare },
     { label: "Interaction", value: "interaction", icon: Heart },
     { label: "Friend", value: "friend", icon: UserPlus },
@@ -84,8 +86,6 @@ const Notification = () => {
       );
 
       if (res.success) {
-        console.log("res.notifications: ", res.notifications);
-
         if (append) {
           setNotifications((prev) => [...prev, ...(res.notifications || [])]);
         } else {
@@ -149,8 +149,8 @@ const Notification = () => {
         refreshContext();
       }
     } catch (error) {
-      toast.error("Không thể đánh dấu đã đọc");
-      console.log("Lỗi: ", error);
+      toast.error("Failed to mark as read");
+      console.log("Error: ", error);
     }
   };
 
@@ -159,12 +159,12 @@ const Notification = () => {
       const res = await markAllAsRead();
       if (res.success) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-        toast.success("Đã đánh dấu đọc tất cả");
+        toast.success("Mark all as read");
         refreshContext();
       }
     } catch (error) {
-      toast.error("Thao tác thất bại");
-      console.log("Lỗi: ", error);
+      toast.error("Failed to mark all as read");
+      console.log("Error: ", error);
     }
   };
 
@@ -175,12 +175,12 @@ const Notification = () => {
       const res = await deleteNotification(id);
       if (res.success) {
         setNotifications((prev) => prev.filter((n) => n._id !== id));
-        toast.success("Đã xóa thông báo");
+        toast.success("Deleted notification");
         refreshContext();
       }
     } catch (error) {
-      toast.error("Không thể xóa thông báo");
-      console.log("Lỗi: ", error);
+      toast.error("Failed to delete notification");
+      console.log("Error: ", error);
     }
   };
 
@@ -213,11 +213,11 @@ const Notification = () => {
       // 2. Chấp nhận kết bạn thực tế
       const res = await acceptConnectionRequest(requestId);
       if (res.success) {
-        toast.success("Đã đồng ý kết bạn thành công!");
+        toast.success("Accepted friend request successfully!");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Đồng ý kết bạn thất bại");
-      console.log("Lỗi: ", err);
+      toast.error(err.response?.data?.message || "Failed to accept friend request");
+      console.log("Error: ", err);
     }
   };
 
@@ -245,11 +245,11 @@ const Notification = () => {
       // 2. Từ chối yêu cầu kết bạn
       const res = await rejectConnectionRequest(requestId);
       if (res.success) {
-        toast.success("Đã từ chối lời mời kết bạn");
+        toast.success("Rejected friend request");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Từ chối kết bạn thất bại");
-      console.log("Lỗi: ", err);
+      toast.error(err.response?.data?.message || "Rejected friend request failed");
+      console.log("Error: ", err);
     }
   };
 
@@ -276,7 +276,11 @@ const Notification = () => {
   };
 
   // Định nghĩa Icon & màu sắc cho từng loại thông báo
-  const getBadgeConfig = (type) => {
+  const getBadgeConfig = (n) => {
+    const type = n.type;
+    const content = n.content || "";
+    const action = n.action;
+
     switch (type) {
       case "message":
         return {
@@ -286,6 +290,14 @@ const Notification = () => {
           bgColor: "bg-blue-50",
         };
       case "like_post":
+        if (n.detailType === "unlike" ) {
+          return {
+            icon: HeartOff,
+            colorClass: "bg-gray-400 text-white ring-gray-50",
+            iconColor: "text-gray-400",
+            bgColor: "bg-gray-50",
+          };
+        }
         return {
           icon: Heart,
           colorClass: "bg-rose-500 text-white ring-rose-50",
@@ -307,6 +319,22 @@ const Notification = () => {
           bgColor: "bg-cyan-50",
         };
       case "friend_request":
+        if (action === "accepted") {
+          return {
+            icon: UserCheck,
+            colorClass: "bg-emerald-500 text-white ring-emerald-50",
+            iconColor: "text-emerald-500",
+            bgColor: "bg-emerald-50",
+          };
+        }
+        if (action === "rejected") {
+          return {
+            icon: UserX,
+            colorClass: "bg-rose-500 text-white ring-rose-50",
+            iconColor: "text-rose-500",
+            bgColor: "bg-rose-50",
+          };
+        }
         return {
           icon: UserPlus,
           colorClass: "bg-amber-500 text-white ring-amber-50",
@@ -371,11 +399,11 @@ const Notification = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Thông báo
+              Notifications
             </h1>
             {unreadCount > 0 && (
               <span className="bg-red-500 text-white rounded-full text-xs font-semibold px-2.5 py-0.5 animate-pulse shadow-sm shadow-red-100">
-                {unreadCount} mới
+                {unreadCount} new
               </span>
             )}
           </div>
@@ -390,7 +418,7 @@ const Notification = () => {
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
               }`}
             >
-              <span>Chưa đọc</span>
+              <span>Unread</span>
               {unreadCount > 0 && (
                 <span
                   className={`rounded-full text-[10px] font-bold px-1.5 py-0.5 ml-1 transition-colors ${
@@ -411,7 +439,7 @@ const Notification = () => {
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 active:scale-95 transition-all rounded-xl px-4.5 py-2.5 cursor-pointer shadow-sm shadow-indigo-100/50"
               >
                 <CheckCheck className="w-4 h-4" />
-                Đánh dấu tất cả đã đọc
+                Mark all as read
               </button>
             )}
           </div>
@@ -468,7 +496,7 @@ const Notification = () => {
           <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
             <p className="text-sm text-gray-500 font-medium animate-pulse">
-              Đang tải thông báo...
+              Loading notifications...
             </p>
           </div>
         ) : filteredNotifications.length === 0 ? (
@@ -477,18 +505,18 @@ const Notification = () => {
               <BellOff className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-semibold text-gray-800">
-              Không có thông báo
+              No notifications
             </h3>
             <p className="text-sm text-gray-500 mt-1 max-w-sm">
               {showUnreadOnly
-                ? "Tuyệt vời! Bạn đã đọc hết tất cả thông báo rồi."
-                : "Danh sách hiện tại trống. Các thông báo mới sẽ xuất hiện tại đây."}
+                ? "Excellent! You have read all notifications."
+                : "The current list is empty. New notifications will appear here."}
             </p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden divide-y divide-gray-100">
             {filteredNotifications.map((n) => {
-              const badge = getBadgeConfig(n.type);
+              const badge = getBadgeConfig(n);
               const BadgeIcon = badge.icon;
 
               return (
@@ -564,7 +592,7 @@ const Notification = () => {
                               }
                               className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 transition text-xs font-semibold text-white rounded-lg shadow-sm shadow-indigo-100 cursor-pointer"
                             >
-                              Đồng ý
+                              Agree
                             </button>
                             <button
                               onClick={(e) =>
@@ -572,7 +600,7 @@ const Notification = () => {
                               }
                               className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 active:scale-95 transition text-xs font-semibold text-gray-700 rounded-lg cursor-pointer"
                             >
-                              Từ chối
+                              Reject
                             </button>
                           </>
                         ) : (
@@ -584,8 +612,8 @@ const Notification = () => {
                             }`}
                           >
                             {n.action === "accepted"
-                              ? "Đã chấp nhận kết bạn"
-                              : "Đã từ chối kết bạn"}
+                              ? "Accepted friend request"
+                              : "Rejected friend request"}
                           </span>
                         )}
                       </div>
@@ -600,7 +628,7 @@ const Notification = () => {
                           e.stopPropagation();
                           handleMarkAsRead(n._id);
                         }}
-                        title="Đánh dấu đã đọc"
+                        title="Mark as read"
                         className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
                       >
                         <Check className="w-4 h-4" />
@@ -608,7 +636,7 @@ const Notification = () => {
                     )}
                     <button
                       onClick={(e) => handleDeleteNotification(e, n._id)}
-                      title="Xóa thông báo"
+                      title="Delete notification"
                       className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -628,7 +656,7 @@ const Notification = () => {
           {isLoadingMore && (
             <div className="flex items-center gap-2 text-sm text-indigo-600 font-semibold animate-pulse">
               <Loader2 className="w-5 h-5 animate-spin" />
-              Đang tải thêm thông báo...
+              Loading more notifications...
             </div>
           )}
         </div>

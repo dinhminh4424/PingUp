@@ -13,7 +13,7 @@ const DeletePostModal = ({ post, onClose, onDelete }) => {
       setError("");
       const res = await deletePost(post._id);
       if (res.success) {
-        toast.success("Xóa bài viết thành công!", {
+        toast.success("Deleted post success!", {
           duration: 3000,
         });
         onDelete(post._id); // cập nhật ở ngoài
@@ -24,9 +24,9 @@ const DeletePostModal = ({ post, onClose, onDelete }) => {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message || "Đã xảy ra lỗi khi xóa bài viết."
+        err.response?.data?.message || "Error deleting post"
       );
-      toast.error("Xóa bài viết thất bại!", {
+      toast.error("Delete post failed!", {
         duration: 3000,
       });
     } finally {

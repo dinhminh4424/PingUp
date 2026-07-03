@@ -68,8 +68,8 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
         toast.success(res.message);
       }
     } catch (error) {
-      toast.error("Thao tác theo dõi thất bại");
-      console.log("Lỗ khi nhấn nút thao tác: ", error);
+      toast.error("Error: " + error.response?.data?.message || "Failed to follow");
+      console.log("Error: ", error);
     } finally {
       setLoading(false);
     }
@@ -83,9 +83,9 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
         if (res.success) {
           setConnectionStatus("pending_sent");
           setRequestId(res.request?._id || null);
-          toast.success("Đã gửi lời mời kết bạn");
+          toast.success("Successfully sent friend request");
         } else {
-          toast.error(res.message || "Gửi lời mời thất bại");
+          toast.error(res.message || "Failed to send friend request");
         }
       } else if (
         connectionStatus === "pending_sent" ||
@@ -96,7 +96,7 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
           if (res.success) {
             setConnectionStatus("none");
             setRequestId(null);
-            toast.success("Đã hủy/từ chối lời mời kết bạn");
+            toast.success("Rejected/Cancelled friend request successfully");
           }
         }
       } else if (connectionStatus === "connected") {
@@ -104,12 +104,12 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
         if (res.success) {
           setConnectionStatus("none");
           setRequestId(null);
-          toast.success("Đã hủy kết bạn");
+          toast.success("Successfully disconnected from friend");
         }
       }
     } catch (error) {
-      toast.error("Thao tác thất bại");
-      console.log("Lỗi khi nhấn connect: ", error);
+      toast.error("Error: " + error.response?.data?.message || "Failed to connect");
+      console.log("Error: ", error);
     } finally {
       setLoading(false);
     }
@@ -124,11 +124,11 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
           setConnectionStatus("connected");
           setIsFollowing(true);
           setFollowersCount((prev) => prev + 1);
-          toast.success("Đã kết bạn thành công");
+          toast.success("Accepted friend request successfully");
         }
       }
     } catch (error) {
-      toast.error("Xác nhận kết bạn thất bại");
+      toast.error("Error: " + error.response?.data?.message || "Failed to accept friend request");
     } finally {
       setLoading(false);
     }

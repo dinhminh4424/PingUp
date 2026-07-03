@@ -29,14 +29,14 @@ const Login = () => {
                     />
                   ))}
               </div>
-              <p>Được sử dụng bởi 1099999999+ thành viên</p>
+              <p>Trusted by over 1099999999+ members</p>
             </div>
           </div>
           <h1 className="text-3xl md:text-6xl md:pb-2 font-bold bg-gradient-to-r from-indigo-950 to-indigo-800 bg-clip-text text-transparent">
-            Không chỉ là bạn bè, mà còn là sự đồng điệu.
+            Not just friends, but souls that resonate.
           </h1>
           <p className="text-xl md:text-3xl text-indigo-900 max-w-72 md:max-w-md">
-            Kết nối với cộng đồng toàn cầu trên Pinup
+            Connect with the global community on Pinup
           </p>
         </div>
         <span className="md:h-10"></span>

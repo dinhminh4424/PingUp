@@ -63,8 +63,6 @@ class UserController {
       //   ]
       // }
 
-      console.log("req.files: ", req.files);
-
       const profile_picture = req.files?.profile_picture?.[0];
       const cover_photo = req.files?.cover_photo?.[0];
 
