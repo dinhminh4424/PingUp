@@ -17,6 +17,22 @@ class ConversationController {
     }
   }
 
+  async getConversationById(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const result =
+        await ConversationService.getConversationById(conversationId);
+
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi lấy chi tiết hộp thoại: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy chi tiết hộp thoại: " + error.message,
+      });
+    }
+  }
+
   async createConversation(req, res) {
     try {
       const { type, name, memberIds } = req.body;

@@ -17,16 +17,19 @@ class ConversationService {
       const conversations = await Conversation.find({
         "participants.userId": userId,
       })
-      .populate("participants.userId", "_id email username full_name bio profile_picture cover_photo location")
-      .populate("seenBy")
-      .populate("lastMessage.senderId")
-      .sort({ lastMessageAt: -1 });
+        .populate(
+          "participants.userId",
+          "_id email username full_name bio profile_picture cover_photo location",
+        )
+        .populate("seenBy")
+        .populate("lastMessage.senderId")
+        .sort({ lastMessageAt: -1 });
 
-      const formattedConversations = conversations.map(conv => {
+      const formattedConversations = conversations.map((conv) => {
         const convObj = conv.toObject();
         if (conv.type === "direct") {
           const otherParticipant = convObj.participants.find(
-            (p) => p.userId && p.userId._id.toString() !== userId.toString()
+            (p) => p.userId && p.userId._id.toString() !== userId.toString(),
           );
           if (otherParticipant && otherParticipant.userId) {
             convObj.profile_picture = otherParticipant.userId.profile_picture;
@@ -63,6 +66,48 @@ class ConversationService {
     }
   }
 
+  async getConversationById(id) {
+    try {
+      if (!id) {
+        console.log(" ==== Không có id ====");
+        return {
+          status: 400,
+          data: {
+            success: false,
+            message: "Lỗi hệ thống getConversations: Không có id: " + id,
+          },
+        };
+      }
+
+      const conversation = await Conversation.findById(id)
+        .populate(
+          "participants.userId",
+          "_id email username full_name bio profile_picture cover_photo location",
+        )
+        .populate("seenBy")
+        .populate("lastMessage.senderId")
+        .sort({ lastMessageAt: -1 });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy chi tiết Conversations thành công !!",
+          conversation: conversation,
+        },
+      };
+    } catch (error) {
+      console.log("Lỗi khi lấy chi tiết hộp thoại: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi khi lấy chi tiết hộp thoại: " + error.message,
+        },
+      };
+    }
+  }
+
   async createConversation(type, name, memberIds, userId, imageGroup = "") {
     try {
       let conversation;
@@ -75,7 +120,7 @@ class ConversationService {
 
       if (type === "direct") {
         const targetMemberId = memberIds[0];
-        
+
         conversation = await Conversation.findOne({
           type: "direct",
           "participants.userId": { $all: [userId, targetMemberId] },
@@ -129,7 +174,7 @@ class ConversationService {
       const convObj = populated.toObject();
       if (convObj.type === "direct") {
         const otherParticipant = convObj.participants.find(
-          (p) => p.userId && p.userId._id.toString() !== userId.toString()
+          (p) => p.userId && p.userId._id.toString() !== userId.toString(),
         );
         if (otherParticipant && otherParticipant.userId) {
           convObj.profile_picture = otherParticipant.userId.profile_picture;

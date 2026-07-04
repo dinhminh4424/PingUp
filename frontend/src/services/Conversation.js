@@ -5,12 +5,20 @@ export const getConversations = async () => {
   return res.data;
 };
 
+export const getConversationById = async (conversationId) => {
+  const res = await api.get(`/api/conversation/${conversationId}`);
+  return res.data;
+};
+
 export const createConversation = async (dataConversation) => {
   const formData = new FormData();
   Object.keys(dataConversation).forEach((key) => {
     if (key === "memberIds") {
       formData.append("memberIds", JSON.stringify(dataConversation[key]));
-    } else if (dataConversation[key] !== undefined && dataConversation[key] !== null) {
+    } else if (
+      dataConversation[key] !== undefined &&
+      dataConversation[key] !== null
+    ) {
       formData.append(key, dataConversation[key]);
     }
   });

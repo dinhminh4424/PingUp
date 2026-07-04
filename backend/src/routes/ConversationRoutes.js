@@ -7,9 +7,14 @@ const router = express.Router();
 // Routes
 
 // POST
-router.post("/", upload.single("imageGroup"), ConversationController.createConversation);
+router.post(
+  "/",
+  upload.single("imageGroup"),
+  ConversationController.createConversation,
+);
 
 // GET
+router.get("/:conversationId", ConversationController.getConversationById);
 router.get("/", ConversationController.getConversation);
 
 export default router;

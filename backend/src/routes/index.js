@@ -7,6 +7,7 @@ import followRoutes from "./FollowRoutes.js";
 import conversationRoutes from "./ConversationRoutes.js";
 import notificationRoutes from "./NotificationRoutes.js";
 import commentRoutes from "./CommentRoutes.js";
+import messageRoutes from "./MessageRoutes.js";
 
 const router = express.Router();
 
@@ -25,5 +26,7 @@ router.use("/conversation", conversationRoutes);
 router.use("/notifications", notificationRoutes);
 
 router.use("/comments", commentRoutes);
+
+router.use("/message", messageRoutes);
 
 export default router;
