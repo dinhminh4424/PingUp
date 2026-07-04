@@ -69,7 +69,7 @@ export const FeedProvider = ({ children }) => {
       }
     } catch (error) {
       console.log("LỖI: ", error);
-      setError("Lỗi: " + error);
+      setError(error.response?.data?.message || "Error: " + error);
       if (!append) setFeeds([]);
       setHasMore(false);
     } finally {

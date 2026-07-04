@@ -38,6 +38,7 @@ const notificationSchema = new mongoose.Schema(
       enum: [
         "message",
         "like_post",
+        "like_comment",
         "comment_post",
         "reply_comment",
         "friend_request",
@@ -47,7 +48,7 @@ const notificationSchema = new mongoose.Schema(
       required: true,
     },
     // Loại chi tiết: Thích bài viết, bỏ thích bài viết
-    detailType:{
+    detailType: {
       type: String,
       default: "",
     },

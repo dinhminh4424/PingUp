@@ -9,7 +9,7 @@ import {
   UserCheck,
   UserPlus,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
 } from "lucide-react";
 
 const NotificationContext = createContext();
@@ -38,7 +38,7 @@ export const NotificationProvider = ({ children }) => {
         }
       }
     } catch (err) {
-      console.warn("Lỗi khi tải thông báo:", err);
+      console.warn("Error: " + err);
     }
   };
 
@@ -62,7 +62,11 @@ export const NotificationProvider = ({ children }) => {
         toastIcon = <UserPlus className="text-amber-500 w-5 h-5" />;
       } else if (notification.type === "message") {
         toastIcon = <MessageSquare className="text-blue-500 w-5 h-5" />;
-      } else if (notification.type === "comment_post" || notification.type === "reply_comment") {
+      } else if (
+        notification.type === "comment_post" ||
+        notification.type === "reply_comment" ||
+        notification.type === "like_comment"
+      ) {
         toastIcon = <MessageCircle className="text-emerald-500 w-5 h-5" />;
       }
 
@@ -86,7 +90,7 @@ export const NotificationProvider = ({ children }) => {
       if (notification.type === "message") {
         category = "message";
       } else if (
-        ["like_post", "comment_post", "reply_comment"].includes(
+        ["like_post", "like_comment", "comment_post", "reply_comment"].includes(
           notification.type,
         )
       ) {
@@ -110,11 +114,13 @@ export const NotificationProvider = ({ children }) => {
     socket.on("notification:new", handleNewNotification);
     socket.on("post:like", handleNewNotification);
     socket.on("post:unlike", handleNewNotification);
+    socket.on("post:comment", handleNewNotification);
 
     return () => {
       socket.off("notification:new", handleNewNotification);
       socket.off("post:like", handleNewNotification);
       socket.off("post:unlike", handleNewNotification);
+      socket.off("post:comment", handleNewNotification);
     };
   }, [socket]);
 

@@ -91,7 +91,7 @@ const Connections = () => {
       if (user.requestId) {
         const res = await acceptConnectionRequest(user.requestId);
         if (res.success) {
-          toast.success("Đã đồng ý kết bạn");
+          toast.success(res.message || "You have accepted the connection request");
           setPendingConnections((prev) =>
             prev.filter((u) => u._id !== user._id),
           );
@@ -103,7 +103,7 @@ const Connections = () => {
         }
       }
     } catch (err) {
-      toast.error("Đồng ý kết bạn thất bại");
+      toast.error(err.message || "You have failed to accept the connection request");
       console.log("Lỗi: ", err);
     }
   };
@@ -113,14 +113,14 @@ const Connections = () => {
       if (user.requestId) {
         const res = await rejectConnectionRequest(user.requestId);
         if (res.success) {
-          toast.success("Đã từ chối lời mời kết bạn");
+          toast.success(res.message || "You have declined the connection request");
           setPendingConnections((prev) =>
             prev.filter((u) => u._id !== user._id),
           );
         }
       }
     } catch (err) {
-      toast.error("Từ chối lời mời thất bại");
+      toast.error(err.message || "You have failed to decline the connection request");
       console.log("Lỗi: ", err);
     }
   };
@@ -129,11 +129,11 @@ const Connections = () => {
     try {
       const res = await disconnectConnection(targetUserId);
       if (res.success) {
-        toast.success("Đã hủy kết bạn");
+        toast.success(res.message || "You have disconnected from the connection");
         setConnections((prev) => prev.filter((u) => u._id !== targetUserId));
       }
     } catch (err) {
-      toast.error("Hủy kết bạn thất bại");
+      toast.error(err.message || "You have failed to disconnect from the connection");
       console.log("Lỗi: ", err);
     }
   };

@@ -29,12 +29,12 @@ const NotFound = () => {
 
         {/* Status Message */}
         <h2 className="text-2xl font-bold text-slate-800 mb-2">
-          Không tìm thấy trang
+          Page Not Found
         </h2>
 
         {/* Detail text */}
         <p className="text-slate-500 text-sm md:text-base mb-8 max-w-sm mx-auto leading-relaxed font-medium">
-          Đường liên kết bạn vừa truy cập có thể bị hỏng hoặc trang này đã bị xóa hoặc di chuyển đi nơi khác.
+          The page you are looking for might have been removed had its name changed or is temporarily unavailable.
         </p>
 
         {/* Buttons */}
@@ -44,14 +44,14 @@ const NotFound = () => {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer active:scale-95 border border-slate-200/50"
           >
             <ArrowLeft size={16} />
-            Quay lại
+            Go Back
           </button>
           <Link
             to="/"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl text-sm font-bold shadow-md shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 cursor-pointer active:scale-95"
           >
             <Home size={16} />
-            Trang chủ
+            Home
           </Link>
         </div>
       </div>

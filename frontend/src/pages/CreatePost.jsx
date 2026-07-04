@@ -37,7 +37,7 @@ const CreatePost = () => {
       return result;
     } catch (error) {
       console.log("Lỗi: ", error);
-      setError(error.response?.data?.message || "Đăng bài thất bại");
+      setError(error.response?.data?.message || "Post creation failed");
       throw error;
     } finally {
       setLoadings(false);
@@ -108,7 +108,7 @@ const CreatePost = () => {
               <label
                 htmlFor="images"
                 className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition cursor-pointer"
-                title="Đính kèm ảnh"
+                title="Attach image"
               >
                 <Image className="size-6" />
               </label>
@@ -125,7 +125,7 @@ const CreatePost = () => {
                 type="button"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 className="text-gray-500 hover:text-gray-700 transition cursor-pointer flex items-center justify-center"
-                title="Thêm biểu cảm"
+                title="Add emoji"
               >
                 <Smile className="size-6" />
               </button>

@@ -6,7 +6,13 @@ import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 import { io } from "../socket/index.js";
 
 class CommentService {
-  async createComment(postId, userId, content, parentCommentId = null, file = null) {
+  async createComment(
+    postId,
+    userId,
+    content,
+    parentCommentId = null,
+    file = null,
+  ) {
     try {
       const post = await Post.findById(postId);
       if (!post) {
@@ -33,32 +39,55 @@ class CommentService {
       // Populate user info for the newly created comment
       const populatedComment = await Comment.findById(comment._id).populate(
         "user",
-        "_id username full_name profile_picture"
+        "_id username full_name profile_picture",
       );
 
       // Handle updating replies_count on parent comment if reply
+      let parentComment = null;
       if (parentCommentId) {
-        await Comment.findByIdAndUpdate(parentCommentId, {
+        parentComment = await Comment.findByIdAndUpdate(parentCommentId, {
           $inc: { replies_count: 1 },
-        });
+        }, { new: true });
       }
 
-      // Send real-time notification to post owner if comment is not by post owner
       const userCurrent = await User.findById(userId);
-      if (post.user.toString() !== userId.toString()) {
-        const notif = await NotificationService.createNotification({
-          receiver: post.user,
-          sender: userId,
-          content: `${userCurrent.username} đã bình luận về bài viết của bạn.`,
-          type: "comment",
-          detailType: "comment",
-          referenceId: postId,
-          link: `/post/${postId}`,
-        });
 
-        io.to(post.user.toString()).emit("notification:new", {
-          notification: notif.notification,
-        });
+      if (parentCommentId) {
+        if (parentComment && parentComment.user.toString() !== userId.toString()) {
+          const notif = await NotificationService.createNotification({
+            receiver: parentComment.user,
+            sender: userId,
+            content: `${userCurrent.username} đã trả lời bình luận của bạn.`,
+            type: "reply_comment",
+            detailType: "create",
+            referenceId: postId,
+            link: `/post/${postId}`,
+          });
+
+          if (notif.success) {
+            io.to(parentComment.user.toString()).emit("post:comment", {
+              notification: notif.notification,
+            });
+          }
+        }
+      } else {
+        if (post.user.toString() !== userId.toString()) {
+          const notif = await NotificationService.createNotification({
+            receiver: post.user,
+            sender: userId,
+            content: `${userCurrent.username} đã bình luận về bài viết của bạn.`,
+            type: "comment_post",
+            detailType: "create",
+            referenceId: postId,
+            link: `/post/${postId}`,
+          });
+
+          if (notif.success) {
+            io.to(post.user.toString()).emit("post:comment", {
+              notification: notif.notification,
+            });
+          }
+        }
       }
 
       return {
@@ -149,6 +178,28 @@ class CommentService {
 
       await comment.save();
 
+      const userCurrent = await User.findById(userId);
+
+      if (comment.user.toString() !== userId.toString()) {
+        const notif = await NotificationService.createNotification({
+          receiver: comment.user,
+          sender: userId,
+          content: isLiked
+            ? `${userCurrent.username} đã thích bình luận của bạn.`
+            : `${userCurrent.username} đã bỏ thích bình luận của bạn.`,
+          type: "like_comment",
+          detailType: isLiked ? "like" : "unlike",
+          referenceId: comment.post,
+          link: `/post/${comment.post}`,
+        });
+
+        if (notif.success) {
+          io.to(comment.user.toString()).emit("post:comment", {
+            notification: notif.notification,
+          });
+        }
+      }
+
       return {
         status: 200,
         data: {
@@ -180,7 +231,10 @@ class CommentService {
       if (comment.user.toString() !== userId.toString()) {
         return {
           status: 403,
-          data: { success: false, message: "Bạn không có quyền xóa bình luận này" },
+          data: {
+            success: false,
+            message: "Bạn không có quyền xóa bình luận này",
+          },
         };
       }
 
@@ -194,6 +248,8 @@ class CommentService {
           $inc: { replies_count: -1 },
         });
       }
+
+    
 
       return {
         status: 200,

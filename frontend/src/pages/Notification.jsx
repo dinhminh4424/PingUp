@@ -216,7 +216,9 @@ const Notification = () => {
         toast.success("Accepted friend request successfully!");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to accept friend request");
+      toast.error(
+        err.response?.data?.message || "Failed to accept friend request",
+      );
       console.log("Error: ", err);
     }
   };
@@ -248,7 +250,9 @@ const Notification = () => {
         toast.success("Rejected friend request");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Rejected friend request failed");
+      toast.error(
+        err.response?.data?.message || "Rejected friend request failed",
+      );
       console.log("Error: ", err);
     }
   };
@@ -290,7 +294,22 @@ const Notification = () => {
           bgColor: "bg-blue-50",
         };
       case "like_post":
-        if (n.detailType === "unlike" ) {
+        if (n.detailType === "unlike") {
+          return {
+            icon: HeartOff,
+            colorClass: "bg-gray-400 text-white ring-gray-50",
+            iconColor: "text-gray-400",
+            bgColor: "bg-gray-50",
+          };
+        }
+        return {
+          icon: Heart,
+          colorClass: "bg-rose-500 text-white ring-rose-50",
+          iconColor: "text-rose-500",
+          bgColor: "bg-rose-50",
+        };
+      case "like_comment":
+        if (n.detailType === "unlike") {
           return {
             icon: HeartOff,
             colorClass: "bg-gray-400 text-white ring-gray-50",
