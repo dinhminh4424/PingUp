@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   X, 
   Globe, 
@@ -13,40 +13,73 @@ import {
   MessageCircle
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
 import { sharePost } from "../../services/PostServices";
+import { getConversations } from "../../services/Conversation";
 import toast from "react-hot-toast";
 
 const SharePostModal = ({ post, onClose, onShare }) => {
   const { userCurrent } = useAuth();
+  const { onlineUsers } = useSocket();
   const [caption, setCaption] = useState("");
   const [sharing, setSharing] = useState(false);
+  const [conversations, setConversations] = useState([]);
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [msgText, setMsgText] = useState("");
+  const [sendingMsg, setSendingMsg] = useState(false);
   const messengerScrollRef = useRef(null);
 
-  // Mock friends for Messenger list
-  const mockFriends = [
-    { id: 1, name: "Phạm Tài", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" },
-    { id: 2, name: "CodeGym", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80" },
-    { id: 3, name: "✌🏻", avatar: "https://images.unsplash.com/photo-1527983359383-4758693f760c?auto=format&fit=crop&w=100&q=80" },
-    { id: 4, name: "Nhóm dom dom", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" },
-    { id: 5, name: "Thịt Xiên Bánh Mì", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" },
-    { id: 6, name: "Nguyễn Anh Nhật", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" },
-    { id: 7, name: "Minh Quân", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80" },
-  ];
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        setLoadingConversations(true);
+        const res = await getConversations();
+        setConversations(res.conversations || []);
+      } catch (error) {
+        console.error("Lỗi khi tải hộp thoại trong SharePostModal:", error);
+      } finally {
+        setLoadingConversations(false);
+      }
+    };
+    fetchConversations();
+  }, []);
+
+  const getConversationDetails = (conver) => {
+    if (conver.type === "direct") {
+      const otherParticipant = conver.participants?.find(
+        (p) => p.userId && p.userId._id !== userCurrent?._id
+      )?.userId;
+      return {
+        name: otherParticipant?.full_name || "Chat ",
+        username: otherParticipant?.username || "",
+        avatar: otherParticipant?.profile_picture || "/default-avatar.png",
+        isOnline: otherParticipant ? onlineUsers.includes(otherParticipant._id) : false,
+      };
+    } else {
+      return {
+        name: conver.name || "Group chat ",
+        username: "Group",
+        avatar: conver.profile_picture || "/default-avatar.png",
+        isOnline: false,
+      };
+    }
+  };
 
   const handleShareNow = async () => {
     try {
       setSharing(true);
       const res = await sharePost(post._id, caption);
       if (res.success) {
-        toast.success("Đã chia sẻ bài viết lên Feed!");
+        toast.success("Share post successfully!");
         if (onShare) onShare(res.post);
         onClose();
       } else {
-        toast.error(res.message || "Chia sẻ thất bại");
+        toast.error(res.message || "Share failed");
       }
     } catch (error) {
-      console.error("Lỗi khi chia sẻ:", error);
-      toast.error("Lỗi hệ thống khi chia sẻ");
+      console.error("Error when sharing:", error);
+      toast.error("System error when sharing");
     } finally {
       setSharing(false);
     }
@@ -55,7 +88,18 @@ const SharePostModal = ({ post, onClose, onShare }) => {
   const handleCopyLink = () => {
     const postUrl = `${window.location.origin}/post/${post._id}`;
     navigator.clipboard.writeText(postUrl);
-    toast.success("Đã sao chép liên kết bài viết!");
+    toast.success("Copied post link!");
+  };
+
+  const handleSendMsg = () => {
+    setSendingMsg(true);
+    const details = getConversationDetails(selectedConversation);
+    setTimeout(() => {
+      setSendingMsg(false);
+      toast.success(`Post sent to ${details.name}!`);
+      setSelectedConversation(null);
+      setMsgText("");
+    }, 800);
   };
 
   const scrollMessenger = (direction) => {
@@ -76,7 +120,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 shrink-0">
           <div className="w-8"></div>
           <h2 className="text-xl font-bold text-gray-900 select-none text-center flex-1">
-            Chia sẻ
+            Share
           </h2>
           <button 
             onClick={onClose}
@@ -100,15 +144,15 @@ const SharePostModal = ({ post, onClose, onShare }) => {
               />
               <div className="space-y-1">
                 <span className="font-bold text-gray-900 block text-sm">
-                  {userCurrent?.full_name || "Đinh Minh"}
+                  {userCurrent?.full_name || "Unknown"}
                 </span>
                 <div className="flex items-center gap-1.5 text-xs text-gray-600 font-semibold select-none">
                   <span className="bg-gray-100 px-2 py-0.5 rounded-md hover:bg-gray-200 cursor-pointer">
-                    Bảng feed
+                    Feed
                   </span>
                   <div className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md hover:bg-gray-200 cursor-pointer">
                     <Globe size={12} />
-                    <span>Công khai</span>
+                    <span>Public</span>
                   </div>
                 </div>
               </div>
@@ -119,7 +163,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
               <textarea
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
-                placeholder="Hãy nói gì đó về nội dung này..."
+                placeholder="Say something about this... "
                 className="w-full min-h-[90px] p-3 text-sm border-none bg-gray-50 rounded-xl outline-none resize-none placeholder-gray-400 text-gray-800 focus:bg-gray-100/70 transition-all"
               />
             </div>
@@ -134,10 +178,10 @@ const SharePostModal = ({ post, onClose, onShare }) => {
                 {sharing ? (
                   <>
                     <LoaderCircle size={16} className="animate-spin" />
-                    Đang chia sẻ...
+                    Loading...
                   </>
                 ) : (
-                  "Chia sẻ ngay"
+                  "Share now"
                 )}
               </button>
             </div>
@@ -148,7 +192,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
           {/* Section: Send via Messenger (Future feature) */}
           <div className="space-y-3">
             <div className="flex justify-between items-center select-none">
-              <h3 className="font-bold text-gray-900 text-sm">Gửi bằng Messenger <span className="text-xs text-blue-500 font-normal">[tương lai]</span></h3>
+              <h3 className="font-bold text-gray-900 text-sm">Messenger</h3>
               <div className="flex gap-1">
                 <button 
                   onClick={() => scrollMessenger("left")}
@@ -170,25 +214,36 @@ const SharePostModal = ({ post, onClose, onShare }) => {
               ref={messengerScrollRef}
               className="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 select-none"
             >
-              {mockFriends.map((friend) => (
-                <div 
-                  key={friend.id}
-                  onClick={() => toast("Tính năng gửi Messenger sẽ sớm ra mắt!", { icon: "💬" })}
-                  className="flex flex-col items-center text-center gap-1.5 shrink-0 w-16 group cursor-pointer"
-                >
-                  <div className="relative">
-                    <img 
-                      src={friend.avatar} 
-                      alt={friend.name}
-                      className="w-12 h-12 rounded-full object-cover border border-gray-100 shadow-sm group-hover:scale-105 transition-transform"
-                    />
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  </div>
-                  <span className="text-[11px] font-semibold text-gray-700 truncate w-full group-hover:text-blue-600 transition-colors">
-                    {friend.name}
-                  </span>
-                </div>
-              ))}
+              {loadingConversations ? (
+                <div className="text-center w-full py-2 text-xs text-gray-500">Loading conversation...</div>
+              ) : conversations.length === 0 ? (
+                <div className="text-center w-full py-2 text-xs text-gray-500">No conversation found</div>
+              ) : (
+                conversations.map((conver) => {
+                  const details = getConversationDetails(conver);
+                  return (
+                    <div 
+                      key={conver._id}
+                      onClick={() => setSelectedConversation(conver)}
+                      className="flex flex-col items-center text-center gap-1.5 shrink-0 w-16 group cursor-pointer"
+                    >
+                      <div className="relative">
+                        <img 
+                          src={details.avatar} 
+                          alt={details.name}
+                          className="w-12 h-12 rounded-full object-cover border border-gray-100 shadow-sm group-hover:scale-105 transition-transform"
+                        />
+                        {details.isOnline && (
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                        )}
+                      </div>
+                      <span className="text-[11px] font-semibold text-gray-700 truncate w-full group-hover:text-blue-600 transition-colors">
+                        {details.name}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -196,34 +251,10 @@ const SharePostModal = ({ post, onClose, onShare }) => {
 
           {/* Section: Share to (Social Apps) */}
           <div className="space-y-3">
-            <h3 className="font-bold text-gray-900 text-sm select-none">Chia sẻ lên</h3>
+            <h3 className="font-bold text-gray-900 text-sm select-none">Share to</h3>
             
             <div className="grid grid-cols-6 gap-2 py-1 select-none">
-              {/* Messenger */}
-              <button 
-                onClick={() => toast("Tính năng chia sẻ ứng dụng đang phát triển!", { icon: "⚡" })}
-                className="flex flex-col items-center gap-1.5 cursor-pointer group"
-              >
-                <div className="w-12 h-12 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-full flex items-center justify-center shadow-sm transition-all group-hover:scale-105">
-                  <MessageCircle size={22} fill="currentColor" className="text-white" />
-                </div>
-                <span className="text-[10px] text-gray-600 font-semibold group-hover:text-gray-900 text-center leading-tight">
-                  Messenger
-                </span>
-              </button>
-
-              {/* WhatsApp */}
-              <button 
-                onClick={() => toast("Tính năng chia sẻ ứng dụng đang phát triển!", { icon: "⚡" })}
-                className="flex flex-col items-center gap-1.5 cursor-pointer group"
-              >
-                <div className="w-12 h-12 bg-green-50 text-green-500 hover:bg-green-100 rounded-full flex items-center justify-center shadow-sm transition-all group-hover:scale-105">
-                  <MessageSquare size={22} />
-                </div>
-                <span className="text-[10px] text-gray-600 font-semibold group-hover:text-gray-900 text-center leading-tight">
-                  WhatsApp
-                </span>
-              </button>
+              
 
               {/* Copy Link */}
               <button 
@@ -234,55 +265,74 @@ const SharePostModal = ({ post, onClose, onShare }) => {
                   <LinkIcon size={22} />
                 </div>
                 <span className="text-[10px] text-gray-600 font-semibold group-hover:text-gray-900 text-center leading-tight">
-                  Sao chép liên kết
+                  Copy Link
                 </span>
               </button>
 
-              {/* Group */}
-              <button 
-                onClick={() => toast("Tính năng chia sẻ nhóm đang phát triển!", { icon: "⚡" })}
-                className="flex flex-col items-center gap-1.5 cursor-pointer group"
-              >
-                <div className="w-12 h-12 bg-indigo-50 text-indigo-650 hover:bg-indigo-100 rounded-full flex items-center justify-center shadow-sm transition-all group-hover:scale-105">
-                  <Users size={22} />
-                </div>
-                <span className="text-[10px] text-gray-600 font-semibold group-hover:text-gray-900 text-center leading-tight">
-                  Nhóm
-                </span>
-              </button>
+             
 
-              {/* Friend's Profile */}
-              <button 
-                onClick={() => toast("Tính năng chia sẻ lên trang cá nhân bạn bè đang phát triển!", { icon: "⚡" })}
-                className="flex flex-col items-center gap-1.5 cursor-pointer group"
-              >
-                <div className="w-12 h-12 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-full flex items-center justify-center shadow-sm transition-all group-hover:scale-105">
-                  <User size={22} />
-                </div>
-                <span className="text-[10px] text-gray-600 font-semibold group-hover:text-gray-900 text-center leading-tight">
-                  Trang cá nhân của bạn bè
-                </span>
-              </button>
+             
 
-              {/* X / Twitter */}
-              <button 
-                onClick={() => toast("Tính năng chia sẻ ứng dụng đang phát triển!", { icon: "⚡" })}
-                className="flex flex-col items-center gap-1.5 cursor-pointer group"
-              >
-                <div className="w-12 h-12 bg-gray-100 text-black hover:bg-gray-200 rounded-full flex items-center justify-center shadow-sm transition-all group-hover:scale-105 font-bold text-lg select-none">
-                  𝕏
-                </div>
-                <span className="text-[10px] text-gray-600 font-semibold group-hover:text-gray-900 text-center leading-tight">
-                  X
-                </span>
-              </button>
+           
 
             </div>
           </div>
-
         </div>
-
       </div>
+
+      {selectedConversation && (() => {
+        const details = getConversationDetails(selectedConversation);
+        return (
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4 animate-scale-in">
+              <div className="flex justify-between items-center pb-2 border-b">
+                <h4 className="font-bold text-gray-900 text-base">Gửi đến {details.name}</h4>
+                <button onClick={() => setSelectedConversation(null)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                  <X size={18} />
+                </button>
+              </div>
+              
+              <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                <img 
+                  src={details.avatar} 
+                  alt="" 
+                  className="w-10 h-10 rounded-full object-cover border" 
+                />
+                <div>
+                  <p className="font-semibold text-sm text-gray-800">{details.name}</p>
+                  {details.username && <p className="text-xs text-gray-500">@{details.username}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-gray-600">Additional message</label>
+                <textarea
+                  value={msgText}
+                  onChange={(e) => setMsgText(e.target.value)}
+                  placeholder="Enter message..."
+                  className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[80px]"
+                />
+              </div>
+
+              <div className="flex gap-3 justify-end pt-2">
+                <button
+                  onClick={() => setSelectedConversation(null)}
+                  className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50 text-gray-700 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSendMsg}
+                  disabled={sendingMsg}
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold flex items-center gap-2 cursor-pointer disabled:bg-blue-400"
+                >
+                  {sendingMsg ? <LoaderCircle size={14} className="animate-spin" /> : "Send"}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };

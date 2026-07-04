@@ -28,3 +28,10 @@ export const updateInfoUser = async (updateData) => {
   const res = await api.put(`/api/user`, formData);
   return res.data.user;
 };
+
+export const findUserBySearch = async (search) => {
+  const res = await api.get(`/api/user/search`, {
+    params: { search }
+  });
+  return res.data;
+};

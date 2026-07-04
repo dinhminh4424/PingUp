@@ -95,6 +95,24 @@ class UserController {
       });
     }
   }
+
+  async findUserBySearch(req, res) {
+    try {
+      const user = req.user;
+      const { search } = req.query;
+
+      const result = await UserService.findUserBySearch(search, user._id);
+
+      res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng bằng search:", error);
+      res.status(500).json({
+        success: false,
+        message:
+          "Lỗi khi lấy thông tin người dùng bằng search: " + error.message,
+      });
+    }
+  }
 }
 
 export default new UserController();
