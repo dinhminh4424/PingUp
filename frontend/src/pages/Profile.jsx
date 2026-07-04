@@ -8,11 +8,12 @@ import moment from "moment";
 import ProfileModal from "../components/profile/ProfileModal";
 import { useAuth } from "../contexts/AuthContext";
 import { getUserById } from "../services/UserServices";
-import { getPostsByIdUser } from "../services/PostServices";
+import { getPostsByIdUser, getLikedPosts } from "../services/PostServices";
 const Profile = () => {
   const { profileId } = useParams();
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]);
   const [activeTab, setActiveTab] = useState("posts");
   const [showEdit, setShowEdit] = useState(false);
 
@@ -22,18 +23,18 @@ const Profile = () => {
   const fetchUser = async () => {
     setUser(null);
     setPosts([]);
+    setLikedPosts([]);
 
     const id = profileId ?? userCurrent._id;
 
     try {
       const resultUser = await getUserById(id);
       const resultPosts = await getPostsByIdUser(id);
-
-      // setUser(dummyUserData);
-      // setPosts(dummyPostsData);
+      const resultLiked = await getLikedPosts(id);
 
       setUser(resultUser.user);
       setPosts(resultPosts.posts);
+      setLikedPosts(resultLiked.posts || []);
     } catch (error) {
       console.log("Lỗi: ", error);
       setError(error.response?.data?.message || "Đăng bài thất bại");
@@ -81,8 +82,8 @@ const Profile = () => {
 
         {/* Tabs */}
         <div className="mt-6">
-          <div className="bg-white rounded-xl shadow p-1 flex max-w-md mx-auto">
-            {["posts", "media", "likes"].map((tab) => {
+          <div className="bg-white rounded-xl shadow p-1 flex max-w-lg mx-auto">
+            {["posts", "media", "likes", "shares"].map((tab) => {
               return (
                 <button
                   key={tab}
@@ -134,6 +135,50 @@ const Profile = () => {
                     </Link>
                   ));
                 })}
+            </div>
+          )}
+          {/*   Likes */}
+          {activeTab === "likes" && (
+            <div className="mt-6 flex flex-col items-center gap-6">
+              {likedPosts.length === 0 ? (
+                <p className="text-gray-500 text-sm mt-4">Chưa thích bài viết nào</p>
+              ) : (
+                likedPosts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    onUpdate={(updated) => {
+                      setLikedPosts((prev) =>
+                        prev.map((p) => (p._id === updated._id ? updated : p))
+                      );
+                      handleUpdatePost(updated);
+                    }}
+                    onDelete={(deletedId) => {
+                      setLikedPosts((prev) => prev.filter((p) => p._id !== deletedId));
+                      handleDeletePost(deletedId);
+                    }}
+                  />
+                ))
+              )}
+            </div>
+          )}
+          {/*   Shares */}
+          {activeTab === "shares" && (
+            <div className="mt-6 flex flex-col items-center gap-6">
+              {posts.filter((post) => post.post_type === "share").length === 0 ? (
+                <p className="text-gray-500 text-sm mt-4">Chưa chia sẻ bài viết nào</p>
+              ) : (
+                posts
+                  .filter((post) => post.post_type === "share")
+                  .map((post) => (
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                      onUpdate={handleUpdatePost}
+                      onDelete={handleDeletePost}
+                    />
+                  ))
+              )}
             </div>
           )}
         </div>

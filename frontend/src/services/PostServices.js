@@ -49,3 +49,18 @@ export const toggleLike = async (id) => {
   const res = await api.put(`/api/posts/${id}/toggleLike`);
   return res.data;
 };
+
+export const getPostById = async (id) => {
+  const res = await api.get(`/api/posts/${id}`);
+  return res.data;
+};
+
+export const sharePost = async (originalPostId, content) => {
+  const res = await api.post("/api/posts/sharePost", { originalPostId, content });
+  return res.data;
+};
+
+export const getLikedPosts = async (userId) => {
+  const res = await api.get(`/api/posts/user/${userId}/liked`);
+  return res.data;
+};

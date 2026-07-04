@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
-  X, 
+  ArrowLeft,
   Heart, 
   MessageCircle, 
   Share2, 
@@ -11,30 +12,33 @@ import {
   MoreHorizontal,
   Image as ImageIcon,
   Smile,
+  X,
   LoaderCircle
 } from "lucide-react";
 import moment from "moment";
-import { useAuth } from "../../contexts/AuthContext";
-import { toggleLike } from "../../services/PostServices";
+import { useAuth } from "../contexts/AuthContext";
+import { useSocket } from "../contexts/SocketContext";
+import { getPostById, toggleLike } from "../services/PostServices";
 import { 
   getCommentsByPost, 
   createComment, 
   toggleLikeComment, 
   deleteComment 
-} from "../../services/CommentServices";
-import UpdatePostModal from "./UpdatePostModal";
-import DeletePostModal from "./DeletePostModal";
-import SharePostModal from "./SharePostModal";
+} from "../services/CommentServices";
+import UpdatePostModal from "../components/post/UpdatePostModal";
+import DeletePostModal from "../components/post/DeletePostModal";
+import SharePostModal from "../components/post/SharePostModal";
 import toast from "react-hot-toast";
 import EmojiPicker from "emoji-picker-react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSocket } from "../../contexts/SocketContext";
 
-const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => {
+const PostDetail = () => {
+  const { postId } = useParams();
   const navigate = useNavigate();
   const { userCurrent } = useAuth();
   const { onlineUsers } = useSocket();
-  const [post, setPost] = useState(initialPost);
+  
+  const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(true);
   const [commentInput, setCommentInput] = useState("");
@@ -48,11 +52,37 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const [postLikes, setPostLikes] = useState(post.likes_count || []);
+  const [postLikes, setPostLikes] = useState([]);
   const hasLikedPost = postLikes.includes(userCurrent?._id);
+
+  // Fetch Post Details
+  useEffect(() => {
+    const fetchPostDetail = async () => {
+      try {
+        setLoading(true);
+        const res = await getPostById(postId);
+        if (res.success) {
+          setPost(res.post);
+          setPostLikes(res.post.likes_count || []);
+        } else {
+          toast.error("Failed to load post");
+        }
+      } catch (error) {
+        console.error("Error loading post detail:", error);
+        toast.error("Post not found");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (postId) {
+      fetchPostDetail();
+    }
+  }, [postId]);
 
   // Fetch comments for this post
   const fetchComments = async () => {
+    if (!post) return;
     try {
       setLoadingComments(true);
       const res = await getCommentsByPost(post._id);
@@ -68,10 +98,13 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
   };
 
   useEffect(() => {
-    fetchComments();
-  }, [post._id]);
+    if (post?._id) {
+      fetchComments();
+    }
+  }, [post?._id]);
 
   const handleLikePost = async () => {
+    if (!post) return;
     const backupLikes = [...postLikes];
     try {
       if (hasLikedPost) {
@@ -84,7 +117,6 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
       if (res.success) {
         setPost(res.post);
         setPostLikes(res.post.likes_count);
-        if (onUpdate) onUpdate(res.post);
       }
     } catch (error) {
       setPostLikes(backupLikes);
@@ -132,12 +164,10 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
         setShowEmojiPicker(false);
         
         // Update comments count on post
-        const updatedPost = {
-          ...post,
-          comments_count: (post.comments_count || 0) + 1
-        };
-        setPost(updatedPost);
-        if (onUpdate) onUpdate(updatedPost);
+        setPost(prev => ({
+          ...prev,
+          comments_count: (prev.comments_count || 0) + 1
+        }));
         
         toast.success(parentCommentId ? "Commented" : "Posted comment");
       }
@@ -198,12 +228,10 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
         setComments(prev => deleteFromTree(prev, commentId));
 
         // Update comments count on post
-        const updatedPost = {
-          ...post,
-          comments_count: Math.max(0, (post.comments_count || 0) - 1)
-        };
-        setPost(updatedPost);
-        if (onUpdate) onUpdate(updatedPost);
+        setPost(prev => ({
+          ...prev,
+          comments_count: Math.max(0, (prev.comments_count || 0) - 1)
+        }));
 
         toast.success("Delete comment success");
       }
@@ -263,7 +291,7 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
             {comment.user?._id === userCurrent?._id && (
               <button 
                 onClick={() => setCommentToDelete(comment._id)}
-                className="opacity-0 group-hover/item:opacity-100 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-150 text-gray-500 hover:text-red-600 transition cursor-pointer"
+                className="opacity-0 group-hover/item:opacity-100 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-250 text-gray-500 hover:text-red-600 transition cursor-pointer"
                 title="Delete comment"
               >
                 <Trash2 size={14} />
@@ -313,39 +341,62 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
     );
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
+        <div className="w-10 h-10 border-4 border-t-indigo-600 border-indigo-200 rounded-full animate-spin"></div>
+        <p className="text-sm font-medium text-gray-500">Loading post detail...</p>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <p className="text-gray-500 font-medium">Post not found or has been deleted.</p>
+        <button 
+          onClick={() => navigate(-1)} 
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors cursor-pointer font-semibold shadow-md"
+        >
+          <ArrowLeft size={16} />
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
   const hashtags = post.content.replace(
     /(#\w+)/g,
     '<span class="text-indigo-600 hover:underline cursor-pointer">$1</span>'
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden relative">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 shrink-0">
-          <div className="w-8"></div>
-          <h2 className="text-lg font-bold text-gray-900 select-none">
-            Post of {post.user?.full_name}
-          </h2>
-          <button 
-            onClick={onClose}
-            className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
+    <div className="max-w-3xl mx-auto px-4 py-6">
+      {/* Back Button and Page Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <button 
+          onClick={() => navigate(-1)} 
+          className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-205 hover:bg-gray-50 flex items-center justify-center text-gray-600 hover:text-gray-800 transition cursor-pointer"
+          title="Go Back"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-xl font-bold text-gray-900">Post Details</h1>
+      </div>
 
-        {/* Modal Scrollable Container */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
-          {/* Post Header */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-100 flex flex-col overflow-hidden">
+        
+        {/* Post Container */}
+        <div className="p-5 space-y-4">
+          
+          {/* Post Creator Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link to={`/profile/${post.user?._id}`} className="relative shrink-0">
                 <img 
-                  src={post.user?.profile_picture} 
+                  src={post.user?.profile_picture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"} 
                   alt="" 
-                  className="w-10 h-10 rounded-full object-cover shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                  className="w-11 h-11 rounded-full object-cover shadow-sm border border-gray-100 hover:opacity-90 transition-opacity cursor-pointer"
                 />
                 {onlineUsers.includes(post.user?._id) && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
@@ -355,13 +406,13 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
                 <div className="flex items-center gap-1.5">
                   <Link 
                     to={`/profile/${post.user?._id}`}
-                    className="font-semibold text-gray-900 hover:underline cursor-pointer"
+                    className="font-bold text-gray-900 hover:underline cursor-pointer"
                   >
                     {post.user?.full_name}
                   </Link>
                   {post.user?.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
                 </div>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
                   <span>{moment(post.createdAt).fromNow()}</span>
                   <span>•</span>
                   <Globe size={12} className="text-gray-400" />
@@ -378,7 +429,7 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
               </button>
 
               {showDropdown && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border z-50 py-1">
+                <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border z-20 py-1">
                   {post.user?._id === userCurrent?._id ? (
                     <>
                       <button
@@ -416,23 +467,23 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
             </div>
           </div>
 
-          {/* Post Text */}
+          {/* Post text */}
           {post.content && (
             <div 
-              className="text-gray-800 text-sm whitespace-pre-wrap font-normal leading-relaxed break-words"
+              className="text-gray-850 text-sm whitespace-pre-wrap font-normal leading-relaxed break-words pt-1"
               dangerouslySetInnerHTML={{ __html: hashtags }}
             />
           )}
 
-          {/* Post Images */}
+          {/* Post media */}
           {post.image_urls && post.image_urls.length > 0 && (
-            <div className="grid grid-cols-1 gap-2 rounded-lg overflow-hidden border border-gray-150">
+            <div className="grid grid-cols-1 gap-2 rounded-lg overflow-hidden border border-gray-100">
               {post.image_urls.map((img, index) => (
                 <img 
                   key={index} 
                   src={img} 
                   alt="" 
-                  className="w-full h-auto max-h-[500px] object-cover" 
+                  className="w-full h-auto max-h-[600px] object-cover" 
                 />
               ))}
             </div>
@@ -441,9 +492,8 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
           {/* Shared Post Container */}
           {post.post_type === "share" && post.shared_post && (
             <div 
-              className="border border-gray-250 rounded-xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors mt-2 cursor-pointer" 
+              className="border border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors mt-2 cursor-pointer" 
               onClick={() => {
-                onClose();
                 navigate(`/post/${post.shared_post._id}`);
               }}
             >
@@ -478,52 +528,56 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
               )}
             </div>
           )}
-          <div className="flex items-center justify-between text-xs text-gray-500 border-b border-gray-200 pb-3 pt-1">
+
+          {/* Stats Bar */}
+          <div className="flex items-center justify-between text-xs text-gray-500 border-b border-gray-100 pb-3 pt-2">
             <div className="flex items-center gap-1 select-none">
               {postLikes.length > 0 && (
                 <span className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white shadow-sm shrink-0">
                   <Heart size={10} fill="white" />
                 </span>
               )}
-              <span>{postLikes.length} Likes</span>
+              <span className="font-medium text-gray-600">{postLikes.length} Likes</span>
             </div>
-            <div className="flex gap-3 select-none">
+            <div className="flex gap-3 select-none font-medium text-gray-600">
               <span>{post.comments_count || 0} Comments</span>
               <span>{post.shares_count || 0} Shares</span>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-1 border-b border-gray-200 py-1 text-sm font-semibold text-gray-600">
+          {/* Action buttons */}
+          <div className="grid grid-cols-3 gap-1 border-b border-gray-100 py-1 text-sm font-semibold text-gray-600">
             <button 
               onClick={handleLikePost}
-              className={`flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${hasLikedPost ? "text-red-500 animate-pulse" : ""}`}
+              className={`flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ${hasLikedPost ? "text-red-500 animate-pulse" : ""}`}
             >
               <Heart size={18} fill={hasLikedPost ? "currentColor" : "none"} className={hasLikedPost ? "text-red-500" : "text-gray-600"} />
               <span>Like</span>
             </button>
-            <button className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+            <button className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
               <MessageCircle size={18} />
               <span>Comment</span>
             </button>
             <button 
               onClick={() => setShowShareModal(true)}
-              className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <Share2 size={18} />
               <span>Share</span>
             </button>
           </div>
 
-          {/* Comments List Section */}
-          <div className="space-y-4 pt-2">
+          {/* Comment section */}
+          <div className="space-y-4 pt-3">
+            <h3 className="font-bold text-gray-900 text-sm select-none">Comments</h3>
+            
             {loadingComments ? (
-              <div className="flex flex-col items-center justify-center py-6 text-gray-400 gap-2">
+              <div className="flex flex-col items-center justify-center py-8 text-gray-400 gap-2">
                 <span className="w-6 h-6 border-2 border-t-indigo-500 border-gray-200 rounded-full animate-spin" />
                 <span className="text-xs">Loading comments...</span>
               </div>
             ) : comments.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 text-sm">
+              <div className="text-center py-10 text-gray-400 text-sm">
                 Be the first to comment on this post!
               </div>
             ) : (
@@ -536,8 +590,9 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
           </div>
         </div>
 
-        {/* Sticky Input Footer */}
-        <div className="border-t border-gray-200 px-4 py-3 bg-white shrink-0 relative">
+        {/* Input box footer */}
+        <div className="border-t border-gray-200 px-5 py-4 bg-gray-50/50 relative">
+          
           {/* Active Reply Banner */}
           {replyToComment && (
             <div className="flex items-center justify-between px-3 pb-2 text-xs text-indigo-600 font-semibold select-none animate-fade-in">
@@ -572,7 +627,7 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
           
           {/* Emoji Picker Popover */}
           {showEmojiPicker && (
-            <div className="absolute bottom-16 right-4 z-50 shadow-2xl rounded-xl overflow-hidden border border-gray-200 animate-fade-in">
+            <div className="absolute bottom-20 right-5 z-20 shadow-2xl rounded-xl overflow-hidden border border-gray-200 animate-fade-in">
               <EmojiPicker 
                 onEmojiClick={(emojiData) => setCommentInput(prev => prev + emojiData.emoji)}
                 width={320}
@@ -584,18 +639,17 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
             </div>
           )}
 
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-3 items-center">
             <img 
-              src={userCurrent?.profile_picture} 
+              src={userCurrent?.profile_picture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"} 
               alt="" 
-              className="w-9 h-9 rounded-full object-cover shadow-sm shrink-0"
+              className="w-10 h-10 rounded-full object-cover shadow-sm border border-gray-200 shrink-0"
             />
             
-            {/* Hidden File Input */}
             <input 
               type="file" 
               accept="image/*" 
-              id="comment-image-input" 
+              id="comment-image-input-detail" 
               className="hidden" 
               onChange={(e) => {
                 if (e.target.files && e.target.files[0]) {
@@ -606,30 +660,28 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
 
             <form 
               onSubmit={(e) => handleAddComment(e, replyToComment?._id)}
-              className="flex-1 flex bg-[#f0f2f5] rounded-full px-4 py-2 items-center border border-gray-150"
+              className="flex-1 flex bg-white rounded-full px-4 py-2 items-center border border-gray-200 shadow-sm focus-within:border-indigo-405 transition-colors"
             >
               <input
                 type="text"
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 placeholder={replyToComment ? `Reply ${replyToComment.user?.full_name}...` : `Comment as ${userCurrent?.full_name || "you"}...`}
-                className="bg-transparent border-none outline-none flex-1 text-sm text-gray-800 placeholder-gray-500"
+                className="bg-transparent border-none outline-none flex-1 text-sm text-gray-800 placeholder-gray-400"
               />
               
-              {/* Upload Image Button */}
               <label 
-                htmlFor="comment-image-input" 
-                className="cursor-pointer text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-gray-200 transition shrink-0 mr-1"
+                htmlFor="comment-image-input-detail" 
+                className="cursor-pointer text-gray-450 hover:text-indigo-650 p-1.5 rounded-full hover:bg-gray-100 transition shrink-0 mr-1"
                 title="Attach image"
               >
                 <ImageIcon size={18} />
               </label>
 
-              {/* Emoji Picker Trigger */}
               <button 
                 type="button" 
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-gray-200 transition shrink-0 mr-1.5 cursor-pointer"
+                className="text-gray-450 hover:text-indigo-650 p-1.5 rounded-full hover:bg-gray-100 transition shrink-0 mr-1.5 cursor-pointer"
                 title="Add emoji"
               >
                 <Smile size={18} />
@@ -640,12 +692,12 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
                 disabled={(!commentInput.trim() && !commentImage) || submittingComment}
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition shrink-0 cursor-pointer ${
                   (commentInput.trim() || commentImage) && !submittingComment
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md" 
+                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm" 
                     : "text-gray-400 bg-transparent"
                 }`}
               >
                 {submittingComment ? (
-                  <LoaderCircle size={14} className="animate-spin text-indigo-600" />
+                  <LoaderCircle size={14} className="animate-spin text-indigo-650" />
                 ) : (
                   <Send size={14} />
                 )}
@@ -662,7 +714,6 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
           onClose={() => setShowUpdateModal(false)}
           onUpdate={(updatedPost) => {
             setPost(updatedPost);
-            if (onUpdate) onUpdate(updatedPost);
           }}
         />
       )}
@@ -672,15 +723,14 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
           post={post}
           onClose={() => setShowDeleteModal(false)}
           onDelete={() => {
-            onClose();
-            if (onDelete) onDelete(post._id);
+            navigate(-1);
           }}
         />
       )}
 
-      {/* Styled Delete Comment Confirmation Modal */}
+      {/* Delete Comment Modal */}
       {commentToDelete && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 backdrop-blur-xs animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs animate-fade-in">
           <div className="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full mx-4">
             <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Comment</h3>
             <p className="text-sm text-gray-500 mb-6">Are you sure you want to delete this comment? This action cannot be undone.</p>
@@ -696,7 +746,7 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
                   handleDeleteComment(commentToDelete);
                   setCommentToDelete(null);
                 }}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                className="px-4 py-2 bg-red-650 hover:bg-red-750 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
               >
                 Delete
               </button>
@@ -710,7 +760,6 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
           onClose={() => setShowShareModal(false)}
           onShare={(updatedPost) => {
             setPost(updatedPost);
-            if (onUpdate) onUpdate(updatedPost);
           }}
         />
       )}
@@ -718,4 +767,4 @@ const DetailPostModal = ({ post: initialPost, onClose, onUpdate, onDelete }) => 
   );
 };
 
-export default DetailPostModal;
+export default PostDetail;

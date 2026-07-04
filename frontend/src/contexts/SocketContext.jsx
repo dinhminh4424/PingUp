@@ -8,6 +8,7 @@ const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   const connectSocket = () => {
     const accessToken = getToken();
@@ -18,7 +19,7 @@ export const SocketProvider = ({ children }) => {
 
     setSocket((prevSocket) => {
       if (prevSocket) {
-        return prevSocket; // Tránh tạo nhiều socket nếu đã có
+        return prevSocket;
       }
 
       const newSocket = io(baseURL, {
@@ -28,6 +29,10 @@ export const SocketProvider = ({ children }) => {
 
       newSocket.on("connect", () => {
         console.log("Đã kết nối với Socket:", newSocket.id);
+      });
+
+      newSocket.on("getOnlineUsers", (users) => {
+        setOnlineUsers(users);
       });
 
       return newSocket;
@@ -41,6 +46,7 @@ export const SocketProvider = ({ children }) => {
       }
       return null;
     });
+    setOnlineUsers([]);
   };
 
   return (
@@ -49,6 +55,7 @@ export const SocketProvider = ({ children }) => {
         socket,
         connectSocket,
         disconnectSocket,
+        onlineUsers,
       }}
     >
       {children}

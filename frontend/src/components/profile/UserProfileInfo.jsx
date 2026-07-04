@@ -12,6 +12,7 @@ import {
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
 import {
   getConnectionStatus,
   sendConnectionRequest,
@@ -24,6 +25,8 @@ import toast from "react-hot-toast";
 
 const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
   const { userCurrent } = useAuth();
+  const { onlineUsers } = useSocket();
+  const isOnline = onlineUsers.includes(user?._id);
   const [connectionStatus, setConnectionStatus] = useState("none"); // none, pending_sent, pending_received, connected
   const [requestId, setRequestId] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -137,12 +140,19 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
   return (
     <div className="relative py-4 px-6 md:px-8 bg-white">
       <div className="flex flex-col md:flex-row items-start gap-6">
-        <div className="w-32 h-32 border-4 border-white shadow-lg absolute -top-16 rounded-full overflow-hidden bg-gray-100">
-          <img
-            src={user.profile_picture || "/default-avatar.png"}
-            className="w-full h-full object-cover rounded-full z-2"
-            alt=""
-          />
+        <div className="w-32 h-32 absolute -top-16 shrink-0">
+          <div className="relative w-full h-full">
+            <div className="w-full h-full border-4 border-white shadow-lg rounded-full overflow-hidden bg-gray-100">
+              <img
+                src={user.profile_picture || "/default-avatar.png"}
+                className="w-full h-full object-cover rounded-full z-2"
+                alt=""
+              />
+            </div>
+            {isOnline && (
+              <span className="absolute bottom-1 right-2 w-5.5 h-5.5 bg-green-500 border-4 border-white rounded-full z-10"></span>
+            )}
+          </div>
         </div>
         <div className="w-full pt-16 md:pt-0 md:pl-36">
           <div className="flex flex-col md:flex-row items-start justify-between">

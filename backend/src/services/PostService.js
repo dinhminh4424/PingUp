@@ -23,6 +23,13 @@ class PostService {
           "user",
           "_id email username full_name bio profile_picture cover_photo location ",
         )
+        .populate({
+          path: "shared_post",
+          populate: {
+            path: "user",
+            select: "_id email username full_name bio profile_picture cover_photo location "
+          }
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -38,7 +45,7 @@ class PostService {
             ...post.toObject(),
             comments_count: commentCount,
           };
-        })
+        }),
       );
 
       return {
@@ -77,6 +84,13 @@ class PostService {
           "user",
           "_id email username full_name bio profile_picture cover_photo location ",
         )
+        .populate({
+          path: "shared_post",
+          populate: {
+            path: "user",
+            select: "_id email username full_name bio profile_picture cover_photo location "
+          }
+        })
         .sort({ createdAt: -1 });
 
       const postsWithCommentsCount = await Promise.all(
@@ -90,7 +104,7 @@ class PostService {
             ...post.toObject(),
             comments_count: commentCount,
           };
-        })
+        }),
       );
 
       return {
@@ -409,6 +423,156 @@ class PostService {
         data: {
           success: false,
           message: "Lỗi hệ thống khi bày tỏ cảm xúc: " + error.message,
+        },
+      };
+    }
+  }
+
+  async getPostById(id) {
+    try {
+      const post = await Post.findById(id)
+        .populate(
+          "user",
+          "_id email username full_name bio profile_picture cover_photo location ",
+        )
+        .populate({
+          path: "shared_post",
+          populate: {
+            path: "user",
+            select: "_id email username full_name bio profile_picture cover_photo location "
+          }
+        });
+
+      if (!post || post.isDelete || !post.isActive) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy bài viết hoặc bài viết đã bị xóa",
+          },
+        };
+      }
+
+      const commentCount = await Comment.countDocuments({
+        post: post._id,
+        isDelete: false,
+        isActive: true,
+      });
+
+      const postWithCommentsCount = {
+        ...post.toObject(),
+        comments_count: commentCount,
+      };
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy bài viết thành công",
+          post: postWithCommentsCount,
+        },
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
+
+  async sharePost(originalPostId, content, userId) {
+    try {
+      const originalPost = await Post.findById(originalPostId);
+
+      if (!originalPost) {
+        console.log(
+          "Lỗi khi Share bài - [Không tìm thấy bài viết] :",
+          originalPostId,
+        );
+        return {
+          status: 402,
+          data: {
+            success: false,
+            message:
+              "Lỗi khi Share bài - [Không tìm thấy bài viết] : " +
+              originalPostId,
+          },
+        };
+      } else {
+        originalPost.shares_count = (originalPost.shares_count || 0) + 1;
+        await originalPost.save();
+      }
+
+      const newPost = await Post.create({
+        user: userId,
+        content, // Lời nhắn thêm của người chia sẻ (nếu có)
+        shared_post: originalPostId,
+        post_type: "share",
+      });
+      return { status: 200, data: { success: true, post: newPost } };
+    } catch (error) {
+      console.log("Lỗi khi Share bài: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi khi Share bài: " + error.message,
+        },
+      };
+    }
+  }
+
+  async getLikedPostsByUserId(userId) {
+    try {
+      const posts = await Post.find({
+        isActive: true,
+        isDelete: false,
+        likes_count: userId,
+      })
+        .populate(
+          "user",
+          "_id email username full_name bio profile_picture cover_photo location ",
+        )
+        .populate({
+          path: "shared_post",
+          populate: {
+            path: "user",
+            select: "_id email username full_name bio profile_picture cover_photo location "
+          }
+        })
+        .sort({ createdAt: -1 });
+
+      const postsWithCommentsCount = await Promise.all(
+        posts.map(async (post) => {
+          const commentCount = await Comment.countDocuments({
+            post: post._id,
+            isDelete: false,
+            isActive: true,
+          });
+          return {
+            ...post.toObject(),
+            comments_count: commentCount,
+          };
+        }),
+      );
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy danh sách bài viết đã thích thành công",
+          posts: postsWithCommentsCount,
+        },
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
         },
       };
     }

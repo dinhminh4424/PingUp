@@ -112,7 +112,50 @@ class PostController {
     }
   }
 
-  async commentPost(req, res) {}
+  async getPostById(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await PostService.getPostById(id);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi lấy chi tiết bài viết: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lấy chi tiết bài viết thất bại: " + error.message,
+      });
+    }
+  }
+
+  async sharePost(req, res) {
+    try {
+      const { originalPostId, content } = req.body;
+      const userId = req.user._id;
+      const result = await PostService.sharePost(originalPostId, content, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi share bài viết: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi khi share bài viết: " + error.message,
+      });
+    }
+  
+  }
+
+  async getLikedPosts(req, res) {
+    try {
+      const { userId } = req.params;
+      const result = await PostService.getLikedPostsByUserId(userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách bài viết đã thích: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lấy danh sách bài viết đã thích thất bại: " + error.message,
+      });
+    }
+
+  }
 }
 
 export default new PostController();

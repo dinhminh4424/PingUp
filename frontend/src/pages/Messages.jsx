@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { getConversations, createConversation } from "../services/Conversation";
 import { getConnectionsList } from "../services/ConnectionServices";
 import { useAuth } from "../contexts/AuthContext";
+import { useSocket } from "../contexts/SocketContext";
 import Loading from "../components/Loading";
 import toast from "react-hot-toast";
 
 const Messages = () => {
   const navigate = useNavigate();
   const { userCurrent } = useAuth();
+  const { onlineUsers } = useSocket();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -160,20 +162,32 @@ const Messages = () => {
         (p) => p.userId && p.userId._id !== userCurrent?._id
       )?.userId;
       
+      const isOnline = user && onlineUsers.includes(user._id);
+
       if (user && user.profile_picture) {
         return (
-          <img
-            src={user.profile_picture}
-            className="rounded-full size-12 object-cover border border-gray-100 flex-shrink-0"
-            alt=""
-          />
+          <div className="relative flex-shrink-0">
+            <img
+              src={user.profile_picture}
+              className="rounded-full size-12 object-cover border border-gray-100"
+              alt=""
+            />
+            {isOnline && (
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+            )}
+          </div>
         );
       }
       
       const initial = user?.full_name ? user.full_name.charAt(0).toUpperCase() : "?";
       return (
-        <div className="rounded-full size-12 bg-indigo-650 text-white flex items-center justify-center font-bold text-lg border border-gray-100 flex-shrink-0">
-          {initial}
+        <div className="relative flex-shrink-0">
+          <div className="rounded-full size-12 bg-indigo-650 text-white flex items-center justify-center font-bold text-lg border border-gray-100">
+            {initial}
+          </div>
+          {isOnline && (
+            <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+          )}
         </div>
       );
     }
