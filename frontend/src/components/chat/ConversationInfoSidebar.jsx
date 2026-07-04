@@ -79,30 +79,25 @@ const ConversationInfoSidebar = ({
     return acc;
   }, {});
 
-  // 3. Files extraction (Mock files if no file messages are in DB since we only upload images currently)
-  // Let's create mock items matching the screenshot
-  const mockFiles = [
-    {
-      name: "Ảnh màn hình 2026-06-30 lúc ... 5.24.png",
-      size: "727 KB",
-      createdAt: new Date("2026-06-30T10:00:00Z"),
-      sender: "Sanh"
-    },
-    {
-      name: "Báo cáo tiến độ dự án.pdf",
-      size: "2.4 MB",
-      createdAt: new Date("2026-06-28T14:30:00Z"),
-      sender: "Sanh"
-    },
-    {
-      name: "Bài thuyết trình.pptx",
-      size: "12.8 MB",
-      createdAt: new Date("2026-06-23T09:15:00Z"),
-      sender: "Sanh"
-    }
-  ];
+  // 3. Files extraction (Dynamic files from messages, fallback to mock files if empty)
+  const fileMessages = messages.filter(
+    (msg) => msg.files && msg.files.length > 0
+  );
 
-  const groupedFiles = mockFiles.reduce((acc, file) => {
+  const realFiles = fileMessages.reduce((acc, msg) => {
+    msg.files.forEach((file) => {
+      acc.push({
+        name: file.name,
+        url: file.url,
+        size: file.size,
+        sender: msg.senderId?.full_name || "Thành viên",
+        createdAt: msg.createdAt
+      });
+    });
+    return acc;
+  }, []);
+
+  const groupedFiles = realFiles.reduce((acc, file) => {
     const groupKey = formatDateGroup(file.createdAt);
     if (!acc[groupKey]) {
       acc[groupKey] = [];
@@ -360,7 +355,42 @@ const ConversationInfoSidebar = ({
           <span>File</span>
           {collapseFiles ? <ChevronRight className="size-4 text-slate-500" /> : <ChevronDown className="size-4 text-slate-500" />}
         </button>
-        
+        {!collapseFiles && (
+          <div className="px-4 pb-4">
+            {realFiles.length > 0 ? (
+              <>
+                {realFiles.slice(0, 3).map((file, i) => (
+                  <a
+                    key={i}
+                    href={file.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 py-2 hover:bg-slate-50 rounded transition px-1 cursor-pointer"
+                  >
+                    <div className="size-9 bg-emerald-50 rounded flex items-center justify-center text-emerald-600">
+                      <FileText className="size-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-slate-800 truncate">{file.name}</p>
+                      <p className="text-[10px] text-gray-400">{file.size} • {new Date(file.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </a>
+                ))}
+                <button 
+                  onClick={() => {
+                    setShowArchive(true);
+                    setArchiveTab("files");
+                  }}
+                  className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 rounded transition active:scale-98 cursor-pointer mt-2"
+                >
+                  Xem tất cả
+                </button>
+              </>
+            ) : (
+              <p className="text-xs text-gray-400 py-2">Không có tệp tin chia sẻ</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Accordion: Link */}
@@ -372,7 +402,44 @@ const ConversationInfoSidebar = ({
           <span>Link</span>
           {collapseLinks ? <ChevronRight className="size-4 text-slate-500" /> : <ChevronDown className="size-4 text-slate-500" />}
         </button>
-       
+        {!collapseLinks && (
+          <div className="px-4 pb-4 space-y-3">
+            {linkMessages.length > 0 ? (
+              linkMessages.slice(0, 3).map((msg, i) => {
+                const match = msg.content.match(linkRegex)[0];
+                return (
+                  <a
+                    key={i}
+                    href={match}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-start gap-3 py-1 hover:bg-slate-50 rounded transition px-1 cursor-pointer"
+                  >
+                    <div className="size-9 bg-indigo-50 rounded flex items-center justify-center text-indigo-600 mt-0.5">
+                      <Link2 className="size-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-slate-800 truncate">{match.replace(/(https?:\/\/)?(www\.)?/, "").split("/")[0]}</p>
+                      <p className="text-[10px] text-indigo-500 truncate">{match}</p>
+                    </div>
+                    <span className="text-[10px] text-gray-400">{new Date(msg.createdAt).toLocaleDateString([], {month: "numeric", day: "numeric"})}</span>
+                  </a>
+                );
+              })
+            ) : (
+              <p className="text-xs text-gray-400 py-2">Không có liên kết chia sẻ</p>
+            )}
+            <button 
+              onClick={() => {
+                setShowArchive(true);
+                setArchiveTab("links");
+              }}
+              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 rounded transition active:scale-98 cursor-pointer mt-2"
+            >
+              Xem tất cả
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Accordion: Thiết lập bảo mật */}

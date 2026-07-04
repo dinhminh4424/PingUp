@@ -23,6 +23,23 @@ const messageSchema = mongoose.Schema(
         trim: true,
       },
     ],
+    files: [
+      {
+        url: { type: String, required: true },
+        name: { type: String, required: true },
+        size: { type: String }
+      }
+    ],
+    replyTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+    },
+    reactions: [
+      {
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        emoji: { type: String, required: true }
+      }
+    ],
   },
   {
     timestamps: true,

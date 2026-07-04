@@ -7,11 +7,14 @@ export const getMessages = async (conversationId, page = 1, limit = 20) => {
   return res.data;
 };
 
-export const sendMessage = async (conversationId, content, imageFiles) => {
+export const sendMessage = async (conversationId, content, imageFiles, fileFiles, replyTo) => {
   const formData = new FormData();
   formData.append("conversationId", conversationId);
   if (content) {
     formData.append("content", content);
+  }
+  if (replyTo) {
+    formData.append("replyTo", replyTo);
   }
   if (imageFiles) {
     if (Array.isArray(imageFiles)) {
@@ -22,11 +25,25 @@ export const sendMessage = async (conversationId, content, imageFiles) => {
       formData.append("images", imageFiles);
     }
   }
+  if (fileFiles) {
+    if (Array.isArray(fileFiles)) {
+      fileFiles.forEach((file) => {
+        formData.append("files", file);
+      });
+    } else {
+      formData.append("files", fileFiles);
+    }
+  }
 
   const res = await api.post("/api/message", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
+  return res.data;
+};
+
+export const reactToMessage = async (messageId, emoji) => {
+  const res = await api.post(`/api/message/${messageId}/react`, { emoji });
   return res.data;
 };

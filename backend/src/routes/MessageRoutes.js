@@ -5,6 +5,7 @@ import { upload } from "../middlewares/UpLoadMiddleware.js";
 const router = express.Router();
 
 router.get("/:conversationId", MessageController.getMessages);
-router.post("/", upload.array("images"), MessageController.sendMessage);
+router.post("/", upload.fields([{ name: "images" }, { name: "files" }]), MessageController.sendMessage);
+router.post("/:messageId/react", MessageController.reactToMessage);
 
 export default router;
