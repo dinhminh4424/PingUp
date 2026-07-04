@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { MapPin, MessageCircle, Plus, UserPlus, UserCheck, LoaderCircle, UserMinus } from "lucide-react";
+import {
+  MapPin,
+  MessageCircle,
+  Plus,
+  UserPlus,
+  UserCheck,
+  LoaderCircle,
+  UserMinus,
+} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import {
   sendConnectionRequest,
@@ -12,11 +20,13 @@ import toast from "react-hot-toast";
 
 const UserCard = ({ user }) => {
   const { userCurrent } = useAuth();
-  
+
   const [isFollowing, setIsFollowing] = useState(user.isFollowing || false);
   const [isConnected, setIsConnected] = useState(user.isConnected || false);
   const [requestSent, setRequestSent] = useState(user.requestSent || false);
-  const [requestReceived, setRequestReceived] = useState(user.requestReceived || false);
+  const [requestReceived, setRequestReceived] = useState(
+    user.requestReceived || false,
+  );
   const [requestId, setRequestId] = useState(user.requestId || null);
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +37,9 @@ const UserCard = ({ user }) => {
       const res = await toggleFollow(user._id);
       if (res.success) {
         setIsFollowing(res.isFollowing);
-        toast.success(res.message || (res.isFollowing ? "Followed!" : "Unfollowed!"));
+        toast.success(
+          res.message || (res.isFollowing ? "Followed!" : "Unfollowed!"),
+        );
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to follow");
@@ -104,7 +116,7 @@ const UserCard = ({ user }) => {
     >
       <div className="text-center">
         <img
-          src={user.profile_picture || "/default-avatar.png"}
+          src={user.profile_picture || "/default-avatar.avif"}
           className="rounded-full w-16 h-16 object-cover shadow-md mx-auto"
           alt=""
         />
@@ -120,10 +132,12 @@ const UserCard = ({ user }) => {
       </div>
       <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-600">
         <div className="flex items-center gap-1 border border-gray-300 rounded-full px-3 py-1 truncate max-w-[120px]">
-          <MapPin className="w-4 h-4 shrink-0" /> {user.location || "Chưa cập nhật"}
+          <MapPin className="w-4 h-4 shrink-0" />{" "}
+          {user.location || "Chưa cập nhật"}
         </div>
         <div className="flex items-center gap-1 border border-gray-300 rounded-full px-3 py-1">
-          <span>{user.followersCount || user.followers?.length || 0}</span> followers
+          <span>{user.followersCount || user.followers?.length || 0}</span>{" "}
+          followers
         </div>
       </div>
 
@@ -133,8 +147,8 @@ const UserCard = ({ user }) => {
           onClick={handleFollow}
           disabled={loading}
           className={`flex-1 py-2 rounded-md flex justify-center items-center gap-2 border transition font-semibold cursor-pointer text-xs ${
-            isFollowing 
-              ? "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200" 
+            isFollowing
+              ? "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200"
               : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white"
           }`}
         >
@@ -142,7 +156,11 @@ const UserCard = ({ user }) => {
             <LoaderCircle size={14} className="animate-spin" />
           ) : (
             <>
-              {isFollowing ? <UserMinus className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+              {isFollowing ? (
+                <UserMinus className="w-4 h-4" />
+              ) : (
+                <UserPlus className="w-4 h-4" />
+              )}
               {isFollowing ? "Following" : "Follow"}
             </>
           )}

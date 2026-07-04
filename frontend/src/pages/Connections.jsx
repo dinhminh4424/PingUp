@@ -91,7 +91,9 @@ const Connections = () => {
       if (user.requestId) {
         const res = await acceptConnectionRequest(user.requestId);
         if (res.success) {
-          toast.success(res.message || "You have accepted the connection request");
+          toast.success(
+            res.message || "You have accepted the connection request",
+          );
           setPendingConnections((prev) =>
             prev.filter((u) => u._id !== user._id),
           );
@@ -103,7 +105,9 @@ const Connections = () => {
         }
       }
     } catch (err) {
-      toast.error(err.message || "You have failed to accept the connection request");
+      toast.error(
+        err.message || "You have failed to accept the connection request",
+      );
       console.log("Lỗi: ", err);
     }
   };
@@ -113,14 +117,18 @@ const Connections = () => {
       if (user.requestId) {
         const res = await rejectConnectionRequest(user.requestId);
         if (res.success) {
-          toast.success(res.message || "You have declined the connection request");
+          toast.success(
+            res.message || "You have declined the connection request",
+          );
           setPendingConnections((prev) =>
             prev.filter((u) => u._id !== user._id),
           );
         }
       }
     } catch (err) {
-      toast.error(err.message || "You have failed to decline the connection request");
+      toast.error(
+        err.message || "You have failed to decline the connection request",
+      );
       console.log("Lỗi: ", err);
     }
   };
@@ -129,11 +137,15 @@ const Connections = () => {
     try {
       const res = await disconnectConnection(targetUserId);
       if (res.success) {
-        toast.success(res.message || "You have disconnected from the connection");
+        toast.success(
+          res.message || "You have disconnected from the connection",
+        );
         setConnections((prev) => prev.filter((u) => u._id !== targetUserId));
       }
     } catch (err) {
-      toast.error(err.message || "You have failed to disconnect from the connection");
+      toast.error(
+        err.message || "You have failed to disconnect from the connection",
+      );
       console.log("Lỗi: ", err);
     }
   };
@@ -202,7 +214,7 @@ const Connections = () => {
                   className="w-full max-w-[340px] flex gap-4 p-5 bg-white shadow rounded-md border border-gray-100 hover:shadow-md transition"
                 >
                   <img
-                    src={user.profile_picture || "/default-avatar.png"}
+                    src={user.profile_picture || "/default-avatar.avif"}
                     alt=""
                     className="rounded-full w-12 h-12 shadow-md mx-auto"
                   />

@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
-import { 
-  X, 
-  Globe, 
-  ChevronRight, 
-  ChevronLeft, 
-  Link as LinkIcon, 
-  Users, 
-  User, 
+import {
+  X,
+  Globe,
+  ChevronRight,
+  ChevronLeft,
+  Link as LinkIcon,
+  Users,
+  User,
   Send,
   LoaderCircle,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
@@ -48,19 +48,21 @@ const SharePostModal = ({ post, onClose, onShare }) => {
   const getConversationDetails = (conver) => {
     if (conver.type === "direct") {
       const otherParticipant = conver.participants?.find(
-        (p) => p.userId && p.userId._id !== userCurrent?._id
+        (p) => p.userId && p.userId._id !== userCurrent?._id,
       )?.userId;
       return {
         name: otherParticipant?.full_name || "Chat ",
         username: otherParticipant?.username || "",
-        avatar: otherParticipant?.profile_picture || "/default-avatar.png",
-        isOnline: otherParticipant ? onlineUsers.includes(otherParticipant._id) : false,
+        avatar: otherParticipant?.profile_picture || "/default-avatar.avif",
+        isOnline: otherParticipant
+          ? onlineUsers.includes(otherParticipant._id)
+          : false,
       };
     } else {
       return {
         name: conver.name || "Group chat ",
         username: "Group",
-        avatar: conver.profile_picture || "/default-avatar.png",
+        avatar: conver.profile_picture || "/default-avatar.avif",
         isOnline: false,
       };
     }
@@ -107,7 +109,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
       const scrollAmount = 200;
       messengerScrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
@@ -115,14 +117,13 @@ const SharePostModal = ({ post, onClose, onShare }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[92vh] border border-gray-150 animate-scale-up">
-        
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 shrink-0">
           <div className="w-8"></div>
           <h2 className="text-xl font-bold text-gray-900 select-none text-center flex-1">
             Share
           </h2>
-          <button 
+          <button
             onClick={onClose}
             className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors cursor-pointer"
           >
@@ -132,14 +133,16 @@ const SharePostModal = ({ post, onClose, onShare }) => {
 
         {/* Scrollable Container */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-5">
-          
           {/* Post to feed section */}
           <div className="space-y-4">
             {/* User header info */}
             <div className="flex items-center gap-3">
-              <img 
-                src={userCurrent?.profile_picture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"} 
-                alt="" 
+              <img
+                src={
+                  userCurrent?.profile_picture ||
+                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
+                }
+                alt=""
                 className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200"
               />
               <div className="space-y-1">
@@ -194,13 +197,13 @@ const SharePostModal = ({ post, onClose, onShare }) => {
             <div className="flex justify-between items-center select-none">
               <h3 className="font-bold text-gray-900 text-sm">Messenger</h3>
               <div className="flex gap-1">
-                <button 
+                <button
                   onClick={() => scrollMessenger("left")}
                   className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 cursor-pointer"
                 >
                   <ChevronLeft size={14} />
                 </button>
-                <button 
+                <button
                   onClick={() => scrollMessenger("right")}
                   className="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 cursor-pointer"
                 >
@@ -210,26 +213,30 @@ const SharePostModal = ({ post, onClose, onShare }) => {
             </div>
 
             {/* Messenger Horizonal scroll list */}
-            <div 
+            <div
               ref={messengerScrollRef}
               className="flex gap-4 overflow-x-auto no-scrollbar py-2 px-1 select-none"
             >
               {loadingConversations ? (
-                <div className="text-center w-full py-2 text-xs text-gray-500">Loading conversation...</div>
+                <div className="text-center w-full py-2 text-xs text-gray-500">
+                  Loading conversation...
+                </div>
               ) : conversations.length === 0 ? (
-                <div className="text-center w-full py-2 text-xs text-gray-500">No conversation found</div>
+                <div className="text-center w-full py-2 text-xs text-gray-500">
+                  No conversation found
+                </div>
               ) : (
                 conversations.map((conver) => {
                   const details = getConversationDetails(conver);
                   return (
-                    <div 
+                    <div
                       key={conver._id}
                       onClick={() => setSelectedConversation(conver)}
                       className="flex flex-col items-center text-center gap-1.5 shrink-0 w-16 group cursor-pointer"
                     >
                       <div className="relative">
-                        <img 
-                          src={details.avatar} 
+                        <img
+                          src={details.avatar}
                           alt={details.name}
                           className="w-12 h-12 rounded-full object-cover border border-gray-100 shadow-sm group-hover:scale-105 transition-transform"
                         />
@@ -251,13 +258,13 @@ const SharePostModal = ({ post, onClose, onShare }) => {
 
           {/* Section: Share to (Social Apps) */}
           <div className="space-y-3">
-            <h3 className="font-bold text-gray-900 text-sm select-none">Share to</h3>
-            
-            <div className="grid grid-cols-6 gap-2 py-1 select-none">
-              
+            <h3 className="font-bold text-gray-900 text-sm select-none">
+              Share to
+            </h3>
 
+            <div className="grid grid-cols-6 gap-2 py-1 select-none">
               {/* Copy Link */}
-              <button 
+              <button
                 onClick={handleCopyLink}
                 className="flex flex-col items-center gap-1.5 cursor-pointer group"
               >
@@ -268,71 +275,82 @@ const SharePostModal = ({ post, onClose, onShare }) => {
                   Copy Link
                 </span>
               </button>
-
-             
-
-             
-
-           
-
             </div>
           </div>
         </div>
       </div>
 
-      {selectedConversation && (() => {
-        const details = getConversationDetails(selectedConversation);
-        return (
-          <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4 animate-scale-in">
-              <div className="flex justify-between items-center pb-2 border-b">
-                <h4 className="font-bold text-gray-900 text-base">Gửi đến {details.name}</h4>
-                <button onClick={() => setSelectedConversation(null)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
-                  <X size={18} />
-                </button>
-              </div>
-              
-              <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
-                <img 
-                  src={details.avatar} 
-                  alt="" 
-                  className="w-10 h-10 rounded-full object-cover border" 
-                />
-                <div>
-                  <p className="font-semibold text-sm text-gray-800">{details.name}</p>
-                  {details.username && <p className="text-xs text-gray-500">@{details.username}</p>}
+      {selectedConversation &&
+        (() => {
+          const details = getConversationDetails(selectedConversation);
+          return (
+            <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-xs px-4">
+              <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4 animate-scale-in">
+                <div className="flex justify-between items-center pb-2 border-b">
+                  <h4 className="font-bold text-gray-900 text-base">
+                    Gửi đến {details.name}
+                  </h4>
+                  <button
+                    onClick={() => setSelectedConversation(null)}
+                    className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                  <img
+                    src={details.avatar}
+                    alt=""
+                    className="w-10 h-10 rounded-full object-cover border"
+                  />
+                  <div>
+                    <p className="font-semibold text-sm text-gray-800">
+                      {details.name}
+                    </p>
+                    {details.username && (
+                      <p className="text-xs text-gray-500">
+                        @{details.username}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-gray-600">
+                    Additional message
+                  </label>
+                  <textarea
+                    value={msgText}
+                    onChange={(e) => setMsgText(e.target.value)}
+                    placeholder="Enter message..."
+                    className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[80px]"
+                  />
+                </div>
+
+                <div className="flex gap-3 justify-end pt-2">
+                  <button
+                    onClick={() => setSelectedConversation(null)}
+                    className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50 text-gray-700 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSendMsg}
+                    disabled={sendingMsg}
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold flex items-center gap-2 cursor-pointer disabled:bg-blue-400"
+                  >
+                    {sendingMsg ? (
+                      <LoaderCircle size={14} className="animate-spin" />
+                    ) : (
+                      "Send"
+                    )}
+                  </button>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-gray-600">Additional message</label>
-                <textarea
-                  value={msgText}
-                  onChange={(e) => setMsgText(e.target.value)}
-                  placeholder="Enter message..."
-                  className="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none min-h-[80px]"
-                />
-              </div>
-
-              <div className="flex gap-3 justify-end pt-2">
-                <button
-                  onClick={() => setSelectedConversation(null)}
-                  className="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50 text-gray-700 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSendMsg}
-                  disabled={sendingMsg}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold flex items-center gap-2 cursor-pointer disabled:bg-blue-400"
-                >
-                  {sendingMsg ? <LoaderCircle size={14} className="animate-spin" /> : "Send"}
-                </button>
-              </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
     </div>
   );
 };

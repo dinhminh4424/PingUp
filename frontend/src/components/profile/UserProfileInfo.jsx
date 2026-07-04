@@ -144,7 +144,7 @@ const UserProfileInfo = ({ user, posts, profileId, setShowEdit }) => {
           <div className="relative w-full h-full">
             <div className="w-full h-full border-4 border-white shadow-lg rounded-full overflow-hidden bg-gray-100">
               <img
-                src={user.profile_picture || "/default-avatar.png"}
+                src={user.profile_picture || "/default-avatar.avif"}
                 className="w-full h-full object-cover rounded-full z-2"
                 alt=""
               />

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSocket } from "./SocketContext";
 import toast from "react-hot-toast";
+import { useAuth } from "./AuthContext";
 
 import { getPost } from "../services/PostServices.js";
 
@@ -8,6 +9,7 @@ const FeedContext = createContext();
 
 export const FeedProvider = ({ children }) => {
   const { socket } = useSocket();
+  const { userCurrent } = useAuth();
 
   const [feeds, setFeeds] = useState([]);
 
@@ -136,8 +138,13 @@ export const FeedProvider = ({ children }) => {
   }, [socket]);
 
   useEffect(() => {
-    fetchFeeds(1, false);
-  }, []);
+    if (userCurrent) {
+      fetchFeeds(1, false);
+    } else {
+      setFeeds([]);
+      setError("");
+    }
+  }, [userCurrent]);
 
   return (
     <FeedContext.Provider

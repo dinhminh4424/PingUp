@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getNotifications } from "../services/NotificationServices";
 import { useSocket } from "./SocketContext";
+import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
 import {
   Bell,
@@ -16,6 +17,7 @@ const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const { socket } = useSocket();
+  const { userCurrent } = useAuth();
 
   const [notifications, setNotifications] = useState([]);
 
@@ -125,8 +127,18 @@ export const NotificationProvider = ({ children }) => {
   }, [socket]);
 
   useEffect(() => {
-    fetchNotificationsList();
-  }, []);
+    if (userCurrent) {
+      fetchNotificationsList();
+    } else {
+      setNotifications([]);
+      setUnreadCounts({
+        message: 0,
+        interaction: 0,
+        friend: 0,
+        system: 0,
+      });
+    }
+  }, [userCurrent]);
 
   return (
     <NotificationContext.Provider
