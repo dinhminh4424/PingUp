@@ -79,6 +79,14 @@ const conversationSchema = new mongoose.Schema(
       of: Number,
       default: {},
     },
+    theme: {
+      type: { type: String, enum: ["color", "image"], default: "color" },
+      value: { type: String, default: "#eef0f3" }
+    },
+    quickEmoji: {
+      type: String,
+      default: "👍"
+    }
   },
   { timestamps: true },
 );

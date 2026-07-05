@@ -40,6 +40,14 @@ const messageSchema = mongoose.Schema(
         emoji: { type: String, required: true }
       }
     ],
+    linkPreview: {
+      title: { type: String },
+      description: { type: String },
+      image: { type: String },
+      url: { type: String },
+      domain: { type: String },
+      siteName: { type: String }
+    },
   },
   {
     timestamps: true,

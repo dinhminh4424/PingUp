@@ -10,7 +10,7 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getConversations, createConversation } from "../services/Conversation";
+import { getConversations, createConversation } from "../services/ConversationServices";
 import { getConnectionsList } from "../services/ConnectionServices";
 import { useAuth } from "../contexts/AuthContext";
 import { useSocket } from "../contexts/SocketContext";

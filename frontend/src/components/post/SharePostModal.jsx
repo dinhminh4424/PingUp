@@ -15,7 +15,7 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
 import { sharePost } from "../../services/PostServices";
-import { getConversations } from "../../services/Conversation";
+import { getConversations } from "../../services/ConversationServices";
 import toast from "react-hot-toast";
 
 const SharePostModal = ({ post, onClose, onShare }) => {

@@ -93,6 +93,52 @@ class ConversationController {
       });
     }
   }
+
+  async updateConversation(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const { name } = req.body;
+
+      let imageGroup = undefined;
+      if (req.file) {
+        try {
+          const uploadResult = await uploadImageFromBuffer(req.file.buffer);
+          imageGroup = uploadResult.secure_url;
+        } catch (uploadError) {
+          console.error("Lỗi khi tải ảnh nhóm lên Cloudinary: ", uploadError);
+        }
+      }
+
+      const result = await ConversationService.updateGroup(conversationId, name, imageGroup);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi cập nhật cuộc trò chuyện: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi cập nhật cuộc trò chuyện: " + error.message,
+      });
+    }
+  }
+  async updateCustomization(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const { themeType, themeValue, quickEmoji } = req.body;
+
+      const result = await ConversationService.updateCustomization(
+        conversationId,
+        themeType,
+        themeValue,
+        quickEmoji
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi cập nhật tùy chỉnh hộp thoại: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi cập nhật tùy chỉnh hộp thoại: " + error.message,
+      });
+    }
+  }
 }
 
 export default new ConversationController();

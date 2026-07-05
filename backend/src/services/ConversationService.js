@@ -208,6 +208,95 @@ class ConversationService {
       };
     }
   }
+  async updateGroup(conversationId, name, imageGroup) {
+    try {
+      const updateData = {};
+      if (name) updateData["group.name"] = name;
+      if (imageGroup !== undefined) updateData["group.imageGroup"] = imageGroup;
+
+      const conversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        { $set: updateData },
+        { returnDocument: "after" }
+      ).populate(
+        "participants.userId",
+        "_id email username full_name bio profile_picture cover_photo location"
+      );
+
+      if (!conversation) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy hộp thoại",
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Cập nhật nhóm thành công",
+          conversation,
+        },
+      };
+    } catch (error) {
+      console.log("Lỗi cập nhật nhóm: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
+  async updateCustomization(conversationId, themeType, themeValue, quickEmoji) {
+    try {
+      const updateData = {};
+      if (themeType !== undefined) updateData["theme.type"] = themeType;
+      if (themeValue !== undefined) updateData["theme.value"] = themeValue;
+      if (quickEmoji !== undefined) updateData["quickEmoji"] = quickEmoji;
+
+      const conversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        { $set: updateData },
+        { returnDocument: "after" }
+      ).populate(
+        "participants.userId",
+        "_id email username full_name bio profile_picture cover_photo location"
+      );
+
+      if (!conversation) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy hộp thoại",
+          },
+        };
+      }
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Cập nhật tùy chỉnh thành công",
+          conversation,
+        },
+      };
+    } catch (error) {
+      console.log("Lỗi cập nhật tùy chỉnh: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
 }
 
 export default new ConversationService();

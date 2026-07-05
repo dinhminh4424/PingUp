@@ -30,3 +30,21 @@ export const createConversation = async (dataConversation) => {
   });
   return res.data;
 };
+
+export const updateConversation = async (conversationId, name, imageGroupFile) => {
+  const formData = new FormData();
+  if (name) formData.append("name", name);
+  if (imageGroupFile) formData.append("imageGroup", imageGroupFile);
+
+  const res = await api.put(`/api/conversation/${conversationId}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+export const updateConversationCustomization = async (conversationId, data) => {
+  const res = await api.put(`/api/conversation/${conversationId}/customization`, data);
+  return res.data;
+};

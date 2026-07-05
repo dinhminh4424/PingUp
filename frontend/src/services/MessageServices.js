@@ -7,7 +7,7 @@ export const getMessages = async (conversationId, page = 1, limit = 20) => {
   return res.data;
 };
 
-export const sendMessage = async (conversationId, content, imageFiles, fileFiles, replyTo) => {
+export const sendMessage = async (conversationId, content, imageFiles, fileFiles, replyTo, linkPreview) => {
   const formData = new FormData();
   formData.append("conversationId", conversationId);
   if (content) {
@@ -15,6 +15,9 @@ export const sendMessage = async (conversationId, content, imageFiles, fileFiles
   }
   if (replyTo) {
     formData.append("replyTo", replyTo);
+  }
+  if (linkPreview) {
+    formData.append("linkPreview", JSON.stringify(linkPreview));
   }
   if (imageFiles) {
     if (Array.isArray(imageFiles)) {
@@ -45,5 +48,12 @@ export const sendMessage = async (conversationId, content, imageFiles, fileFiles
 
 export const reactToMessage = async (messageId, emoji) => {
   const res = await api.post(`/api/message/${messageId}/react`, { emoji });
+  return res.data;
+};
+
+export const getLinkPreview = async (url) => {
+  const res = await api.get("/api/message/link-preview", {
+    params: { url },
+  });
   return res.data;
 };
