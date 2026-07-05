@@ -5,7 +5,7 @@ import { v2 as cloudinary } from "cloudinary";
 export const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fieldSize: 1024 * 1024 * 1, //1MB
+    fieldSize: 1024 * 1024 * 4, //4MB
   },
 });
 

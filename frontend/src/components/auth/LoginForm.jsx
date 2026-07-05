@@ -30,7 +30,7 @@ const LoginForm = () => {
 
       await loginAuth(res.data.user, res.data.accessToken);
 
-      toast.success("Đăng nhập thành công!", {
+      toast.success("Login success!", {
         duration: 3000,
       });
 
@@ -38,8 +38,8 @@ const LoginForm = () => {
         navigate("/");
       }, 1000);
     } catch (error) {
-      console.log("Lỗi: ", error);
-      setError(error.response?.data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+      console.log("Error: ", error);
+      setError(error.response?.data?.message || "Login failed. Please check your information.");
     } finally {
       setIsLoading(false);
     }
@@ -49,10 +49,10 @@ const LoginForm = () => {
     <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/60 p-8 md:p-10 transition-all duration-300 hover:shadow-2xl">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          Chào mừng quay lại!
+          Welcome back
         </h2>
         <p className="text-slate-500 text-sm font-medium">
-          Đăng nhập để kết nối với cộng đồng PingUp
+          Login to connect with the PingUp community
         </p>
       </div>
 
@@ -67,7 +67,7 @@ const LoginForm = () => {
         {/* Email */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2 pl-1">
-            Email của bạn *
+            Your email *
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -89,7 +89,7 @@ const LoginForm = () => {
         {/* Password */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2 pl-1">
-            Mật khẩu *
+            Your password *
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -102,7 +102,7 @@ const LoginForm = () => {
                 setLoginForm({ ...loginForm, password: e.target.value })
               }
               className="w-full pl-11 pr-12 py-3 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
-              placeholder="Nhập mật khẩu"
+              placeholder="Enter your password"
               required
             />
             <button
@@ -125,7 +125,7 @@ const LoginForm = () => {
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           ) : (
             <>
-              <span>Đăng Nhập</span>
+              <span>Login</span>
               <LogIn size={18} />
             </>
           )}
@@ -134,12 +134,12 @@ const LoginForm = () => {
 
       <div className="mt-8 text-center border-t border-slate-100 pt-6">
         <p className="text-sm text-slate-500 font-medium">
-          Bạn chưa có tài khoản?{" "}
+          Don't have an account?{" "}
           <Link
             to="/register"
             className="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
           >
-            Đăng ký ngay
+            Register now
           </Link>
         </p>
       </div>

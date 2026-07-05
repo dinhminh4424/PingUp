@@ -4,9 +4,12 @@ import { upload } from "../middlewares/UpLoadMiddleware.js";
 
 const router = express.Router();
 
+// GET
 router.get("/me", UserController.authMe);
+router.get("/search", UserController.findUserBySearch);
 router.get("/:id", UserController.getUserById);
 
+// PUT
 router.put(
   "/",
   upload.fields([

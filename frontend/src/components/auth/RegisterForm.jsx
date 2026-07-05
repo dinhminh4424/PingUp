@@ -26,21 +26,21 @@ const RegisterForm = () => {
     try {
       setError("");
       if (registerForm.password !== registerForm.passwordCheck) {
-        setError("Mật khẩu xác nhận phải giống nhau!");
+        setError("Password confirmation must be the same!");
         return;
       }
 
       setIsLoading(true);
       let res = await register(registerForm);
       if (res.success || res.data) {
-        toast.success("Tạo tài khoản thành công! Vui lòng đăng nhập.");
+        toast.success("Register success! Please login.");
         setTimeout(() => {
           navigate("/");
         }, 1500);
       }
     } catch (error) {
-      console.log("Lỗi: ", error);
-      setError(error.response?.data?.message || "Tạo tài khoản thất bại. Vui lòng thử lại.");
+      console.log("Error: ", error);
+      setError(error.response?.data?.message || "Register failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -50,10 +50,10 @@ const RegisterForm = () => {
     <div className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/60 p-8 md:p-10 transition-all duration-300 hover:shadow-2xl">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          Tạo Tài Khoản
+          Register account
         </h2>
         <p className="text-slate-500 text-sm font-medium">
-          Đăng ký để khám phá và kết nối trên PingUp
+          Register to discover and connect with PingUp community
         </p>
       </div>
 
@@ -90,7 +90,7 @@ const RegisterForm = () => {
         {/* Username */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5 pl-1">
-            Tên đăng nhập *
+            Username *
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -112,7 +112,7 @@ const RegisterForm = () => {
         {/* Full Name */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5 pl-1">
-            Họ và tên
+            Full name
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -133,7 +133,7 @@ const RegisterForm = () => {
         {/* Password */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5 pl-1">
-            Mật khẩu *
+            Password *
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -146,7 +146,7 @@ const RegisterForm = () => {
                 setRegisterForm({ ...registerForm, password: e.target.value })
               }
               className="w-full pl-11 pr-12 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
-              placeholder="Nhập mật khẩu"
+              placeholder="Enter your password"
               required
             />
             <button
@@ -162,7 +162,7 @@ const RegisterForm = () => {
         {/* Password Check */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5 pl-1">
-            Xác nhận mật khẩu *
+            Confirm password *
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -178,7 +178,7 @@ const RegisterForm = () => {
                 })
               }
               className="w-full pl-11 pr-12 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
-              placeholder="Nhập lại mật khẩu"
+              placeholder="Confirm your password"
               required
             />
             <button
@@ -201,7 +201,7 @@ const RegisterForm = () => {
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           ) : (
             <>
-              <span>Đăng Ký</span>
+              <span>Register</span>
               <UserPlus size={18} />
             </>
           )}
@@ -210,12 +210,12 @@ const RegisterForm = () => {
 
       <div className="mt-6 text-center border-t border-slate-100 pt-5">
         <p className="text-sm text-slate-500 font-medium">
-          Đã có tài khoản?{" "}
+          Already have an account?{" "}
           <Link
             to="/"
             className="font-bold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
           >
-            Đăng nhập ngay
+            Login now
           </Link>
         </p>
       </div>

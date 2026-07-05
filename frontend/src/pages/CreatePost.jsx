@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
-import { dummyUserData } from "../assets/assets";
-import { Image, X } from "lucide-react";
+// import { dummyUserData } from "../assets/assets";
+import { Image, X, Smile } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
 import { createPost } from "../services/PostServices";
+import EmojiPicker from "emoji-picker-react";
 
 const CreatePost = () => {
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [loadings, setLoadings] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const textareaRef = useRef(null);
 
   const { userCurrent: user } = useAuth();
@@ -31,10 +33,11 @@ const CreatePost = () => {
       setContent("");
       setImages([]);
       setError("");
+      setShowEmojiPicker(false);
       return result;
     } catch (error) {
       console.log("Lỗi: ", error);
-      setError(error.response?.data?.message || "Đăng bài thất bại");
+      setError(error.response?.data?.message || "Post creation failed");
       throw error;
     } finally {
       setLoadings(false);
@@ -52,11 +55,11 @@ const CreatePost = () => {
           <p className="text-slate-600">Share your thoughts with the world</p>
         </div>
         {/* Form */}
-        <div className="max-w-xl bg-white p-4 sm:p-8 sm:pb-3 rounded-xl shadow-md space-y-4">
+        <div className="max-w-xl bg-white p-4 sm:p-8 sm:pb-3 rounded-xl shadow-md space-y-4 relative">
           {/* Header */}
           <div className="flex items-center gap-3">
             <img
-              src={user.profile_picture}
+              src={user.profile_picture || "/default-avatar.avif"}
               className="w-12 h-12 rounded-full shadow"
               alt=""
             />
@@ -70,7 +73,7 @@ const CreatePost = () => {
           {/* Text Area */}
           <textarea
             ref={textareaRef}
-            className="w-full resize-none mt-4 text-sm outline-none placeholder-gray-400 overflow-hidden"
+            className="w-full resize-none mt-4 text-sm outline-none placeholder-gray-400 overflow-hidden animate-fade-in"
             placeholder="What is happening?"
             onChange={(e) => setContent(e.target.value)}
             value={content}
@@ -101,20 +104,45 @@ const CreatePost = () => {
 
           {/* Bottom bar */}
           <div className="flex items-center justify-between pt-3 border-t border-gray-300">
-            <label
-              htmlFor="images"
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition cursor-pointer"
-            >
-              <Image className="size-6 " />
-            </label>
-            <input
-              type="file"
-              id="images"
-              accept="image/*"
-              hidden
-              multiple
-              onChange={(e) => setImages([...images, ...e.target.files])}
-            />
+            <div className="flex items-center gap-4 relative">
+              <label
+                htmlFor="images"
+                className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition cursor-pointer"
+                title="Attach image"
+              >
+                <Image className="size-6" />
+              </label>
+              <input
+                type="file"
+                id="images"
+                accept="image/*"
+                hidden
+                multiple
+                onChange={(e) => setImages([...images, ...e.target.files])}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="text-gray-500 hover:text-gray-700 transition cursor-pointer flex items-center justify-center"
+                title="Add emoji"
+              >
+                <Smile className="size-6" />
+              </button>
+
+              {showEmojiPicker && (
+                <div className="absolute bottom-10 left-0 z-50 shadow-2xl rounded-xl overflow-hidden border border-gray-150">
+                  <EmojiPicker 
+                    onEmojiClick={(emojiData) => setContent(prev => prev + emojiData.emoji)}
+                    width={280}
+                    height={320}
+                    searchDisabled={false}
+                    skinTonesDisabled={true}
+                    previewConfig={{ showPreview: false }}
+                  />
+                </div>
+              )}
+            </div>
 
             <button
               disabled={loadings}

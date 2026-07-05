@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 // import { dummyUserData } from "../assets/assets";
-import { useAuth } from "../contexts/AuthContext";
-import { updateInfoUser } from "../services/UserServices";
+import { useAuth } from "../../contexts/AuthContext";
+import { updateInfoUser } from "../../services/UserServices";
 import { LoaderCircle, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -45,19 +45,19 @@ const ProfileModal = ({ setShowEdit }) => {
       user.profile_picture = result.profile_picture;
       user.cover_photo = result.cover_photo;
 
-      toast.success("Cập nhật thành công!", {
+      toast.success("Updated successfully!", {
         duration: 3000,
       });
     } catch (error) {
       console.log("Error: ", error);
-      toast.error("Cập nhật thất bại!", {
+      toast.error("Updated failed!", {
         duration: 3000,
       });
       setError(
-        "Lỗi: " + error.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+        "Error: " + error.response?.data?.message ||
+          "Updated failed. Please try again.",
       );
-      console.log("Lỗi: ", error);
+      console.log("Error: ", error);
     } finally {
       setLoading(false);
     }

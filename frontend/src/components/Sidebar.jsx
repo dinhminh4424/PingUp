@@ -13,8 +13,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
   const { logout: logoutAuth, userCurrent: user } = useAuth();
 
-  console.log("userCurrent: ", user);
-
   const handleLogout = async () => {
     try {
       const res = await logout();
@@ -62,7 +60,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             {user.profile_picture ? (
               <img src={user.profile_picture} alt="" className="rounded-full" />
             ) : (
-              <User className="rounded-full w-9 h-9" />
+              <img src="/default-avatar.avif" alt="" className="rounded-full" />
             )}
           </div>
 

@@ -1,7 +1,9 @@
 import api from "../lib/axios";
 
-export const getPost = async () => {
-  const res = await api.get("/api/posts");
+export const getPost = async (page = 1, limit = 10) => {
+  const res = await api.get("/api/posts", {
+    params: { page, limit },
+  });
   return res.data;
 };
 
@@ -40,5 +42,25 @@ export const updatePost = async (id, postData) => {
 
 export const deletePost = async (id) => {
   const res = await api.delete(`/api/posts/${id}`);
+  return res.data;
+};
+
+export const toggleLike = async (id) => {
+  const res = await api.put(`/api/posts/${id}/toggleLike`);
+  return res.data;
+};
+
+export const getPostById = async (id) => {
+  const res = await api.get(`/api/posts/${id}`);
+  return res.data;
+};
+
+export const sharePost = async (originalPostId, content) => {
+  const res = await api.post("/api/posts/sharePost", { originalPostId, content });
+  return res.data;
+};
+
+export const getLikedPosts = async (userId) => {
+  const res = await api.get(`/api/posts/user/${userId}/liked`);
   return res.data;
 };

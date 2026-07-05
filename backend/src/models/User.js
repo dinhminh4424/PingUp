@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     username: { type: "String", unique: true },
     bio: {
       type: "String",
-      default: "Bạn hãy ghi viết mô tả ngắn về bản thân đi nhóc!",
+      default: "You should write a short description about yourself! ",
     },
     profile_picture: {
       type: "String",
@@ -20,27 +20,12 @@ const userSchema = new mongoose.Schema(
     },
     location: {
       type: "String",
-      default: "Chưa cập nhật!",
+      default: "Not updated yet!",
     },
-    followers: [
-      {
-        type: "String",
-        ref: "User",
-      },
-    ],
-    following: [
-      {
-        type: "String",
-        ref: "User",
-      },
-    ],
-    connections: [
-      {
-        type: "String",
-        ref: "User",
-      },
-    ],
+
     isActive: { type: Boolean, default: true },
+    role: { type: String, default: "user", enum: ["user", "admin"] },
+    activeOnline: { type: Boolean, default: true },
   },
   {
     timestamps: true,

@@ -1,24 +1,54 @@
 import React, { useState } from "react";
-import { dummyConnectionsData } from "../assets/assets";
+
 import { Search } from "lucide-react";
 import UserCard from "../components/UserCard";
 import Loading from "../components/Loading";
+import { findUserBySearch } from "../services/UserServices";
+import { useEffect } from "react";
 
 const Discover = () => {
   const [input, setInput] = useState("");
-  const [users, setUsers] = useState(dummyConnectionsData);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSearch = async (e) => {
     if (e.key === "Enter") {
       setUsers([]);
       setLoading(true);
-      setTimeout(() => {
-        setUsers(dummyConnectionsData);
+      setError("");
+      try {
+        const result = await findUserBySearch(input);
+
+        setUsers(result.users);
+      } catch (error) {
+        console.error("Lỗi : ", error);
+        setError(error.response?.data?.message || "Lỗi lọc người dùng");
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     }
   };
+
+  const fetchUserFind = async () => {
+    setUsers([]);
+    setLoading(true);
+    setError("");
+    try {
+      const result = await findUserBySearch(input);
+
+      setUsers(result.users);
+    } catch (error) {
+      console.error("Lỗi : ", error);
+      setError(error.response?.data?.message || "Lỗi lọc người dùng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserFind();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -32,6 +62,7 @@ const Discover = () => {
             Connections with amazing people and grow your network
           </p>
         </div>
+        {error && <p className="text-red-600">{error}</p>}
 
         {/* Search */}
         <div className="mb-8 shadow-md rounded-md border border-slate-200/60 bg-white/80 ">

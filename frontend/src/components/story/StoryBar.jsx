@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { dummyStoriesData } from "../assets/assets.js";
+import { dummyStoriesData } from "../../assets/assets.js";
 import { Plus } from "lucide-react";
 import moment from "moment";
 import StoryModal from "./StoryModal.jsx";

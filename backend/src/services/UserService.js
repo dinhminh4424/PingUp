@@ -1,5 +1,9 @@
 import User from "../models/User.js";
+import Follow from "../models/Follow.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
+import Connection from "../models/Connection.js";
+import mongoose from "mongoose";
+import ConnectionRequest from "../models/ConnectionRequest.js";
 
 class UserService {
   async getUserById(id) {
@@ -8,12 +12,29 @@ class UserService {
         _id: id,
       });
 
+      if (!user) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy người dùng",
+          },
+        };
+      }
+
+      const followersCount = await Follow.countDocuments({ following: id });
+      const followingCount = await Follow.countDocuments({ follower: id });
+
+      const userObj = user.toObject();
+      userObj.followersCount = followersCount;
+      userObj.followingCount = followingCount;
+
       return {
         status: 200,
         data: {
           success: true,
           message: "Lấy User by id thành công: " + id,
-          user: user,
+          user: userObj,
         },
       };
     } catch (error) {
@@ -58,7 +79,9 @@ class UserService {
         data.cover_photo = uploadResult.secure_url;
       }
 
-      const user = await User.findByIdAndUpdate(id, data, { returnDocument: "after" });
+      const user = await User.findByIdAndUpdate(id, data, {
+        returnDocument: "after",
+      });
 
       console.log("User: ", user);
 
@@ -78,6 +101,134 @@ class UserService {
           success: false,
           message:
             "Lỗi khi chỉnh sửa thông tin user updateInfoUser: " + error.message,
+        },
+      };
+    }
+  }
+
+  async findUserBySearch(search, userId) {
+    try {
+      let rawUsers = [];
+
+      if (!search || search.trim() === "") {
+        // Lấy danh sách bạn bè
+        const connections = await Connection.find({
+          $or: [{ userA: userId }, { userB: userId }],
+        })
+          .populate("userA", "full_name username profile_picture location bio")
+          .populate("userB", "full_name username profile_picture location bio")
+          .lean();
+
+        const friendUsers = connections
+          .map((item) => {
+            if (!item.userA || !item.userB) return null;
+            return item.userA._id.toString() === userId.toString()
+              ? item.userB
+              : item.userA;
+          })
+          .filter(Boolean);
+
+        // Lấy danh sách người mình đang follow
+        const follows = await Follow.find({
+          follower: userId,
+        })
+          .populate(
+            "following",
+            "full_name username profile_picture location bio",
+          )
+          .lean();
+
+        const followUsers = follows
+          .map((item) => item.following)
+          .filter(Boolean);
+
+        // Gộp và loại bỏ trùng
+        rawUsers = Array.from(
+          new Map(
+            [...friendUsers, ...followUsers].map((user) => [
+              user._id.toString(),
+              user,
+            ]),
+          ).values(),
+        );
+      } else {
+        rawUsers = await User.find({
+          _id: { $ne: userId },
+          $or: [
+            { full_name: { $regex: search, $options: "i" } },
+            { username: { $regex: search, $options: "i" } },
+            { bio: { $regex: search, $options: "i" } },
+            { location: { $regex: search, $options: "i" } },
+          ],
+        }).lean();
+      }
+
+      const myId = new mongoose.Types.ObjectId(userId);
+
+      const users = await Promise.all(
+        rawUsers.map(async (user) => {
+          const [
+            follow,
+            connection,
+            reqSentDoc,
+            reqReceivedDoc,
+            followersCount,
+          ] = await Promise.all([
+            Follow.exists({
+              follower: myId,
+              following: user._id,
+            }),
+
+            Connection.exists({
+              $or: [
+                { userA: myId, userB: user._id },
+                { userA: user._id, userB: myId },
+              ],
+            }),
+
+            ConnectionRequest.findOne({
+              sender: myId,
+              receiver: user._id,
+              status: "pending",
+            }).lean(),
+
+            ConnectionRequest.findOne({
+              sender: user._id,
+              receiver: myId,
+              status: "pending",
+            }).lean(),
+
+            Follow.countDocuments({
+              following: user._id,
+            }),
+          ]);
+
+          return {
+            ...user,
+            isFollowing: !!follow,
+            isConnected: !!connection,
+            requestSent: !!reqSentDoc,
+            requestReceived: !!reqReceivedDoc,
+            requestId: reqSentDoc?._id || reqReceivedDoc?._id || null,
+            followersCount: followersCount || 0,
+          };
+        }),
+      );
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy danh sách người dùng thành công",
+          users,
+        },
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống tìm kiếm người dùng: " + error.message,
         },
       };
     }
