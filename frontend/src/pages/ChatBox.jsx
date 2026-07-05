@@ -63,10 +63,14 @@ const ChatBox = () => {
   const [showLinkPreview, setShowLinkPreview] = useState(false);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [activeReactPickerMsgId, setActiveReactPickerMsgId] = useState(null);
+  const [selectedReactionsMessage, setSelectedReactionsMessage] =
+    useState(null);
   const lastFetchedUrlRef = useRef("");
+  const lastMessageIdRef = useRef(null);
+  const scrollPositionBeforeLoadRef = useRef(null);
   const { userCurrent } = useAuth();
   const [user, setUser] = useState(null);
-  const {  onlineUsers } = useSocket();
+  const { onlineUsers } = useSocket();
 
   const {
     messages,
@@ -78,7 +82,7 @@ const ChatBox = () => {
     handleReact,
     messagesLoading,
     messagesHasMore,
-    messagesPage
+    messagesPage,
   } = useChat();
 
   const navigate = useNavigate();
@@ -154,9 +158,13 @@ const ChatBox = () => {
   };
 
   const handleScroll = () => {
-    if (!scrollContainerRef.current || messagesLoading || !messagesHasMore) return;
+    if (!scrollContainerRef.current || messagesLoading || !messagesHasMore)
+      return;
 
     if (scrollContainerRef.current.scrollTop <= 10) {
+      // Lưu lại chiều cao của container trước khi tải dữ liệu trang mới
+      scrollPositionBeforeLoadRef.current =
+        scrollContainerRef.current.scrollHeight;
       fetchChatMessages(id, messagesPage + 1, true);
     }
   };
@@ -206,24 +214,44 @@ const ChatBox = () => {
     }
   }, [currentConversation, userCurrent]);
 
-  // useEffect tự động cuộn trang khi nhận tin nhắn mới
+  // useEffect tự động cuộn trang khi nhận tin nhắn mới và giữ vị trí cuộn khi phân trang
   useEffect(() => {
     if (messages.length > 0 && scrollContainerRef.current) {
-      const latestMsg = messages[0]; // tin nhắn mới nhất nằm ở đầu mảng (do flex-col-reverse)
-      const isMe = (latestMsg.senderId?._id || latestMsg.senderId) === userCurrent._id;
-      
-      const isNearBottom =
-        scrollContainerRef.current.scrollHeight -
-          scrollContainerRef.current.clientHeight -
-          scrollContainerRef.current.scrollTop <
-        300;
+      const container = scrollContainerRef.current;
 
-      if (isMe || isNearBottom) {
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
-          }
-        }, 50);
+      // Nếu đang trong quá trình tải tin nhắn cũ (phân trang)
+      if (scrollPositionBeforeLoadRef.current !== null) {
+        const heightDifference =
+          container.scrollHeight - scrollPositionBeforeLoadRef.current;
+        container.scrollTop = heightDifference;
+        scrollPositionBeforeLoadRef.current = null;
+        return;
+      }
+
+      const latestMsg = messages[0]; // tin nhắn mới nhất
+      const latestMsgId = latestMsg._id || latestMsg.createdAt;
+
+      // Chỉ tự động cuộn xuống đáy khi có tin nhắn mới thực sự
+      if (latestMsgId !== lastMessageIdRef.current) {
+        lastMessageIdRef.current = latestMsgId;
+
+        const isMe =
+          (latestMsg.senderId?._id || latestMsg.senderId) === userCurrent._id;
+
+        const isNearBottom =
+          container.scrollHeight -
+            container.clientHeight -
+            container.scrollTop <
+          300;
+
+        if (isMe || isNearBottom) {
+          setTimeout(() => {
+            if (scrollContainerRef.current) {
+              scrollContainerRef.current.scrollTop =
+                scrollContainerRef.current.scrollHeight;
+            }
+          }, 50);
+        }
       }
     }
   }, [messages, userCurrent]);
@@ -394,8 +422,14 @@ const ChatBox = () => {
             onScroll={handleScroll}
             className="flex-1 p-4 md:px-8 overflow-y-auto transition-all duration-300"
             style={{
-              backgroundColor: currentConversation?.theme?.type === "image" ? undefined : (currentConversation?.theme?.value || "#eef0f3"),
-              backgroundImage: currentConversation?.theme?.type === "image" ? `url(${currentConversation.theme.value})` : undefined,
+              backgroundColor:
+                currentConversation?.theme?.type === "image"
+                  ? undefined
+                  : currentConversation?.theme?.value || "#eef0f3",
+              backgroundImage:
+                currentConversation?.theme?.type === "image"
+                  ? `url(${currentConversation.theme.value})`
+                  : undefined,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -628,7 +662,11 @@ const ChatBox = () => {
 
                         {message.reactions && message.reactions.length > 0 && (
                           <div
-                            className={`absolute bottom-[-24px] ${isMe ? "left-1" : "right-2"} flex items-center gap-0.5 bg-white border border-gray-150 px-3 py-0.5 rounded-full shadow-sm text-[10px] z-10 select-none`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedReactionsMessage(message);
+                            }}
+                            className={`absolute bottom-[-24px] ${isMe ? "left-1" : "right-2"} flex items-center gap-0.5 bg-white border border-gray-100 px-3 py-0.5 rounded-full shadow-sm text-[10px] z-10 select-none cursor-pointer hover:bg-slate-50 active:scale-95 transition`}
                           >
                             {message.reactions.map((r, i) => (
                               <div
@@ -681,7 +719,9 @@ const ChatBox = () => {
                             </button>
                           ))}
                           <button
-                            onClick={() => setActiveReactPickerMsgId(message._id)}
+                            onClick={() =>
+                              setActiveReactPickerMsgId(message._id)
+                            }
                             className="hover:scale-125 transition duration-100 p-1 size-7 cursor-pointer text-[15px] font-bold text-slate-400 hover:text-indigo-600 flex items-center justify-center bg-slate-50 hover:bg-slate-100 rounded-full"
                           >
                             +
@@ -788,7 +828,9 @@ const ChatBox = () => {
                     </p>
                   )}
                   <p className="text-[10px] text-indigo-600 font-medium mt-1">
-                    {linkPreview.domain || linkPreview.siteName || "Link preview"}
+                    {linkPreview.domain ||
+                      linkPreview.siteName ||
+                      "Link preview"}
                   </p>
                 </div>
                 <button
@@ -972,7 +1014,9 @@ const ChatBox = () => {
               ) : (
                 <button
                   type="button"
-                  onClick={() => handleSendMessage(currentConversation?.quickEmoji || "👍")}
+                  onClick={() =>
+                    handleSendMessage(currentConversation?.quickEmoji || "👍")
+                  }
                   className="text-2xl hover:scale-115 active:scale-95 transition cursor-pointer select-none"
                 >
                   {currentConversation?.quickEmoji || "👍"}
@@ -1010,6 +1054,55 @@ const ChatBox = () => {
           mediaList={modalMedia}
           initialIndex={modalIndex}
         />
+
+        {/* Reactions Detail Modal */}
+        {selectedReactionsMessage && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 animate-fade-in">
+            <div className="bg-white w-[90%] max-w-sm rounded-xl shadow-xl overflow-hidden flex flex-col max-h-[80vh]">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-3.5 border-b border-slate-100">
+                <span className="font-semibold text-slate-800 text-sm">
+                  Biểu cảm tin nhắn
+                </span>
+                <button
+                  onClick={() => setSelectedReactionsMessage(null)}
+                  className="p-1 hover:bg-slate-100 rounded-full transition cursor-pointer text-slate-400 hover:text-slate-600"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              {/* Modal Content */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                {selectedReactionsMessage.reactions.map((r, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-b-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={
+                          r.userId?.profile_picture ||
+                          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"
+                        }
+                        className="size-9 rounded-full object-cover border border-slate-100"
+                        alt=""
+                      />
+                      <div className="text-left">
+                        <p className="text-xs font-semibold text-slate-800">
+                          {r.userId?.full_name || "Thành viên"}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          @{r.userId?.username || "username"}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-2xl">{r.emoji}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   );

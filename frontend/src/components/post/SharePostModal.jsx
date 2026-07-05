@@ -16,6 +16,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSocket } from "../../contexts/SocketContext";
 import { sharePost } from "../../services/PostServices";
 import { getConversations } from "../../services/ConversationServices";
+import { sendMessage as sendMessageApi } from "../../services/MessageServices";
 import toast from "react-hot-toast";
 
 const SharePostModal = ({ post, onClose, onShare }) => {
@@ -59,10 +60,13 @@ const SharePostModal = ({ post, onClose, onShare }) => {
           : false,
       };
     } else {
+
+      console.log('group details', conver)
+
       return {
-        name: conver.name || "Group chat ",
+        name: conver.group.name || "Group chat ",
         username: "Group",
-        avatar: conver.profile_picture || "/default-avatar.avif",
+        avatar: conver.group.imageGroup || "/default-avatar.avif",
         isOnline: false,
       };
     }
@@ -93,15 +97,26 @@ const SharePostModal = ({ post, onClose, onShare }) => {
     toast.success("Copied post link!");
   };
 
-  const handleSendMsg = () => {
+  const handleSendMsg = async () => {
+    if (!selectedConversation) return;
     setSendingMsg(true);
     const details = getConversationDetails(selectedConversation);
-    setTimeout(() => {
+    try {
+      const content = `${msgText.trim() ? msgText.trim() + "\n" : ""}${window.location.origin}/post/${post._id}`;
+      const res = await sendMessageApi(selectedConversation._id, content);
+      if (res.success) {
+        toast.success(`Post sent to ${details.name}!`);
+        setSelectedConversation(null);
+        setMsgText("");
+      } else {
+        toast.error("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error sharing post via message:", error);
+      toast.error("Failed to send message");
+    } finally {
       setSendingMsg(false);
-      toast.success(`Post sent to ${details.name}!`);
-      setSelectedConversation(null);
-      setMsgText("");
-    }, 800);
+    }
   };
 
   const scrollMessenger = (direction) => {
@@ -288,7 +303,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
               <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4 animate-scale-in">
                 <div className="flex justify-between items-center pb-2 border-b">
                   <h4 className="font-bold text-gray-900 text-base">
-                    Gửi đến {details.name}
+                    Send to {details.name}
                   </h4>
                   <button
                     onClick={() => setSelectedConversation(null)}
@@ -298,7 +313,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg">
                   <img
                     src={details.avatar}
                     alt=""

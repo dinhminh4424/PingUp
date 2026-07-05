@@ -58,6 +58,7 @@ class MessageService {
       // Populate sender and reply information
       const populatedMessage = await Message.findById(message._id)
         .populate("senderId", "_id email username full_name profile_picture")
+        .populate("reactions.userId", "_id email username full_name profile_picture")
         .populate({
           path: "replyTo",
           select: "content imageUrl files senderId",
@@ -110,6 +111,7 @@ class MessageService {
       // Fetch messages sorted by newest first
       const messages = await Message.find({ conversationId })
         .populate("senderId", "_id email username full_name profile_picture")
+        .populate("reactions.userId", "_id email username full_name profile_picture")
         .populate({
           path: "replyTo",
           select: "content imageUrl files senderId",
@@ -180,6 +182,7 @@ class MessageService {
       // Populate message details
       const updatedMessage = await Message.findById(messageId)
         .populate("senderId", "_id email username full_name profile_picture")
+        .populate("reactions.userId", "_id email username full_name profile_picture")
         .populate({
           path: "replyTo",
           select: "content imageUrl files senderId",

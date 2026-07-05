@@ -466,7 +466,7 @@ const Notification = () => {
 
         {/* Tab Selection (Sticky) */}
         <div className="sticky top-0 z-10 bg-slate-50 py-3 mb-4">
-          <div className="flex border-b border-gray-200 bg-white px-2 rounded-xl shadow-sm border overflow-x-auto no-scrollbar">
+          <div className="bg-white rounded-xl shadow p-1.5 flex max-w-2xl mx-auto overflow-x-auto no-scrollbar gap-1">
             {tabsArray.map((tab) => {
               const IconComponent = tab.icon;
               const isTabActive = currentTab === tab.value;
@@ -487,18 +487,22 @@ const Notification = () => {
                 <button
                   key={tab.value}
                   onClick={() => setCurrentTab(tab.value)}
-                  className={`flex items-center gap-2 py-4 px-5 text-sm font-semibold border-b-2 transition-all duration-200 cursor-pointer relative shrink-0 ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer shrink-0 ${
                     isTabActive
-                      ? "border-indigo-600 text-indigo-600"
-                      : "border-transparent text-gray-500 hover:text-gray-800"
+                      ? "bg-indigo-600 text-white shadow-xs"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-slate-50"
                   }`}
                 >
                   <IconComponent
-                    className={`w-4 h-4 ${isTabActive ? "text-indigo-600" : "text-gray-400"}`}
+                    className={`w-4 h-4 ${isTabActive ? "text-white" : "text-gray-500"}`}
                   />
                   <span>{tab.label}</span>
                   {tabCount > 0 && (
-                    <span className="bg-indigo-600 text-white rounded-full text-[10px] font-bold px-1.5 py-0.5 ml-1">
+                    <span
+                      className={`rounded-full text-[10px] font-bold px-1.5 py-0.5 ml-1 transition-colors ${
+                        isTabActive ? "bg-white text-indigo-600" : "bg-indigo-600 text-white"
+                      }`}
+                    >
                       {tabCount}
                     </span>
                   )}
