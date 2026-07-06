@@ -8,6 +8,7 @@ import conversationRoutes from "./ConversationRoutes.js";
 import notificationRoutes from "./NotificationRoutes.js";
 import commentRoutes from "./CommentRoutes.js";
 import messageRoutes from "./MessageRoutes.js";
+import storyRoutes from "./StoryRoutes.js";
 
 const router = express.Router();
 
@@ -28,5 +29,7 @@ router.use("/notifications", notificationRoutes);
 router.use("/comments", commentRoutes);
 
 router.use("/message", messageRoutes);
+
+router.use("/story", storyRoutes);
 
 export default router;
