@@ -3,9 +3,10 @@ import { assets } from "../assets/assets.js";
 import Loading from "../components/Loading.jsx";
 import StoryBar from "../components/story/StoryBar.jsx";
 import PostCard from "../components/post/PostCard.jsx";
-import ResentMessages from "../components/ResentMessages.jsx";
+import ResentMessages from "../components/feed/ResentMessages.jsx";
 import { Loader2 } from "lucide-react";
 import { useFeed } from "../contexts/FeedContext.jsx";
+import Sponsored from "../components/feed/Sponsored.jsx";
 
 const Feed = () => {
   const loaderRef = useRef(null);
@@ -75,29 +76,15 @@ const Feed = () => {
           {isLoadingMore && (
             <div className="flex items-center gap-2 text-sm text-indigo-600 font-semibold animate-pulse">
               <Loader2 className="w-5 h-5 animate-spin" />
-              Đang tải thêm bài viết...
+              Loading more articles...
             </div>
           )}
         </div>
       </div>
       {/* Right Sidebar */}
-      <div className="max-xl:hidden sticky top-0">
-        <div className="max-w-sm bg-white text-xs p-4 rounded-md inline-flex flex-col gap-2 shadow">
-          <h3 className="text-slate-800 font-semibold">Sponsored</h3>
-          <img
-            src={assets.sponsored_img}
-            className="w-75 h-50 rounded-md "
-            alt=""
-          />
-          <p className="text-slate-600">Email Marketing</p>
-          <p className="text-slate-400">
-            Superchange your marketing with a powerful, easy-to-use platform for
-            result built
-          </p>
-        </div>
-        <h1>
-          <ResentMessages />
-        </h1>
+      <div className="max-xl:hidden sticky top-0 w-80 flex flex-col gap-4">
+        <Sponsored />
+        <ResentMessages />
       </div>
     </div>
   );

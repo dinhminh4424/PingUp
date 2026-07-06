@@ -1,6 +1,7 @@
 import { ArrowLeft, Sparkle, TextIcon, Upload } from "lucide-react";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { createPost } from "../../services/StoryServices.js";
 
 const StoryModal = ({ setShowModal, fetchStories }) => {
   const bgColors = [
@@ -12,8 +13,19 @@ const StoryModal = ({ setShowModal, fetchStories }) => {
     "#0d9488",
   ];
 
+  const textColors = [
+    "#FFFFFF",
+    "#000000",
+    "#f3f4f6",
+    "#fef08a",
+    "#86efac",
+    "#93c5fd",
+    "#f472b6",
+  ];
+
   const [mode, setMode] = useState("text");
   const [background, setBackground] = useState(bgColors[0]);
+  const [textColor, setTextColor] = useState(textColors[0]);
 
   const [text, setText] = useState("");
   const [media, setMedia] = useState(null);
@@ -27,7 +39,29 @@ const StoryModal = ({ setShowModal, fetchStories }) => {
     }
   };
 
-  const handleCreateStory = async () => {};
+  const handleCreateStory = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("content", text);
+      formData.append("background_color", background);
+      formData.append("text_color", textColor);
+      if (media) {
+        formData.append("media", media);
+      }
+
+      const result = await createPost(formData);
+
+      console.log("result story: ", result);
+      if (result.success) {
+        console.log("Create Story Success: ", result.story);
+        fetchStories();
+        setShowModal(false);
+      }
+    } catch (error) {
+      console.error("Error : ", error);
+      toast.error(error.response?.data?.message || "Error creating story !!!!");
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-110 min-h-screen bg-black/80 backdrop-blur text-white flex items-center justify-center p-4">
@@ -48,8 +82,9 @@ const StoryModal = ({ setShowModal, fetchStories }) => {
         >
           {mode === "text" && (
             <textarea
-              className="bg-transparent text-white w-full h-full p-6 text-lg resize-none focus-within:outline-none"
-              placeholder="Bạn đang nghĩ gì vậy ta?"
+              className="bg-transparent w-full h-full p-6 text-lg resize-none focus-within:outline-none"
+              style={{ color: textColor }}
+              placeholder="What are you thinking about?"
               onChange={(e) => setText(e.target.value)}
               value={text}
             />
@@ -62,16 +97,60 @@ const StoryModal = ({ setShowModal, fetchStories }) => {
               <video src={previewUrl} className="object-contain max-h-full" />
             ))}
         </div>
-        <div className="flex mt-4 gap-2">
-          {bgColors.map((color) => (
-            <button
-              key={color}
-              className="rounded-full w-6 h-6 ring cursor-pointer "
-              style={{ backgroundColor: color }}
-              onClick={() => setBackground(color)}
-            ></button>
-          ))}
-        </div>
+        {mode === "text" && (
+          <div className="flex flex-col gap-3 mt-4">
+            <div>
+              <span className="text-xs text-zinc-400 block mb-1">Background Color</span>
+              <div className="flex gap-2 items-center flex-wrap">
+                {bgColors.map((color) => (
+                  <button
+                    key={color}
+                    className={`rounded-full w-6 h-6 ring cursor-pointer transition ${
+                      background === color ? "ring-white ring-2 scale-110" : "ring-transparent hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setBackground(color)}
+                  ></button>
+                ))}
+                {/* Custom Background Color Picker */}
+                <label className="relative rounded-full w-6 h-6 border border-zinc-500 cursor-pointer overflow-hidden flex items-center justify-center bg-zinc-800 hover:scale-105 transition">
+                  <input
+                    type="color"
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    value={background}
+                    onChange={(e) => setBackground(e.target.value)}
+                  />
+                  <span className="text-xs font-bold text-zinc-300">+</span>
+                </label>
+              </div>
+            </div>
+            <div>
+              <span className="text-xs text-zinc-400 block mb-1">Text Color</span>
+              <div className="flex gap-2 items-center flex-wrap">
+                {textColors.map((color) => (
+                  <button
+                    key={color}
+                    className={`rounded-full w-6 h-6 ring cursor-pointer transition border border-zinc-700 ${
+                      textColor === color ? "ring-white ring-2 scale-110" : "ring-transparent hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setTextColor(color)}
+                  ></button>
+                ))}
+                {/* Custom Text Color Picker */}
+                <label className="relative rounded-full w-6 h-6 border border-zinc-500 cursor-pointer overflow-hidden flex items-center justify-center bg-zinc-800 hover:scale-105 transition">
+                  <input
+                    type="color"
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                    value={textColor}
+                    onChange={(e) => setTextColor(e.target.value)}
+                  />
+                  <span className="text-xs font-bold text-zinc-300">+</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
         {/* nút trạng thái  */}
         <div className="flex gap-2 mt-4">
           <button

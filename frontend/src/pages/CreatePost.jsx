@@ -131,9 +131,11 @@ const CreatePost = () => {
               </button>
 
               {showEmojiPicker && (
-                <div className="absolute bottom-10 left-0 z-50 shadow-2xl rounded-xl overflow-hidden border border-gray-150">
-                  <EmojiPicker 
-                    onEmojiClick={(emojiData) => setContent(prev => prev + emojiData.emoji)}
+                <div className="absolute bottom-10 left-0 z-50 shadow-2xl rounded-xl overflow-hidden border border-gray-100">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData) =>
+                      setContent((prev) => prev + emojiData.emoji)
+                    }
                     width={280}
                     height={320}
                     searchDisabled={false}

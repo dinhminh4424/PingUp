@@ -1,6 +1,37 @@
 import Conversation from "../models/Conversation.js";
+import { io } from "../socket/index.js";
 
 class ConversationService {
+  formatConversation(conv, userId) {
+    if (!conv) return null;
+    const convObj = conv.toObject ? conv.toObject() : conv;
+
+    // Convert Mongoose Map (unReadCount) to plain object
+    if (conv.unReadCount instanceof Map) {
+      convObj.unReadCount = Object.fromEntries(conv.unReadCount);
+    } else if (convObj.unReadCount && typeof convObj.unReadCount.get === "function") {
+      convObj.unReadCount = Object.fromEntries(convObj.unReadCount);
+    }
+
+    if (convObj.type === "direct") {
+      const otherParticipant = convObj.participants.find(
+        (p) => p.userId && p.userId._id.toString() !== userId.toString(),
+      );
+      if (otherParticipant && otherParticipant.userId) {
+        convObj.profile_picture = otherParticipant.userId.profile_picture;
+        convObj.full_name = otherParticipant.userId.full_name;
+        convObj.username = otherParticipant.userId.username;
+        convObj.bio = otherParticipant.userId.bio;
+        convObj.targetUserId = otherParticipant.userId._id;
+      }
+    } else {
+      convObj.full_name = convObj.group?.name || "Group Chat";
+      convObj.profile_picture = convObj.group?.imageGroup || "";
+      convObj.bio = "Group conversation";
+    }
+    return convObj;
+  }
+
   async getConversations(userId) {
     try {
       if (!userId) {
@@ -25,26 +56,9 @@ class ConversationService {
         .populate("lastMessage.senderId")
         .sort({ lastMessageAt: -1 });
 
-      const formattedConversations = conversations.map((conv) => {
-        const convObj = conv.toObject();
-        if (conv.type === "direct") {
-          const otherParticipant = convObj.participants.find(
-            (p) => p.userId && p.userId._id.toString() !== userId.toString(),
-          );
-          if (otherParticipant && otherParticipant.userId) {
-            convObj.profile_picture = otherParticipant.userId.profile_picture;
-            convObj.full_name = otherParticipant.userId.full_name;
-            convObj.username = otherParticipant.userId.username;
-            convObj.bio = otherParticipant.userId.bio;
-            convObj.targetUserId = otherParticipant.userId._id;
-          }
-        } else {
-          convObj.full_name = conv.group?.name || "Group Chat";
-          convObj.profile_picture = conv.group?.imageGroup || ""; // Sẽ trống nếu chưa upload ảnh nhóm
-          convObj.bio = "Group conversation";
-        }
-        return convObj;
-      });
+      const formattedConversations = conversations.map((conv) => 
+        this.formatConversation(conv, userId)
+      );
 
       return {
         status: 200,
@@ -66,7 +80,7 @@ class ConversationService {
     }
   }
 
-  async getConversationById(id) {
+  async getConversationById(id, userId) {
     try {
       if (!id) {
         console.log(" ==== Không có id ====");
@@ -85,15 +99,26 @@ class ConversationService {
           "_id email username full_name bio profile_picture cover_photo location",
         )
         .populate("seenBy")
-        .populate("lastMessage.senderId")
-        .sort({ lastMessageAt: -1 });
+        .populate("lastMessage.senderId");
+
+      if (!conversation) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy hộp thoại",
+          },
+        };
+      }
+
+      const formatted = this.formatConversation(conversation, userId);
 
       return {
         status: 200,
         data: {
           success: true,
           message: "Lấy chi tiết Conversations thành công !!",
-          conversation: conversation,
+          conversation: formatted,
         },
       };
     } catch (error) {
@@ -294,6 +319,63 @@ class ConversationService {
           success: false,
           message: "Lỗi hệ thống: " + error.message,
         },
+      };
+    }
+  }
+
+  async markAsRead(conversationId, userId) {
+    try {
+      if (!conversationId || !userId) {
+        return {
+          status: 400,
+          data: { success: false, message: "Missing conversationId or userId" }
+        };
+      }
+
+      const unReadField = `unReadCount.${userId.toString()}`;
+      const conversation = await Conversation.findByIdAndUpdate(
+        conversationId,
+        {
+          $set: { [unReadField]: 0 },
+          $addToSet: { seenBy: userId }
+        },
+        { returnDocument: "after" }
+      ).populate(
+        "participants.userId",
+        "_id email username full_name bio profile_picture cover_photo location"
+      ).populate("seenBy").populate("lastMessage.senderId");
+
+      if (!conversation) {
+        return {
+          status: 404,
+          data: { success: false, message: "Không tìm thấy cuộc hội thoại" }
+        };
+      }
+
+      const formattedResponse = this.formatConversation(conversation, userId);
+
+      // Broadcast to all participants so unReadCount and seenBy syncs in real-time
+      conversation.participants.forEach((participant) => {
+        const pId = participant.userId?._id?.toString() || participant.userId?.toString();
+        if (pId) {
+          const formattedForParticipant = this.formatConversation(conversation, pId);
+          io.to(pId).emit("conversationUpdated", formattedForParticipant);
+        }
+      });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Đánh dấu đã đọc thành công",
+          conversation: formattedResponse
+        }
+      };
+    } catch (error) {
+      console.error("Lỗi đánh dấu đã đọc:", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message }
       };
     }
   }

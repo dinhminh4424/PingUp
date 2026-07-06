@@ -122,9 +122,14 @@ const UpdatePostModal = ({ post, onClose, onUpdate }) => {
               />
 
               {showEmojiPicker && (
-                <div className="absolute right-0 z-50 mt-1 shadow-2xl rounded-xl overflow-hidden border border-gray-150">
-                  <EmojiPicker 
-                    onEmojiClick={(emojiData) => setFormUpdate(prev => ({ ...prev, content: prev.content + emojiData.emoji }))}
+                <div className="absolute right-0 z-50 mt-1 shadow-2xl rounded-xl overflow-hidden border border-gray-100">
+                  <EmojiPicker
+                    onEmojiClick={(emojiData) =>
+                      setFormUpdate((prev) => ({
+                        ...prev,
+                        content: prev.content + emojiData.emoji,
+                      }))
+                    }
                     width={280}
                     height={300}
                     searchDisabled={false}

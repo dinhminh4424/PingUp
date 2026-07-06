@@ -48,3 +48,8 @@ export const updateConversationCustomization = async (conversationId, data) => {
   const res = await api.put(`/api/conversation/${conversationId}/customization`, data);
   return res.data;
 };
+
+export const markConversationAsRead = async (conversationId) => {
+  const res = await api.put(`/api/conversation/${conversationId}/read`);
+  return res.data;
+};

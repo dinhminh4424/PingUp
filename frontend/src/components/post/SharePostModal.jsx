@@ -60,8 +60,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
           : false,
       };
     } else {
-
-      console.log('group details', conver)
+      console.log("group details", conver);
 
       return {
         name: conver.group.name || "Group chat ",
@@ -131,7 +130,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[92vh] border border-gray-150 animate-scale-up">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden max-h-[92vh] border border-gray-100 animate-scale-up">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4 shrink-0">
           <div className="w-8"></div>
