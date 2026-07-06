@@ -1,6 +1,7 @@
 import Message from "../models/Message.js";
 import Conversation from "../models/Conversation.js";
 import { io } from "../socket/index.js";
+import ConversationService from "./ConversationService.js";
 
 class MessageService {
   async sendMessage(
@@ -45,12 +46,33 @@ class MessageService {
         createAt: new Date(),
       };
 
+      // Get conversation participants
+      const conversation = await Conversation.findById(conversationId);
+      if (!conversation) {
+        return {
+          status: 404,
+          data: { success: false, message: "Conversation not found" },
+        };
+      }
+
+      const unReadCountUpdate = {};
+      conversation.participants.forEach((p) => {
+        const pIdStr = p.userId.toString();
+        if (pIdStr === senderId.toString()) {
+          unReadCountUpdate[`unReadCount.${pIdStr}`] = 0;
+        } else {
+          const currentCount = conversation.unReadCount?.get(pIdStr) || 0;
+          unReadCountUpdate[`unReadCount.${pIdStr}`] = currentCount + 1;
+        }
+      });
+
       const updatedConversation = await Conversation.findByIdAndUpdate(
         conversationId,
         {
           lastMessage: lastMessageObj,
           lastMessageAt: new Date(),
-          $addToSet: { seenBy: senderId }, // Clear read status for others by ensuring sender is in seenBy
+          seenBy: [senderId], // Reset seenBy to only contain the sender
+          $set: unReadCountUpdate,
         },
         { returnDocument: "after" },
       );
@@ -68,14 +90,34 @@ class MessageService {
           },
         });
 
-      // Broadcast message to all conversation participants via Socket.io
+      // Broadcast message and updated conversation to all conversation participants via Socket.io
       if (updatedConversation) {
-        updatedConversation.participants.forEach((participant) => {
-          io.to(participant.userId.toString()).emit(
-            "newMessage",
-            populatedMessage,
-          );
-        });
+        // Fetch fully populated conversation
+        const populatedConversation = await Conversation.findById(conversationId)
+          .populate(
+            "participants.userId",
+            "_id email username full_name bio profile_picture cover_photo location",
+          )
+          .populate("seenBy")
+          .populate("lastMessage.senderId");
+
+        if (populatedConversation) {
+          populatedConversation.participants.forEach((participant) => {
+            const participantId = participant.userId?._id?.toString() || participant.userId?.toString();
+            if (!participantId) return;
+
+            const convObj = ConversationService.formatConversation(populatedConversation, participantId);
+
+            // Emit updated conversation to this participant
+            io.to(participantId).emit("conversationUpdated", convObj);
+
+            // Also emit the message itself
+            io.to(participantId).emit(
+              "newMessage",
+              populatedMessage,
+            );
+          });
+        }
       }
 
       return {

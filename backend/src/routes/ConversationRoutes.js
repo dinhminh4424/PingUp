@@ -23,6 +23,10 @@ router.put(
   "/:conversationId/customization",
   ConversationController.updateCustomization,
 );
+router.put(
+  "/:conversationId/read",
+  ConversationController.markAsRead,
+);
 
 // GET
 router.get("/:conversationId", ConversationController.getConversationById);

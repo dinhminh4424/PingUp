@@ -20,8 +20,9 @@ class ConversationController {
   async getConversationById(req, res) {
     try {
       const { conversationId } = req.params;
+      const userId = req.user?._id;
       const result =
-        await ConversationService.getConversationById(conversationId);
+        await ConversationService.getConversationById(conversationId, userId);
 
       return res.status(result.status).json(result.data);
     } catch (error) {
@@ -136,6 +137,22 @@ class ConversationController {
       return res.status(500).json({
         success: false,
         message: "Lỗi cập nhật tùy chỉnh hộp thoại: " + error.message,
+      });
+    }
+  }
+
+  async markAsRead(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user?._id;
+
+      const result = await ConversationService.markAsRead(conversationId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi đánh dấu đã đọc cuộc hội thoại: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi đánh dấu đã đọc cuộc hội thoại: " + error.message,
       });
     }
   }

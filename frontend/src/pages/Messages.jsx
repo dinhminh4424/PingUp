@@ -10,7 +10,10 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getConversations, createConversation } from "../services/ConversationServices";
+import {
+  getConversations,
+  createConversation,
+} from "../services/ConversationServices";
 import { getConnectionsList } from "../services/ConnectionServices";
 import { useAuth } from "../contexts/AuthContext";
 import { useSocket } from "../contexts/SocketContext";
@@ -286,10 +289,15 @@ const Messages = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {conversations.length > 0 ? (
             conversations.map((conver) => {
+              const unreadCount = conver.unReadCount?.[userCurrent?._id] || 0;
               return (
                 <div
                   key={conver._id}
-                  className="flex gap-4 p-5 bg-white shadow rounded-md border border-gray-100 hover:shadow-md transition"
+                  className={`flex gap-4 p-5 bg-white shadow rounded-md border transition ${
+                    unreadCount > 0
+                      ? "border-indigo-200 ring-2 ring-indigo-50/50 shadow-md"
+                      : "border-gray-100 hover:shadow-md"
+                  }`}
                 >
                   {renderConversationAvatar(conver)}
 
@@ -299,13 +307,20 @@ const Messages = () => {
                         <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                       )}
                       {conver.full_name}
+                      {unreadCount > 0 && (
+                        <span className="bg-indigo-600 text-white min-w-[15px] h-[15px] px-1 rounded-full text-[9px] font-bold flex items-center justify-center">
+                          {unreadCount}
+                        </span>
+                      )}
                     </p>
                     <p className="text-slate-500 text-sm truncate">
                       {conver.type === "direct"
                         ? `@${conver.username}`
                         : `${conver.participants?.length || 0} members`}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1 truncate">
+                    <p
+                      className={`text-xs mt-1 truncate ${unreadCount > 0 ? "text-indigo-600 font-semibold" : "text-gray-400"}`}
+                    >
                       {conver.lastMessage?.content ||
                         conver.bio ||
                         "No messages yet"}
@@ -490,7 +505,7 @@ const Messages = () => {
                           ? handleStartChat(friend._id)
                           : handleToggleSelectFriend(friend._id)
                       }
-                      className={`flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer transition border border-transparent hover:border-gray-150 ${isCreating ? "opacity-50 pointer-events-none" : ""}`}
+                      className={`flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 cursor-pointer transition border border-transparent hover:border-gray-100 ${isCreating ? "opacity-50 pointer-events-none" : ""}`}
                     >
                       <img
                         src={friend.profile_picture || "/default-avatar.avif"}

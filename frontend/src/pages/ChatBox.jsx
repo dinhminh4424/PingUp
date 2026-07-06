@@ -320,7 +320,7 @@ const ChatBox = () => {
                     user.profile_picture ||
                     "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"
                   }
-                  className="size-10 rounded-full object-cover border border-gray-150"
+                  className="size-10 rounded-full object-cover border border-gray-100"
                   alt=""
                 />
                 {isUserOnline && (
@@ -593,7 +593,7 @@ const ChatBox = () => {
                               <img
                                 src={message.linkPreview.image}
                                 alt=""
-                                className="w-full sm:w-20 h-28 sm:h-20 object-cover rounded border border-gray-150 flex-shrink-0"
+                                className="w-full sm:w-20 h-28 sm:h-20 object-cover rounded border border-gray-100 flex-shrink-0"
                               />
                             )}
                             <div className="flex-1 min-w-0 flex flex-col justify-center">
@@ -815,7 +815,7 @@ const ChatBox = () => {
                   <img
                     src={linkPreview.image}
                     alt=""
-                    className="size-16 object-cover rounded-md border border-gray-150 flex-shrink-0"
+                    className="size-16 object-cover rounded-md border border-gray-100 flex-shrink-0"
                   />
                 )}
                 <div className="flex-1 min-w-0 pr-6">

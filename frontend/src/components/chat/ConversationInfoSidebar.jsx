@@ -228,7 +228,7 @@ const ConversationInfoSidebar = ({
         </div>
 
         {/* Tabs Row */}
-        <div className="flex border-b border-gray-150 bg-[#fafafa]">
+        <div className="flex border-b border-gray-100 bg-[#fafafa]">
           {["media", "files", "links"].map((tab) => (
             <button
               key={tab}

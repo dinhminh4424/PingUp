@@ -6,6 +6,7 @@ import {
   getConversations,
   getConversationById,
   updateConversationCustomization,
+  markConversationAsRead,
 } from "../services/ConversationServices";
 
 import {
@@ -83,6 +84,9 @@ export const ChatProvider = ({ children }) => {
 
   const selectConversationById = async (id) => {
     if (!id) return null;
+
+    // Đánh dấu đã đọc trên backend
+    markConversationAsRead(id).catch((err) => console.error("Lỗi đánh dấu đã đọc:", err));
 
     // Bước 1: Tìm trong state local
     const localConv = conversations.find((c) => c._id === id);
@@ -232,28 +236,25 @@ export const ChatProvider = ({ children }) => {
           if (prev.some((m) => m._id === msg._id)) return prev;
           return [msg, ...prev];
         });
+
+        // Gọi API đánh dấu đã đọc ngay lập tức vì người dùng đang mở hộp thoại này
+        markConversationAsRead(currentConversation._id).catch((err) =>
+          console.error("Lỗi đánh dấu đã đọc:", err)
+        );
       }
+    };
 
-      // 2. Cập nhật tin nhắn cuối cùng (lastMessage) của cuộc hội thoại đó trong danh sách bên trái
+    const handleConversationUpdated = (updatedConv) => {
+      // Cập nhật danh sách hộp thoại bên trái và đưa lên đầu
       setConversations((prev) => {
-        const updated = prev.map((conv) => {
-          if (conv._id === msg.conversationId) {
-            return {
-              ...conv,
-              lastMessage: {
-                content: msg.content,
-                senderId: msg.senderId?._id || msg.senderId,
-                createAt: msg.createdAt,
-              },
-              lastMessageAt: msg.createdAt,
-            };
-          }
-          return conv;
-        });
-
-        // Tùy chọn: Đưa cuộc hội thoại có tin nhắn mới lên đầu danh sách
-        return updated.sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt));
+        const filtered = prev.filter((c) => c._id !== updatedConv._id);
+        return [updatedConv, ...filtered];
       });
+
+      // Nếu đang mở cuộc hội thoại này -> Cập nhật thông tin chi tiết (ví dụ: theme, quickEmoji, seenBy,...)
+      if (currentConversation && currentConversation._id === updatedConv._id) {
+        setCurrentConversation(updatedConv);
+      }
     };
 
     const handleMessageReaction = ({ messageId, reactions }) => {
@@ -265,10 +266,12 @@ export const ChatProvider = ({ children }) => {
     };
 
     socket.on("newMessage", handleNewMessage);
+    socket.on("conversationUpdated", handleConversationUpdated);
     socket.on("messageReaction", handleMessageReaction);
 
     return () => {
       socket.off("newMessage", handleNewMessage);
+      socket.off("conversationUpdated", handleConversationUpdated);
       socket.off("messageReaction", handleMessageReaction);
     };
   }, [socket, currentConversation]);
