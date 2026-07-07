@@ -26,14 +26,14 @@ import {
   markAllAsRead,
   deleteNotification,
   updateNotification,
-} from "../services/NotificationServices";
+} from "../../services/NotificationServices";
 
 import {
   acceptConnectionRequest,
   rejectConnectionRequest,
-} from "../services/ConnectionServices";
+} from "../../services/ConnectionServices";
 
-import { useNotification } from "../contexts/NotificationContext";
+import { useNotification } from "../../contexts/NotificationContext";
 
 moment.locale("vi");
 

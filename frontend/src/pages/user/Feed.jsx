@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { assets } from "../assets/assets.js";
-import Loading from "../components/Loading.jsx";
-import StoryBar from "../components/story/StoryBar.jsx";
-import PostCard from "../components/post/PostCard.jsx";
-import ResentMessages from "../components/feed/ResentMessages.jsx";
+import { assets } from "../../assets/assets.js";
+import Loading from "../../components/Loading.jsx";
+import StoryBar from "../../components/story/StoryBar.jsx";
+import PostCard from "../../components/post/PostCard.jsx";
+import ResentMessages from "../../components/feed/ResentMessages.jsx";
 import { Loader2 } from "lucide-react";
-import { useFeed } from "../contexts/FeedContext.jsx";
-import Sponsored from "../components/feed/Sponsored.jsx";
+import { useFeed } from "../../contexts/FeedContext.jsx";
+import Sponsored from "../../components/feed/Sponsored.jsx";
 
 const Feed = () => {
   const loaderRef = useRef(null);

@@ -13,11 +13,11 @@ import { useNavigate } from "react-router-dom";
 import {
   getConversations,
   createConversation,
-} from "../services/ConversationServices";
-import { getConnectionsList } from "../services/ConnectionServices";
-import { useAuth } from "../contexts/AuthContext";
-import { useSocket } from "../contexts/SocketContext";
-import Loading from "../components/Loading";
+} from "../../services/ConversationServices";
+import { getConnectionsList } from "../../services/ConnectionServices";
+import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
+import Loading from "../../components/Loading";
 import toast from "react-hot-toast";
 
 const Messages = () => {

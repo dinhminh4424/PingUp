@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { getCurrentUser, logout as logoutService } from "../services/AuthServices";
+import {
+  getCurrentUser,
+  logout as logoutService,
+} from "../services/AuthServices";
 
 import { updateToken } from "../lib/axios";
 

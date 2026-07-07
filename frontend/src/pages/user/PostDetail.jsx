@@ -16,18 +16,18 @@ import {
   LoaderCircle,
 } from "lucide-react";
 import moment from "moment";
-import { useAuth } from "../contexts/AuthContext";
-import { useSocket } from "../contexts/SocketContext";
-import { getPostById, toggleLike } from "../services/PostServices";
+import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
+import { getPostById, toggleLike } from "../../services/PostServices";
 import {
   getCommentsByPost,
   createComment,
   toggleLikeComment,
   deleteComment,
-} from "../services/CommentServices";
-import UpdatePostModal from "../components/post/UpdatePostModal";
-import DeletePostModal from "../components/post/DeletePostModal";
-import SharePostModal from "../components/post/SharePostModal";
+} from "../../services/CommentServices";
+import UpdatePostModal from "../../components/post/UpdatePostModal";
+import DeletePostModal from "../../components/post/DeletePostModal";
+import SharePostModal from "../../components/post/SharePostModal";
 import toast from "react-hot-toast";
 import EmojiPicker from "emoji-picker-react";
 

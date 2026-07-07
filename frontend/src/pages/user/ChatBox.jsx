@@ -18,14 +18,14 @@ import {
   X,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { useSocket } from "../contexts/SocketContext";
-import { useChat } from "../contexts/ChatContext";
-import { getLinkPreview as getLinkPreviewApi } from "../services/MessageServices";
+import { useAuth } from "../../contexts/AuthContext";
+import { useSocket } from "../../contexts/SocketContext";
+import { useChat } from "../../contexts/ChatContext";
+import { getLinkPreview as getLinkPreviewApi } from "../../services/MessageServices";
 
 import EmojiPicker from "emoji-picker-react";
-import ConversationInfoSidebar from "../components/chat/ConversationInfoSidebar";
-import MediaModal from "../components/chat/MediaModal";
+import ConversationInfoSidebar from "../../components/chat/ConversationInfoSidebar";
+import MediaModal from "../../components/chat/MediaModal";
 import toast from "react-hot-toast";
 
 const renderMessageContent = (text) => {

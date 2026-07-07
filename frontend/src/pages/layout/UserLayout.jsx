@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { dummyUserData } from "../../assets/assets";
 import Loading from "../../components/Loading";
 
-const Layout = () => {
+const UserLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const user = dummyUserData;
 
@@ -37,4 +37,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default UserLayout;

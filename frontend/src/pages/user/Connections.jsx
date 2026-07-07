@@ -9,7 +9,7 @@ import {
   UserX,
   UserMinus,
 } from "lucide-react";
-import { getFollower, getFollowing } from "../services/FollowServices";
+import { getFollower, getFollowing } from "../../services/FollowServices";
 import {
   getPendingRequests,
   getConnectionsList,
@@ -17,8 +17,8 @@ import {
   rejectConnectionRequest,
   disconnectConnection,
   toggleFollow,
-} from "../services/ConnectionServices";
-import Loading from "../components/Loading";
+} from "../../services/ConnectionServices";
+import Loading from "../../components/Loading";
 import toast from "react-hot-toast";
 
 const Connections = () => {

@@ -52,3 +52,15 @@ export const protectedRoute = (req, res, next) => {
     });
   }
 };
+
+export const isAdmin = (req, res, next) => {
+  // req.user đã được gán từ middleware protectedRoute trước đó
+  if (req.user && req.user.role === "admin") {
+    next(); // Hợp lệ, đi tiếp
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Quyền truy cập bị từ chối. Chỉ dành cho Admin.",
+    });
+  }
+};

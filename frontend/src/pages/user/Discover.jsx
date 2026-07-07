@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 
 import { Search } from "lucide-react";
-import UserCard from "../components/UserCard";
-import Loading from "../components/Loading";
-import { findUserBySearch } from "../services/UserServices";
+import UserCard from "../../components/UserCard";
+import Loading from "../../components/Loading";
+import { findUserBySearch } from "../../services/UserServices";
 import { useEffect } from "react";
 
 const Discover = () => {

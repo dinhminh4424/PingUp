@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-// import { dummyPostsData, dummyUserData } from "../assets/assets";
-import Loading from "../components/Loading";
-import UserProfileInfo from "../components/profile/UserProfileInfo";
-import PostCard from "../components/post/PostCard";
+// import { dummyPostsData, dummyUserData } from "../../assets/assets";
+import Loading from "../../components/Loading";
+import UserProfileInfo from "../../components/profile/UserProfileInfo";
+import PostCard from "../../components/post/PostCard";
 import moment from "moment";
-import ProfileModal from "../components/profile/ProfileModal";
-import { useAuth } from "../contexts/AuthContext";
-import { getUserById } from "../services/UserServices";
-import { getPostsByIdUser, getLikedPosts } from "../services/PostServices";
+import ProfileModal from "../../components/profile/ProfileModal";
+import { useAuth } from "../../contexts/AuthContext";
+import { getUserById } from "../../services/UserServices";
+import { getPostsByIdUser, getLikedPosts } from "../../services/PostServices";
 const Profile = () => {
   const { profileId } = useParams();
   const [user, setUser] = useState(null);
