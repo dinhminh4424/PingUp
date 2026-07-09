@@ -7,6 +7,7 @@ import { NotificationProvider } from "./contexts/NotificationContext.jsx";
 import { SocketProvider } from "./contexts/SocketContext.jsx";
 import { FeedProvider } from "./contexts/FeedContext.jsx";
 import { ChatProvider } from "./contexts/ChatContext.jsx";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { BrowserRouter } from "react-router-dom";
 
@@ -17,7 +18,9 @@ createRoot(document.getElementById("root")).render(
         <ChatProvider>
           <NotificationProvider>
             <FeedProvider>
-              <App />
+              <TooltipProvider>
+                <App />
+              </TooltipProvider>
             </FeedProvider>
           </NotificationProvider>
         </ChatProvider>

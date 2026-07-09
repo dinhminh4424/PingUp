@@ -2,30 +2,56 @@
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
 
+import { AppSidebar } from "@/components/app-sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+
 const AdminLayout = () => {
   return (
-    <div className="w-full flex h-screen bg-slate-100">
-      {/* Admin Sidebar đơn giản */}
-      <aside className="w-64 bg-slate-900 text-white flex flex-col p-5 space-y-4">
-        <h2 className="text-xl font-bold text-indigo-400">PingUp Admin</h2>
-        <nav className="flex flex-col space-y-2">
-          <Link to="/admin" className="p-2 hover:bg-slate-800 rounded">
-            Dashboard
-          </Link>
-          <Link to="/admin/users" className="p-2 hover:bg-slate-800 rounded">
-            Quản lý User
-          </Link>
-          <Link to="/" className="p-2 hover:bg-slate-800 text-gray-400 rounded">
-            Quay lại Client
-          </Link>
-        </nav>
-      </aside>
-
-      {/* Admin Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        <Outlet />
-      </main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                    Build Your Application
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <main className="">
+            <Outlet />
+          </main>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };
 
