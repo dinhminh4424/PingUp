@@ -36,69 +36,92 @@ const data = {
   },
   navMain: [
     {
-      title: "Playground",
+      title: "Quản lý báo cáo vi phạm",
       url: "#",
       icon: <TerminalSquareIcon />,
       isActive: true,
       items: [
         {
-          title: "History",
+          title: "Bài viết",
           url: "#",
         },
         {
-          title: "Starred",
+          title: "Bình luận",
           url: "#",
         },
         {
-          title: "Settings",
+          title: "Hộp thoại",
+          url: "#",
+        },
+        {
+          title: "Người dùng",
           url: "#",
         },
       ],
     },
     {
-      title: "Models",
+      title: "Quản lý thông báo hệ thống",
       url: "#",
       icon: <BotIcon />,
       items: [
         {
-          title: "Genesis",
+          title: "Template",
           url: "#",
         },
         {
-          title: "Explorer",
+          title: "Tạo",
           url: "#",
         },
         {
-          title: "Quantum",
+          title: "Gửi",
           url: "#",
         },
       ],
     },
     {
-      title: "Documentation",
+      title: "Quản lý quảng cáo",
+      url: "#",
+      icon: <BotIcon />,
+      items: [
+        {
+          title: "Template",
+          url: "#",
+        },
+        {
+          title: "Tạo",
+          url: "#",
+        },
+        {
+          title: "Gửi",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Dashboard",
       url: "#",
       icon: <BookOpenIcon />,
       items: [
         {
-          title: "Introduction",
+          title: "Tổng quan",
           url: "#",
         },
         {
-          title: "Get Started",
+          title: "Người Dùng",
           url: "#",
         },
         {
-          title: "Tutorials",
+          title: "Bài viết",
           url: "#",
         },
         {
-          title: "Changelog",
+          title: "Action",
           url: "#",
         },
       ],
     },
     {
-      title: "Settings",
+      title: "Nhật ký hoạt động",
       url: "#",
       icon: <Settings2Icon />,
       items: [
@@ -135,17 +158,22 @@ const data = {
   ],
   projects: [
     {
-      name: "Design Engineering",
+      name: "Quản lý người dùng",
       url: "#",
       icon: <FrameIcon />,
     },
     {
-      name: "Sales & Marketing",
+      name: "Quản lý bài viết",
       url: "#",
       icon: <PieChartIcon />,
     },
     {
-      name: "Travel",
+      name: "Quản lý tin nhắn",
+      url: "#",
+      icon: <MapIcon />,
+    },
+    {
+      name: "Quản lý quảng cáo",
       url: "#",
       icon: <MapIcon />,
     },

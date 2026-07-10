@@ -87,6 +87,17 @@ class AuthService {
         userCurrent.password,
       ); // So sánh mật khẩu nhập vào với mật khẩu đã mã hóa
 
+      if (userCurrent.isActive !== true) {
+        console.log("Tài khoản bị xoá");
+        return {
+          status: 400,
+          data: {
+            success: false,
+            message: "Tài khoản bị xoá",
+          },
+        };
+      }
+
       if (!isPasswordValid) {
         console.log("Mật khẩu không chính xác");
         return {
@@ -223,7 +234,7 @@ class AuthService {
       const newAccessToken = jwt.sign(
         { userId: user._id },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_TTL }
+        { expiresIn: process.env.ACCESS_TOKEN_TTL },
       );
 
       return {

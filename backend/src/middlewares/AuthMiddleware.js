@@ -27,9 +27,10 @@ export const protectedRoute = (req, res, next) => {
         }
 
         // Tìm User
-        const user = await User.findById(decodedUser.userId).select(
-          "-password",
-        );
+        const user = await User.findOne({
+          _id: decodedUser.userId,
+          isActive: true,
+        }).select("-password");
 
         if (!user) {
           return res.status(404).json({

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getUsers } from "../../services/admin/UserService";
+import {
+  getUsers,
+  toggleUserActive,
+  toggleUserRole,
+} from "../../services/admin/UserService";
 
 import {
   Table,
@@ -41,17 +45,54 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsersCount, setTotalUsersCount] = useState(0);
+
+  // Dashboard Stats
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    onlineUsers: 0,
+    adminUsers: 0,
+  });
+
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setPage(1); // Reset page on new search
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
   const fetchUsers = async () => {
     setLoading(true);
     setError("");
     try {
-      const result = await getUsers();
+      const result = await getUsers(
+        debouncedSearchQuery,
+        roleFilter,
+        statusFilter,
+        page,
+      );
       if (result.success) {
         setUsers(result.users);
+        if (result.pagination) {
+          setTotalPages(result.pagination.totalPages || 1);
+          setTotalUsersCount(result.pagination.totalUsers || 0);
+        }
+        if (result.stats) {
+          setStats(result.stats);
+        }
       }
     } catch (error) {
       setError(
@@ -70,7 +111,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [debouncedSearchQuery, roleFilter, statusFilter, page]);
 
   // Helpers
   const getInitials = (name) => {
@@ -92,63 +133,32 @@ const UserManagement = () => {
     });
   };
 
-  // Simulated handlers for UI actions
-  const handleToggleActive = (userId) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u._id === userId) {
-          const nextActive = !u.isActive;
-          toast.success(
-            nextActive
-              ? `Đã kích hoạt tài khoản ${u.username}`
-              : `Đã khóa tài khoản ${u.username}`,
-            { icon: nextActive ? "🔓" : "🔒" },
-          );
-          return { ...u, isActive: nextActive };
-        }
-        return u;
-      }),
-    );
+  // Real handlers for backend updates
+  const handleToggleActive = async (userId) => {
+    try {
+      const result = await toggleUserActive(userId);
+      if (result.success) {
+        toast.success(result.message);
+        fetchUsers();
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Lỗi khi cập nhật trạng thái!",
+      );
+    }
   };
 
-  const handleToggleRole = (userId) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u._id === userId) {
-          const nextRole = u.role === "admin" ? "user" : "admin";
-          toast.success(
-            `Đã chuyển vai trò của ${u.username} thành ${nextRole.toUpperCase()}`,
-            { icon: "🛡️" },
-          );
-          return { ...u, role: nextRole };
-        }
-        return u;
-      }),
-    );
+  const handleToggleRole = async (userId) => {
+    try {
+      const result = await toggleUserRole(userId);
+      if (result.success) {
+        toast.success(result.message);
+        fetchUsers();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Lỗi khi cập nhật vai trò!");
+    }
   };
-
-  // Filtering logic
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
-
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && user.isActive) ||
-      (statusFilter === "blocked" && !user.isActive);
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-
-  // Calculate metrics based on current state
-  const totalUsers = users.length;
-  const activeUsers = users.filter((u) => u.isActive).length;
-  const onlineUsers = users.filter((u) => u.activeOnline).length;
-  const adminUsers = users.filter((u) => u.role === "admin").length;
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
@@ -174,7 +184,7 @@ const UserManagement = () => {
           Tải lại dữ liệu
         </Button>
       </div>
-
+      {error && <p className="text-red-600">{error}</p>}
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-xs hover:shadow-md transition-shadow">
@@ -188,7 +198,7 @@ const UserManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "..." : totalUsers}
+              {loading ? "..." : stats.totalUsers}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
               Tài khoản đã đăng ký
@@ -207,7 +217,7 @@ const UserManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "..." : activeUsers}
+              {loading ? "..." : stats.activeUsers}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
               Không bị khóa tài khoản
@@ -226,7 +236,7 @@ const UserManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "..." : onlineUsers}
+              {loading ? "..." : stats.onlineUsers}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
               Đang trực tuyến trên app
@@ -245,7 +255,7 @@ const UserManagement = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "..." : adminUsers}
+              {loading ? "..." : stats.adminUsers}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
               Tài khoản có quyền admin
@@ -261,7 +271,7 @@ const UserManagement = () => {
             <div>
               <CardTitle className="text-lg">Danh sách thành viên</CardTitle>
               <CardDescription>
-                Hiện có {filteredUsers.length} người dùng phù hợp với bộ lọc.
+                Hiện có {totalUsersCount} người dùng phù hợp với bộ lọc.
               </CardDescription>
             </div>
 
@@ -281,7 +291,10 @@ const UserManagement = () => {
               <select
                 className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
+                onChange={(e) => {
+                  setRoleFilter(e.target.value);
+                  setPage(1);
+                }}
               >
                 <option value="all">Tất cả vai trò</option>
                 <option value="user">Thành viên (User)</option>
@@ -292,7 +305,10 @@ const UserManagement = () => {
               <select
                 className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
               >
                 <option value="all">Tất cả trạng thái</option>
                 <option value="active">Hoạt động</option>
@@ -362,7 +378,7 @@ const UserManagement = () => {
                       </TableCell>
                     </TableRow>
                   ))
-                ) : filteredUsers.length === 0 ? (
+                ) : users.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={7}
@@ -380,7 +396,7 @@ const UserManagement = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredUsers.map((user) => (
+                  users.map((user) => (
                     <TableRow
                       key={user._id}
                       className="hover:bg-muted/20 transition-colors"
@@ -524,6 +540,74 @@ const UserManagement = () => {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-border bg-muted/10">
+              <div className="text-xs text-muted-foreground">
+                Hiển thị trang <span className="font-semibold text-foreground">{page}</span> trên tổng số{" "}
+                <span className="font-semibold text-foreground">{totalPages}</span> trang ({totalUsersCount} kết quả)
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={page === 1}
+                  className="h-8 text-xs"
+                >
+                  Trước
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const pageNum = index + 1;
+                    if (
+                      totalPages > 6 &&
+                      pageNum !== 1 &&
+                      pageNum !== totalPages &&
+                      Math.abs(pageNum - page) > 1
+                    ) {
+                      if (pageNum === 2 && page > 3) {
+                        return (
+                          <span key={pageNum} className="px-1.5 text-xs text-muted-foreground">
+                            ...
+                          </span>
+                        );
+                      }
+                      if (pageNum === totalPages - 1 && page < totalPages - 2) {
+                        return (
+                          <span key={pageNum} className="px-1.5 text-xs text-muted-foreground">
+                            ...
+                          </span>
+                        );
+                      }
+                      return null;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={page === pageNum ? "default" : "outline"}
+                        size="sm"
+                        className="h-8 w-8 text-xs p-0"
+                        onClick={() => setPage(pageNum)}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={page === totalPages}
+                  className="h-8 text-xs"
+                >
+                  Sau
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
