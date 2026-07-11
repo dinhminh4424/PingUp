@@ -39,6 +39,21 @@ class StoryController {
       });
     }
   }
+
+  async viewStory(req, res) {
+    try {
+      const storyId = req.params.id;
+      const userId = req.user._id;
+      const result = await StoryService.viewStory(storyId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi xem story: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi xem story: " + error.message,
+      });
+    }
+  }
 }
 
 export default new StoryController();

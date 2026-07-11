@@ -10,6 +10,7 @@ import { ChatProvider } from "./contexts/ChatContext.jsx";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { BrowserRouter } from "react-router-dom";
+import SystemModal from "./components/SystemModal";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")).render(
           <NotificationProvider>
             <FeedProvider>
               <TooltipProvider>
+                <SystemModal />
                 <App />
               </TooltipProvider>
             </FeedProvider>

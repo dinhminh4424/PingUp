@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Post
 router.post("/", upload.single("media"), StoryController.createStory);
+router.post("/:id/view", StoryController.viewStory);
 
 // Put
 

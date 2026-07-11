@@ -4,7 +4,12 @@ import AdminRoute from "../components/admin/AdminRoute";
 import AdminLayout from "../pages/layout/AdminLayout";
 
 // Áp dụng Lazy Loading cho các trang Admin
-const AdminDashboard = lazy(() => import("../pages/admin/AdminDashboard"));
+const AdminDashboard = lazy(() => import("../pages/admin/dashboard/AdminDashboard"));
+const UserStats = lazy(() => import("../pages/admin/dashboard/UserStats"));
+const PostStats = lazy(() => import("../pages/admin/dashboard/PostStats"));
+const StoryStats = lazy(() => import("../pages/admin/dashboard/StoryStats"));
+const MessageStats = lazy(() => import("../pages/admin/dashboard/MessageStats"));
+const ReportStats = lazy(() => import("../pages/admin/dashboard/ReportStats"));
 const UserManagement = lazy(() => import("../pages/admin/UserManagement"));
 
 const AdminRoutes = () => {
@@ -16,6 +21,11 @@ const AdminRoutes = () => {
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="dashboard/users" element={<UserStats />} />
+            <Route path="dashboard/posts" element={<PostStats />} />
+            <Route path="dashboard/stories" element={<StoryStats />} />
+            <Route path="dashboard/messages" element={<MessageStats />} />
+            <Route path="dashboard/reports" element={<ReportStats />} />
             {/* Thêm các route admin con khác ở đây trong tương lai */}
           </Route>
         </Route>

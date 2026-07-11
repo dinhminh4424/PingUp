@@ -13,3 +13,8 @@ export const createPost = async (storyFormData) => {
   });
   return res.data;
 };
+
+export const viewStory = async (storyId) => {
+  const res = await api.post(`/api/story/${storyId}/view`);
+  return res.data;
+};

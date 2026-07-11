@@ -124,8 +124,12 @@ class UserService {
       });
 
       // Gửi thông báo
-      io.to(receiver.toString()).emit("notification:new", {
-        notification: result.notification,
+      io.to(user._id.toString()).emit("notification:new", {
+        notification: notification,
+      });
+
+      io.to(user._id.toString()).emit("account:lock", {
+        notification: notification,
       });
 
       return {
@@ -137,6 +141,7 @@ class UserService {
         },
       };
     } catch (error) {
+      console.log("iỗi: ", error);
       return {
         status: 500,
         data: { success: false, message: "Lỗi hệ thống: " + error.message },

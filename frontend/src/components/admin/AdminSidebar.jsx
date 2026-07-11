@@ -45,8 +45,11 @@ const AdminSidebar = ({ ...props }) => {
       isActive: location.pathname === "/admin" || location.pathname.startsWith("/admin/dashboard"),
       items: [
         { title: "Tổng quan", url: "/admin", badge: "" },
-        { title: "Người dùng", url: "/admin/dashboard/users", badge: "soon" },
-        { title: "Bài viết", url: "/admin/dashboard/posts", badge: "soon" },
+        { title: "Người dùng", url: "/admin/dashboard/users", badge: "" },
+        { title: "Bài viết", url: "/admin/dashboard/posts", badge: "" },
+        { title: "Story", url: "/admin/dashboard/stories", badge: "" },
+        { title: "Tin nhắn", url: "/admin/dashboard/messages", badge: "" },
+        { title: "Báo cáo vi phạm", url: "/admin/dashboard/reports", badge: "" },
       ],
     },
     {
@@ -64,22 +67,22 @@ const AdminSidebar = ({ ...props }) => {
       items: [
         {
           title: "Bài viết",
-          url: "#",
+          url: "/admin/reports/posts",
           badge: "soon",
         },
         {
           title: "Bình luận",
-          url: "#",
+          url: "/admin/reports/comments",
           badge: "soon",
         },
         {
           title: "Hộp thoại",
-          url: "#",
+          url: "/admin/reports/messages",
           badge: "soon",
         },
         {
           title: "Người dùng",
-          url: "#",
+          url: "/admin/reports/users",
           badge: "soon",
         },
       ],
