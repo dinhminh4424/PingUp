@@ -139,11 +139,33 @@ const UserManagement = () => {
       const result = await toggleUserActive(userId);
       if (result.success) {
         toast.success(result.message);
-        fetchUsers();
+
+        // Cập nhật state users cục bộ
+        setUsers((prevUsers) => {
+          const updated = prevUsers.map((user) =>
+            user._id === userId ? { ...user, isActive: result.user.isActive } : user
+          );
+          if (statusFilter === "active" && !result.user.isActive) {
+            return updated.filter((user) => user._id !== userId);
+          }
+          if (statusFilter === "blocked" && result.user.isActive) {
+            return updated.filter((user) => user._id !== userId);
+          }
+          return updated;
+        });
+
+        // Cập nhật stats cục bộ
+        setStats((prevStats) => {
+          const isNowActive = result.user.isActive;
+          return {
+            ...prevStats,
+            activeUsers: prevStats.activeUsers + (isNowActive ? 1 : -1),
+          };
+        });
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Lỗi khi cập nhật trạng thái!",
+        error.response?.data?.message || "Lỗi khi cập nhật trạng thái!"
       );
     }
   };
@@ -153,7 +175,29 @@ const UserManagement = () => {
       const result = await toggleUserRole(userId);
       if (result.success) {
         toast.success(result.message);
-        fetchUsers();
+
+        // Cập nhật state users cục bộ
+        setUsers((prevUsers) => {
+          const updated = prevUsers.map((user) =>
+            user._id === userId ? { ...user, role: result.user.role } : user
+          );
+          if (roleFilter === "user" && result.user.role === "admin") {
+            return updated.filter((user) => user._id !== userId);
+          }
+          if (roleFilter === "admin" && result.user.role === "user") {
+            return updated.filter((user) => user._id !== userId);
+          }
+          return updated;
+        });
+
+        // Cập nhật stats cục bộ
+        setStats((prevStats) => {
+          const isNowAdmin = result.user.role === "admin";
+          return {
+            ...prevStats,
+            adminUsers: prevStats.adminUsers + (isNowAdmin ? 1 : -1),
+          };
+        });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Lỗi khi cập nhật vai trò!");

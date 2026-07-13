@@ -86,6 +86,14 @@ const conversationSchema = new mongoose.Schema(
     quickEmoji: {
       type: String,
       default: "👍"
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    isDelete: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true },

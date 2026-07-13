@@ -57,3 +57,13 @@ export const getLinkPreview = async (url) => {
   });
   return res.data;
 };
+
+export const recallMessage = async (messageId) => {
+  const res = await api.delete(`/api/message/${messageId}/recall`);
+  return res.data;
+};
+
+export const deleteMessageForMe = async (messageId) => {
+  const res = await api.delete(`/api/message/${messageId}/delete`);
+  return res.data;
+};

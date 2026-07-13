@@ -8,11 +8,13 @@ class MessageController {
       const { conversationId } = req.params;
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 20;
+      const userId = req.user._id;
 
       const result = await MessageService.getMessages(
         conversationId,
         page,
         limit,
+        userId,
       );
       return res.status(result.status).json(result.data);
     } catch (error) {
@@ -219,6 +221,38 @@ class MessageController {
     } catch (error) {
       console.error("Lỗi lấy thông tin link preview: ", error);
       return res.status(500).json({ success: false, error: error.message });
+    }
+  }
+
+  async recallMessage(req, res) {
+    try {
+      const { messageId } = req.params;
+      const userId = req.user._id;
+
+      const result = await MessageService.recallMessage(messageId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi thu hồi tin nhắn: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống: " + error.message,
+      });
+    }
+  }
+
+  async deleteMessageForMe(req, res) {
+    try {
+      const { messageId } = req.params;
+      const userId = req.user._id;
+
+      const result = await MessageService.deleteMessageForMe(messageId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi xóa tin nhắn phía tôi: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống: " + error.message,
+      });
     }
   }
 }

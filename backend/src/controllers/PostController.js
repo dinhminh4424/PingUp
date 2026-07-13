@@ -48,6 +48,31 @@ class PostController {
     }
   }
 
+  async createReportPost(req, res) {
+    try {
+      const { id } = req.params;
+      const { targetType, reason, details } = req.body;
+      const files = req.files;
+      const userId = req.user._id;
+
+      const result = await PostService.createReportPost(
+        id,
+        targetType,
+        userId,
+        reason,
+        details,
+        files
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi Tạo Báo Cáo: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi Khi Tạo Báo Cáo: " + error.message,
+      });
+    }
+  }
+
   async updatePost(req, res) {
     try {
       const { id } = req.params;
@@ -130,7 +155,11 @@ class PostController {
     try {
       const { originalPostId, content } = req.body;
       const userId = req.user._id;
-      const result = await PostService.sharePost(originalPostId, content, userId);
+      const result = await PostService.sharePost(
+        originalPostId,
+        content,
+        userId,
+      );
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.log("Lỗi khi share bài viết: ", error);
@@ -139,7 +168,6 @@ class PostController {
         message: "Lỗi khi share bài viết: " + error.message,
       });
     }
-  
   }
 
   async getLikedPosts(req, res) {
@@ -154,7 +182,6 @@ class PostController {
         message: "Lấy danh sách bài viết đã thích thất bại: " + error.message,
       });
     }
-
   }
 }
 

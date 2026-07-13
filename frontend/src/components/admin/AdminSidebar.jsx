@@ -31,6 +31,8 @@ import {
   History,
   ChevronRight,
   Terminal,
+  FileText,
+  MessageSquare,
 } from "lucide-react";
 
 const AdminSidebar = ({ ...props }) => {
@@ -58,6 +60,20 @@ const AdminSidebar = ({ ...props }) => {
       icon: <Users className="size-4" />,
       isActive: location.pathname === "/admin/users",
       badge: "128", // Example quantity
+    },
+    {
+      title: "Quản lý bài viết",
+      url: "/admin/posts",
+      icon: <FileText className="size-4" />,
+      isActive: location.pathname === "/admin/posts",
+      badge: "soon",
+    },
+    {
+      title: "Quản lý tin nhắn",
+      url: "/admin/messages",
+      icon: <MessageSquare className="size-4" />,
+      isActive: location.pathname === "/admin/messages",
+      badge: "soon",
     },
     {
       title: "Báo cáo vi phạm",

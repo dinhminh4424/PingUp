@@ -56,11 +56,19 @@ export const getPostById = async (id) => {
 };
 
 export const sharePost = async (originalPostId, content) => {
-  const res = await api.post("/api/posts/sharePost", { originalPostId, content });
+  const res = await api.post("/api/posts/sharePost", {
+    originalPostId,
+    content,
+  });
   return res.data;
 };
 
 export const getLikedPosts = async (userId) => {
   const res = await api.get(`/api/posts/user/${userId}/liked`);
+  return res.data;
+};
+
+export const reportPost = async (postId, data) => {
+  const res = await api.post(`/api/posts/${postId}/report`, data);
   return res.data;
 };

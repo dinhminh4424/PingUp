@@ -65,6 +65,8 @@ const ChatBox = () => {
   const [activeReactPickerMsgId, setActiveReactPickerMsgId] = useState(null);
   const [selectedReactionsMessage, setSelectedReactionsMessage] =
     useState(null);
+  const [activeDropdownMsgId, setActiveDropdownMsgId] = useState(null);
+  const [messageToRecall, setMessageToRecall] = useState(null);
   const lastFetchedUrlRef = useRef("");
   const lastMessageIdRef = useRef(null);
   const scrollPositionBeforeLoadRef = useRef(null);
@@ -80,6 +82,8 @@ const ChatBox = () => {
     fetchChatMessages,
     sendMessage,
     handleReact,
+    handleRecallMessage,
+    handleDeleteMessageForMe,
     messagesLoading,
     messagesHasMore,
     messagesPage,
@@ -467,199 +471,185 @@ const ChatBox = () => {
                             : "bg-white text-slate-800"
                         }`}
                       >
-                        {message.replyTo && (
-                          <div className="mb-2 p-2 rounded bg-black/5 border-l-2 border-slate-400 text-[11px] text-slate-600">
-                            <p className="font-bold text-[9px]">
-                              {message.replyTo.senderId?._id === userCurrent._id
-                                ? "Bạn"
-                                : message.replyTo.senderId?.full_name ||
-                                  "Thành viên"}
-                            </p>
-                            <p className="truncate max-w-[200px]">
-                              {message.replyTo.content ||
-                                (message.replyTo.imageUrl?.length > 0
-                                  ? "[Hình ảnh]"
-                                  : message.replyTo.files?.length > 0
-                                    ? "[Tệp tin]"
-                                    : "")}
-                            </p>
-                          </div>
-                        )}
-                        {message.imageUrl && message.imageUrl.length > 0 && (
-                          <div className="mb-2">
-                            {(() => {
-                              const imgs = message.imageUrl;
-                              const count = imgs.length;
-                              if (count === 1) {
-                                return (
-                                  <div
-                                    className="cursor-pointer overflow-hidden rounded-lg max-h-80 max-w-sm"
-                                    onClick={() => openImageModal(imgs, 0)}
-                                  >
-                                    <img
-                                      src={imgs[0]}
-                                      className="w-full h-full object-cover hover:opacity-95 transition"
-                                      alt=""
-                                    />
-                                  </div>
-                                );
-                              }
-                              if (count === 2) {
-                                return (
-                                  <div className="grid grid-cols-2 gap-1 rounded-lg overflow-hidden max-w-sm">
-                                    {imgs.map((url, idx) => (
-                                      <div
-                                        key={idx}
-                                        className="cursor-pointer h-32"
-                                        onClick={() =>
-                                          openImageModal(imgs, idx)
-                                        }
-                                      >
-                                        <img
-                                          src={url}
-                                          className="w-full h-full object-cover hover:opacity-95 transition"
-                                          alt=""
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
-                                );
-                              }
-                              if (count === 3) {
-                                return (
-                                  <div className="grid grid-cols-3 gap-1 rounded-lg overflow-hidden max-w-sm">
-                                    {imgs.map((url, idx) => (
-                                      <div
-                                        key={idx}
-                                        className="cursor-pointer h-24"
-                                        onClick={() =>
-                                          openImageModal(imgs, idx)
-                                        }
-                                      >
-                                        <img
-                                          src={url}
-                                          className="w-full h-full object-cover hover:opacity-95 transition"
-                                          alt=""
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
-                                );
-                              }
-                              const remaining = count - 4;
-                              return (
-                                <div className="grid grid-cols-2 gap-1 rounded-lg overflow-hidden max-w-sm">
-                                  {imgs.slice(0, 4).map((url, idx) => {
-                                    const isLast = idx === 3;
+                        {message.isRecall || message.content === "Tin nhắn đã bị thu hồi" ? (
+                          <p className="text-gray-400 italic text-xs select-none">
+                            Tin nhắn đã bị thu hồi
+                          </p>
+                        ) : (
+                          <>
+                            {message.replyTo && (
+                              <div className="mb-2 p-2 rounded bg-black/5 border-l-2 border-slate-400 text-[11px] text-slate-600">
+                                <p className="font-bold text-[9px]">
+                                  {message.replyTo.senderId?._id === userCurrent._id
+                                    ? "Bạn"
+                                    : message.replyTo.senderId?.full_name ||
+                                      "Thành viên"}
+                                </p>
+                                <p className="truncate max-w-[200px]">
+                                  {message.replyTo.content ||
+                                    (message.replyTo.imageUrl?.length > 0
+                                      ? "[Hình ảnh]"
+                                      : message.replyTo.files?.length > 0
+                                        ? "[Tệp tin]"
+                                        : "")}
+                                </p>
+                              </div>
+                            )}
+                            {message.imageUrl && message.imageUrl.length > 0 && (
+                              <div className="mb-2">
+                                {(() => {
+                                  const imgs = message.imageUrl;
+                                  const count = imgs.length;
+                                  if (count === 1) {
                                     return (
                                       <div
-                                        key={idx}
-                                        className="cursor-pointer relative h-28"
-                                        onClick={() =>
-                                          openImageModal(imgs, idx)
-                                        }
+                                        className="cursor-pointer overflow-hidden rounded-lg max-h-80 max-w-sm"
+                                        onClick={() => openImageModal(imgs, 0)}
                                       >
                                         <img
-                                          src={url}
+                                          src={imgs[0]}
                                           className="w-full h-full object-cover hover:opacity-95 transition"
                                           alt=""
                                         />
-                                        {isLast && remaining > 0 && (
-                                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-bold text-sm select-none">
-                                            +{remaining}
-                                          </div>
-                                        )}
                                       </div>
                                     );
-                                  })}
-                                </div>
-                              );
-                            })()}
-                          </div>
-                        )}
-                        {message.content && (
-                          <p className="break-words break-all whitespace-pre-wrap leading-relaxed">
-                            {renderMessageContent(message.content)}
-                          </p>
-                        )}
-                        {message.linkPreview && (
-                          <a
-                            href={message.linkPreview.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 flex flex-col sm:flex-row gap-3 p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-lg overflow-hidden transition text-left no-underline select-none max-w-sm"
-                          >
-                            {message.linkPreview.image && (
-                              <img
-                                src={message.linkPreview.image}
-                                alt=""
-                                className="w-full sm:w-20 h-28 sm:h-20 object-cover rounded border border-gray-100 flex-shrink-0"
-                              />
+                                  }
+                                  if (count === 2) {
+                                    return (
+                                      <div className="grid grid-cols-2 gap-1 rounded-lg overflow-hidden max-w-sm">
+                                        {imgs.map((url, idx) => (
+                                          <div
+                                            key={idx}
+                                            className="cursor-pointer h-32"
+                                            onClick={() =>
+                                              openImageModal(imgs, idx)
+                                            }
+                                          >
+                                            <img
+                                              src={url}
+                                              className="w-full h-full object-cover hover:opacity-95 transition"
+                                              alt=""
+                                            />
+                                          </div>
+                                        ))}
+                                      </div>
+                                    );
+                                  }
+                                  return (
+                                    <div className="grid grid-cols-3 gap-1 rounded-lg overflow-hidden max-w-sm relative">
+                                      {imgs.slice(0, 3).map((url, idx) => {
+                                        const isLast = idx === 2;
+                                        const remaining = count - 3;
+                                        return (
+                                          <div
+                                            key={idx}
+                                            className="cursor-pointer h-20 relative"
+                                            onClick={() =>
+                                              openImageModal(imgs, idx)
+                                            }
+                                          >
+                                            <img
+                                              src={url}
+                                              className="w-full h-full object-cover hover:opacity-95 transition"
+                                              alt=""
+                                            />
+                                            {isLast && remaining > 0 && (
+                                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-bold text-sm select-none">
+                                                +{remaining}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  );
+                                })()}
+                              </div>
                             )}
-                            <div className="flex-1 min-w-0 flex flex-col justify-center">
-                              <p className="font-semibold text-slate-800 text-[12px] line-clamp-2 leading-snug">
-                                {message.linkPreview.title}
+                            {message.content && (
+                              <p className="break-words break-all whitespace-pre-wrap leading-relaxed">
+                                {renderMessageContent(message.content)}
                               </p>
-                              {message.linkPreview.description && (
-                                <p className="text-[10px] text-gray-500 line-clamp-1 mt-1">
-                                  {message.linkPreview.description}
-                                </p>
-                              )}
-                              <p className="text-[9px] text-indigo-600 font-semibold mt-1 uppercase tracking-wide">
-                                {message.linkPreview.domain || "Link"}
-                              </p>
-                            </div>
-                          </a>
-                        )}
-                        {message.files && message.files.length > 0 && (
-                          <div className="mt-2 space-y-1.5 min-w-[200px]">
-                            {message.files.map((file, fileIdx) => {
-                              const isVideo = file.name.match(
-                                /\.(mp4|webm|ogg|mov)$/i,
-                              );
-                              if (isVideo) {
-                                return (
-                                  <div
-                                    key={fileIdx}
-                                    className="overflow-hidden rounded-lg max-w-sm mt-1 border border-gray-200 shadow-sm bg-black"
-                                  >
-                                    <video
-                                      src={file.url}
-                                      controls
-                                      className="w-full max-h-64 object-contain"
-                                    />
-                                  </div>
-                                );
-                              }
-                              return (
-                                <a
-                                  key={fileIdx}
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className={`flex items-center gap-3 p-2 rounded border hover:bg-slate-50 transition cursor-pointer ${
-                                    isMe
-                                      ? "bg-white text-slate-800 border-blue-200"
-                                      : "bg-slate-50 border-slate-200"
-                                  }`}
-                                >
-                                  <div className="size-8.5 bg-emerald-50 rounded flex items-center justify-center text-emerald-600 flex-shrink-0">
-                                    <FileText className="size-4.5" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold truncate text-slate-800">
-                                      {file.name}
+                            )}
+                            {message.linkPreview && (
+                              <a
+                                href={message.linkPreview.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 flex flex-col sm:flex-row gap-3 p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-lg overflow-hidden transition text-left no-underline select-none max-w-sm"
+                              >
+                                {message.linkPreview.image && (
+                                  <img
+                                    src={message.linkPreview.image}
+                                    alt=""
+                                    className="w-full sm:w-20 h-28 sm:h-20 object-cover rounded border border-gray-100 flex-shrink-0"
+                                  />
+                                )}
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                  <p className="font-semibold text-slate-800 text-[12px] line-clamp-2 leading-snug">
+                                    {message.linkPreview.title}
+                                  </p>
+                                  {message.linkPreview.description && (
+                                    <p className="text-[10px] text-gray-500 line-clamp-1 mt-1">
+                                      {message.linkPreview.description}
                                     </p>
-                                    <p className="text-[10px] text-gray-500">
-                                      {file.size || "Unknown size"}
-                                    </p>
-                                  </div>
-                                </a>
-                              );
-                            })}
-                          </div>
+                                  )}
+                                  <p className="text-[9px] text-indigo-600 font-semibold mt-1 uppercase tracking-wide">
+                                    {message.linkPreview.domain || "Link"}
+                                  </p>
+                                </div>
+                              </a>
+                            )}
+                            {message.files && message.files.length > 0 && (
+                              <div className="mt-2 space-y-1.5 min-w-[200px]">
+                                {message.files.map((file, fileIdx) => {
+                                  const isVideo = file.name.match(
+                                    /\.(mp4|webm|ogg|mov)$/i,
+                                  );
+                                  if (isVideo) {
+                                    return (
+                                      <div
+                                        key={fileIdx}
+                                        className="overflow-hidden rounded-lg max-w-sm mt-1 border border-gray-200 shadow-sm bg-black"
+                                      >
+                                        <video
+                                          src={file.url}
+                                          controls
+                                          className="w-full max-h-64 object-contain"
+                                        />
+                                      </div>
+                                    );
+                                  }
+                                  return (
+                                    <a
+                                      key={fileIdx}
+                                      href={file.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className={`flex items-center gap-3 p-2 rounded border hover:bg-slate-50 transition cursor-pointer ${
+                                        isMe
+                                          ? "bg-white text-slate-800 border-blue-200"
+                                          : "bg-slate-50 border-slate-200"
+                                      }`}
+                                    >
+                                      <div className="size-8.5 bg-emerald-50 rounded flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                        <FileText className="size-4.5" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-semibold truncate text-slate-800">
+                                          {file.name}
+                                        </p>
+                                        <p className="text-[10px] text-gray-500">
+                                          {file.size || "Unknown size"}
+                                        </p>
+                                      </div>
+                                    </a>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </>
                         )}
-
                         {message.reactions && message.reactions.length > 0 && (
                           <div
                             onClick={(e) => {
@@ -751,12 +741,62 @@ const ChatBox = () => {
                           )}
                         </div>
                       </div>
-                      <button
-                        onClick={() => setReplyingTo(message)}
-                        className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition cursor-pointer"
-                      >
-                        <Reply size={15} className="-scale-x-100" />
-                      </button>
+                      {/* Message actions dropdown menu (Zalo-style) */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setActiveDropdownMsgId(activeDropdownMsgId === message._id ? null : message._id)}
+                          className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition cursor-pointer"
+                          title="Tùy chọn"
+                        >
+                          <MoreVertical size={15} />
+                        </button>
+
+                        {activeDropdownMsgId === message._id && (
+                          <>
+                            {/* Overlay to close when clicking outside */}
+                            <div
+                              className="fixed inset-0 z-45"
+                              onClick={() => setActiveDropdownMsgId(null)}
+                            />
+                            <div className="absolute right-0 bottom-full mb-1 w-32 bg-white dark:bg-zinc-950 rounded-lg shadow-lg border border-gray-150 dark:border-zinc-800 z-50 py-1 font-semibold text-xs text-gray-700 dark:text-gray-200">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyingTo(message);
+                                  setActiveDropdownMsgId(null);
+                                }}
+                                className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-zinc-900 text-gray-705 dark:text-gray-200 cursor-pointer"
+                              >
+                                Trả lời
+                              </button>
+                              
+                              {isMe && message.content !== "Tin nhắn đã bị thu hồi" && !message.isRecall && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMessageToRecall(message);
+                                    setActiveDropdownMsgId(null);
+                                  }}
+                                  className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-zinc-900 text-amber-600 cursor-pointer"
+                                >
+                                  Thu hồi
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  handleDeleteMessageForMe(message._id);
+                                  setActiveDropdownMsgId(null);
+                                }}
+                                className="w-full text-left px-3 py-2 hover:bg-gray-50 dark:hover:bg-zinc-900 text-red-500 cursor-pointer"
+                              >
+                                Xóa
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -1099,6 +1139,39 @@ const ChatBox = () => {
                     <span className="text-2xl">{r.emoji}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Recall Message Confirmation Modal */}
+        {messageToRecall && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-120 animate-fade-in">
+            <div className="bg-white dark:bg-zinc-950 w-[90%] max-w-sm rounded-xl shadow-2xl border border-gray-150 dark:border-zinc-800 p-5 space-y-4">
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 text-center">
+                Thu hồi tin nhắn?
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center leading-normal">
+                Tin nhắn này sẽ bị thu hồi với tất cả thành viên trong cuộc trò chuyện. Bạn không thể hoàn tác hành động này.
+              </p>
+              <div className="flex gap-3 justify-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setMessageToRecall(null)}
+                  className="px-4 py-1.5 rounded-lg border dark:border-zinc-800 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-55 dark:hover:bg-zinc-900 cursor-pointer transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleRecallMessage(messageToRecall._id);
+                    setMessageToRecall(null);
+                  }}
+                  className="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold cursor-pointer shadow-sm transition-colors"
+                >
+                  Thu hồi
+                </button>
               </div>
             </div>
           </div>

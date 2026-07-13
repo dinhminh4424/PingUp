@@ -13,6 +13,8 @@ import {
   getMessages,
   sendMessage as sendMessageApi,
   reactToMessage,
+  recallMessage,
+  deleteMessageForMe,
 } from "../services/MessageServices";
 
 const ChatContext = createContext();
@@ -202,6 +204,60 @@ export const ChatProvider = ({ children }) => {
     }
   };
 
+  const handleRecallMessage = async (messageId) => {
+    try {
+      const data = await recallMessage(messageId);
+      if (data.success) {
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg._id === messageId
+              ? {
+                  ...msg,
+                  content: "Tin nhắn đã bị thu hồi",
+                  imageUrl: [],
+                  files: [],
+                  reactions: [],
+                  linkPreview: null,
+                  isRecall: true,
+                }
+              : msg
+          )
+        );
+        // Also update conversations last message if needed
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.lastMessage && c.lastMessage._id === messageId) {
+              return {
+                ...c,
+                lastMessage: {
+                  ...c.lastMessage,
+                  content: "Tin nhắn đã bị thu hồi",
+                },
+              };
+            }
+            return c;
+          })
+        );
+      }
+    } catch (err) {
+      console.error("Lỗi thu hồi tin nhắn: ", err);
+      throw err;
+    }
+  };
+
+  const handleDeleteMessageForMe = async (messageId) => {
+    try {
+      const data = await deleteMessageForMe(messageId);
+      if (data.success) {
+        setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
+        toast.success("Đã xóa tin nhắn phía bạn");
+      }
+    } catch (err) {
+      console.error("Lỗi xóa tin nhắn: ", err);
+      toast.error(err.response?.data?.message || "Không thể xóa tin nhắn");
+    }
+  };
+
   const updateCustomization = async (conversationId, themeType, themeValue, quickEmoji) => {
     try {
       const data = await updateConversationCustomization(conversationId, {
@@ -265,14 +321,49 @@ export const ChatProvider = ({ children }) => {
       );
     };
 
+    const handleMessageRecall = ({ messageId }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId
+            ? {
+                ...msg,
+                content: "Tin nhắn đã bị thu hồi",
+                imageUrl: [],
+                files: [],
+                reactions: [],
+                linkPreview: null,
+                isRecall: true,
+              }
+            : msg
+        )
+      );
+
+      setConversations((prev) =>
+        prev.map((c) => {
+          if (c.lastMessage && c.lastMessage._id === messageId) {
+            return {
+              ...c,
+              lastMessage: {
+                ...c.lastMessage,
+                content: "Tin nhắn đã bị thu hồi",
+              },
+            };
+          }
+          return c;
+        })
+      );
+    };
+
     socket.on("newMessage", handleNewMessage);
     socket.on("conversationUpdated", handleConversationUpdated);
     socket.on("messageReaction", handleMessageReaction);
+    socket.on("messageRecall", handleMessageRecall);
 
     return () => {
       socket.off("newMessage", handleNewMessage);
       socket.off("conversationUpdated", handleConversationUpdated);
       socket.off("messageReaction", handleMessageReaction);
+      socket.off("messageRecall", handleMessageRecall);
     };
   }, [socket, currentConversation]);
 
@@ -313,6 +404,8 @@ export const ChatProvider = ({ children }) => {
         fetchChatMessages,
         sendMessage,
         handleReact,
+        handleRecallMessage,
+        handleDeleteMessageForMe,
         updateCustomization,
       }}
     >

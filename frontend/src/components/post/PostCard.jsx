@@ -13,6 +13,7 @@ import UpdatePostModal from "./UpdatePostModal.jsx";
 import DeletePostModal from "./DeletePostModal.jsx";
 import DetailPostModal from "./DetailPostModal.jsx";
 import SharePostModal from "./SharePostModal.jsx";
+import ReportPostModal from "./ReportPostModal.jsx";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useSocket } from "../../contexts/SocketContext.jsx";
 import { toggleLike } from "../../services/PostServices.js";
@@ -33,6 +34,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const { onlineUsers } = useSocket();
   const navigate = useNavigate();
@@ -131,7 +133,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                 <button
                   onClick={() => {
                     setOpen(false);
-                    setShowUpdateModal(true);
+                    setShowReportModal(true);
                   }}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
                 >
@@ -163,22 +165,29 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
 
         {/* Image */}
         <div className="grid grid-cols-2 gap-2">
-          {post.image_urls && post.image_urls.map((img, index) => (
-            <img
-              src={img}
-              key={index}
-              className={`w-full h-48 object-cover rounded-lg ${post.image_urls.length === 1 && "col-span-2 h-auto "}`}
-            />
-          ))}
+          {post.image_urls &&
+            post.image_urls.map((img, index) => (
+              <img
+                src={img}
+                key={index}
+                className={`w-full h-48 object-cover rounded-lg ${post.image_urls.length === 1 && "col-span-2 h-auto "}`}
+              />
+            ))}
         </div>
 
         {/* Shared Post Container */}
         {post.post_type === "share" && post.shared_post && (
-          <div className="border border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors mt-2 cursor-pointer" onClick={() => navigate(`/post/${post.shared_post._id}`)}>
+          <div
+            className="border border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors mt-2 cursor-pointer"
+            onClick={() => navigate(`/post/${post.shared_post._id}`)}
+          >
             <div className="flex items-center gap-2 mb-2">
-              <img 
-                src={post.shared_post.user?.profile_picture || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"} 
-                alt="" 
+              <img
+                src={
+                  post.shared_post.user?.profile_picture ||
+                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
+                }
+                alt=""
                 className="w-7 h-7 rounded-full object-cover"
               />
               <div>
@@ -193,17 +202,18 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
             <p className="text-xs text-gray-700 whitespace-pre-line leading-relaxed">
               {post.shared_post.content}
             </p>
-            {post.shared_post.image_urls && post.shared_post.image_urls.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {post.shared_post.image_urls.map((img, index) => (
-                  <img
-                    src={img}
-                    key={index}
-                    className={`w-full h-32 object-cover rounded-lg ${post.shared_post.image_urls.length === 1 && "col-span-2 h-auto max-h-64"}`}
-                  />
-                ))}
-              </div>
-            )}
+            {post.shared_post.image_urls &&
+              post.shared_post.image_urls.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {post.shared_post.image_urls.map((img, index) => (
+                    <img
+                      src={img}
+                      key={index}
+                      className={`w-full h-32 object-cover rounded-lg ${post.shared_post.image_urls.length === 1 && "col-span-2 h-auto max-h-64"}`}
+                    />
+                  ))}
+                </div>
+              )}
           </div>
         )}
 
@@ -216,14 +226,14 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
             />
             <span>{likes.length}</span>
           </div>
-          <div 
+          <div
             onClick={() => setShowDetailModal(true)}
             className="flex items-center gap-1 cursor-pointer hover:text-blue-500 transition-colors"
           >
             <MessageCircle className="w-4 h-5" />
             <span>{post.comments_count || 0}</span>
           </div>
-          <div 
+          <div
             onClick={() => setShowShareModal(true)}
             className="flex items-center gap-1 cursor-pointer hover:text-blue-500 transition-colors"
           >
@@ -265,6 +275,14 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
           onShare={(updatedPost) => {
             if (onUpdate) onUpdate(updatedPost);
           }}
+        />
+      )}
+
+      {showReportModal && (
+        <ReportPostModal
+          postId={post._id}
+          onClose={() => setShowReportModal(false)}
+          onDelete={onDelete}
         />
       )}
     </>

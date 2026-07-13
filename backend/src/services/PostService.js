@@ -5,6 +5,7 @@ import Connection from "../models/Connection.js";
 import User from "../models/User.js";
 import NotificationService from "./NotificationService.js";
 import Comment from "../models/Comment.js";
+import Report from "../models/Report.js";
 
 class PostService {
   async getPost(page = 1, limit = 10) {
@@ -27,8 +28,9 @@ class PostService {
           path: "shared_post",
           populate: {
             path: "user",
-            select: "_id email username full_name bio profile_picture cover_photo location "
-          }
+            select:
+              "_id email username full_name bio profile_picture cover_photo location ",
+          },
         })
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -88,8 +90,9 @@ class PostService {
           path: "shared_post",
           populate: {
             path: "user",
-            select: "_id email username full_name bio profile_picture cover_photo location "
-          }
+            select:
+              "_id email username full_name bio profile_picture cover_photo location ",
+          },
         })
         .sort({ createdAt: -1 });
 
@@ -121,6 +124,64 @@ class PostService {
         data: {
           success: false,
           message: "Lỗi hệ thống getPostsByIdUser: " + error.message,
+        },
+      };
+    }
+  }
+
+  async createReportPost(id, targetType, userId, reason, details, files) {
+    try {
+      console.log("id: ", id);
+      console.log("userId: ", userId);
+      console.log("targetType: ", targetType);
+      console.log("reason: ", reason);
+      console.log("details: ", details);
+
+      const post = await Post.findById(id);
+
+      if (!post) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy bài viết",
+          },
+        };
+      }
+
+      const listImage = [];
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const uploadResult = await uploadImageFromBuffer(file.buffer);
+          listImage.push(uploadResult.secure_url);
+        }
+      }
+
+      const reportPost = await Report.create({
+        reporterId: userId,
+        targetId: id,
+        targetType: targetType,
+        reason: reason,
+        details: details,
+        file: listImage,
+      });
+
+      // Socket
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Báo cáo bài viết thành công",
+          reportPost: post,
+        },
+      };
+    } catch (error) {
+      console.log("Lỗi hệ thống Đăng Bài: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
         },
       };
     }
@@ -439,8 +500,9 @@ class PostService {
           path: "shared_post",
           populate: {
             path: "user",
-            select: "_id email username full_name bio profile_picture cover_photo location "
-          }
+            select:
+              "_id email username full_name bio profile_picture cover_photo location ",
+          },
         });
 
       if (!post || post.isDelete || !post.isActive) {
@@ -540,8 +602,9 @@ class PostService {
           path: "shared_post",
           populate: {
             path: "user",
-            select: "_id email username full_name bio profile_picture cover_photo location "
-          }
+            select:
+              "_id email username full_name bio profile_picture cover_photo location ",
+          },
         })
         .sort({ createdAt: -1 });
 
