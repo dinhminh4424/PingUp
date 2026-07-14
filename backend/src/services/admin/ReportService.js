@@ -12,6 +12,8 @@ class ReportService {
     startDate,
     endDate,
     page = 1,
+    reasonFilter,
+    reporterFilter,
   ) {
     try {
       const limit = 10;
@@ -23,6 +25,23 @@ class ReportService {
       // 1. Filter by status
       if (statusFilter && statusFilter !== "all") {
         query.status = statusFilter;
+      }
+
+      // 1.1. Filter by reason
+      if (reasonFilter && reasonFilter !== "all") {
+        query.reason = reasonFilter;
+      }
+
+      // 1.2. Filter by reporter
+      if (reporterFilter) {
+        const matchedReporters = await User.find({
+          $or: [
+            { full_name: { $regex: reporterFilter, $options: "i" } },
+            { username: { $regex: reporterFilter, $options: "i" } },
+          ],
+        }).select("_id");
+        const reporterIds = matchedReporters.map((r) => r._id);
+        query.reporterId = { $in: reporterIds };
       }
 
       // 2. Filter by date range (startDate, endDate)

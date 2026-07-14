@@ -10,6 +10,9 @@ import Profile from "../pages/user/Profile";
 import CreatePost from "../pages/user/CreatePost";
 import Notification from "../pages/user/Notification";
 import PostDetail from "../pages/user/PostDetail";
+import Settings from "../pages/user/Settings";
+import Feedback from "../pages/user/Feedback";
+import Appeal from "../pages/user/Appeal";
 import NotFound from "../pages/NotFound";
 
 const UserRoutes = () => {
@@ -26,6 +29,9 @@ const UserRoutes = () => {
         <Route path="create-post" element={<CreatePost />} />
         <Route path="notification" element={<Notification />} />
         <Route path="post/:postId" element={<PostDetail />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="feedback" element={<Feedback />} />
+        <Route path="appeal" element={<Appeal />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

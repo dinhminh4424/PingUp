@@ -3,13 +3,15 @@ import ReportService from "../../services/admin/ReportService.js";
 class ReportController {
   async getReportPost(req, res) {
     try {
-      const { searchQuery, statusFilter, startDate, endDate, page = 1 } = req.query;
+      const { searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter, reporterFilter } = req.query;
       const result = await ReportService.getReportPosts(
         searchQuery,
         statusFilter,
         startDate,
         endDate,
-        page
+        page,
+        reasonFilter,
+        reporterFilter
       );
       return res.status(result.status).json(result.data);
     } catch (error) {

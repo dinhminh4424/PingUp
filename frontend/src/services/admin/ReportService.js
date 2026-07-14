@@ -1,6 +1,6 @@
 import api from "../../lib/axios";
 
-export const getReportPost = async (searchQuery, statusFilter, startDate, endDate, page = 1) => {
+export const getReportPost = async (searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter = "", reporterFilter = "") => {
   const res = await api.get(`/api/admin/report/posts`, {
     params: {
       searchQuery,
@@ -8,6 +8,8 @@ export const getReportPost = async (searchQuery, statusFilter, startDate, endDat
       startDate,
       endDate,
       page,
+      reasonFilter,
+      reporterFilter,
     },
   });
   return res.data;

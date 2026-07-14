@@ -33,6 +33,7 @@ import {
   Terminal,
   FileText,
   MessageSquare,
+  Scale,
 } from "lucide-react";
 
 const AdminSidebar = ({ ...props }) => {
@@ -90,7 +91,7 @@ const AdminSidebar = ({ ...props }) => {
         {
           title: "Bài viết",
           url: "/admin/reports/posts",
-          badge: "soon",
+          // badge: "soon",
         },
         {
           title: "Bình luận",
@@ -108,6 +109,18 @@ const AdminSidebar = ({ ...props }) => {
           badge: "soon",
         },
       ],
+    },
+    {
+      title: "Quản lý kháng nghị",
+      url: "/admin/appeals",
+      icon: <Scale className="size-4" />,
+      isActive: location.pathname === "/admin/appeals",
+    },
+    {
+      title: "Quản lý phản hồi",
+      url: "/admin/feedbacks",
+      icon: <MessageSquare className="size-4" />,
+      isActive: location.pathname === "/admin/feedbacks",
     },
     {
       title: "Thông báo hệ thống",

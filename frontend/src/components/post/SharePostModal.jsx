@@ -152,10 +152,7 @@ const SharePostModal = ({ post, onClose, onShare }) => {
             {/* User header info */}
             <div className="flex items-center gap-3">
               <img
-                src={
-                  userCurrent?.profile_picture ||
-                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
-                }
+                src={userCurrent?.profile_picture || "/default-avatar.avif"}
                 alt=""
                 className="w-12 h-12 rounded-full object-cover shadow-sm border border-gray-200"
               />

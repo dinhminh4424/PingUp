@@ -116,6 +116,49 @@ const ChatBox = () => {
   // Security Toggles
   const [hideChatToggle, setHideChatToggle] = useState(false);
 
+  const longPressTimerRef = useRef(null);
+  const touchStartPosRef = useRef({ x: 0, y: 0 });
+
+  const handleTouchStart = (messageId) => (e) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+    }
+    longPressTimerRef.current = setTimeout(() => {
+      setActiveDropdownMsgId(messageId);
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, 600);
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const diffX = Math.abs(touch.clientX - touchStartPosRef.current.x);
+    const diffY = Math.abs(touch.clientY - touchStartPosRef.current.y);
+    if (diffX > 10 || diffY > 10) {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleContextMenu = (messageId) => (e) => {
+    e.preventDefault();
+    setActiveDropdownMsgId(messageId);
+  };
+
   const scrollContainerRef = useRef(null);
   const { id } = useParams();
 
@@ -465,7 +508,11 @@ const ChatBox = () => {
                       className={`flex flex-col max-w-[65%] ${isMe ? "items-end" : "items-start"}`}
                     >
                       <div
-                        className={`p-2.5 px-3.5 text-sm rounded-lg shadow-sm border border-slate-100 relative ${
+                        onContextMenu={handleContextMenu(message._id)}
+                        onTouchStart={handleTouchStart(message._id)}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                        className={`p-2.5 px-3.5 text-sm rounded-lg shadow-sm border border-slate-100 relative cursor-pointer select-none ${
                           isMe
                             ? "bg-[#e6f2ff] text-slate-800"
                             : "bg-white text-slate-800"
