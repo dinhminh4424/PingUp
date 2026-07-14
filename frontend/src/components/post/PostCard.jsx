@@ -78,7 +78,11 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
           >
             <div className="relative">
               <img
-                src={post.user?.profile_picture}
+                src={
+                  post.user?.profile_picture
+                    ? post.user?.profile_picture
+                    : "/default-avatar.avif"
+                }
                 alt=""
                 className="w-10 h-10 rounded-full shadow object-cover"
               />

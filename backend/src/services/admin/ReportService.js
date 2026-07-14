@@ -1,0 +1,190 @@
+import User from "../../models/User.js";
+import Post from "../../models/Post.js";
+import Report from "../../models/Report.js";
+import Comment from "../../models/Comment.js";
+import mongoose from "mongoose";
+
+class ReportService {
+  // Get all posts for admin panel with search, status filters, date range, and pagination
+  async getReportPosts(
+    searchQuery,
+    statusFilter,
+    startDate,
+    endDate,
+    page = 1,
+  ) {
+    try {
+      const limit = 10;
+      const pageNumber = Math.max(1, parseInt(page) || 1);
+      const skip = (pageNumber - 1) * limit;
+
+      let query = { targetType: "post" };
+
+      // 1. Filter by status
+      if (statusFilter && statusFilter !== "all") {
+        query.status = statusFilter;
+      }
+
+      // 2. Filter by date range (startDate, endDate)
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) {
+          query.createdAt.$gte = new Date(startDate);
+        }
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          query.createdAt.$lte = end;
+        }
+      }
+
+      // 3. Filter by searchQuery (Report ID, reporter name/username, post content, post author name/username, report reason/details)
+      if (searchQuery) {
+        const isObjectId = mongoose.isValidObjectId(searchQuery);
+
+        if (isObjectId) {
+          query.$or = [
+            { _id: searchQuery },
+            { targetId: searchQuery }
+          ];
+        } else {
+          // Find users whose name or username matches search query
+          const matchedUsers = await User.find({
+            $or: [
+              { full_name: { $regex: searchQuery, $options: "i" } },
+              { username: { $regex: searchQuery, $options: "i" } },
+            ],
+          }).select("_id");
+          const userIds = matchedUsers.map((u) => u._id);
+
+          // Find posts matching search query or author
+          const matchedPosts = await Post.find({
+            $or: [
+              { content: { $regex: searchQuery, $options: "i" } },
+              { user: { $in: userIds } },
+            ],
+          }).select("_id");
+          const postIds = matchedPosts.map((p) => p._id);
+
+          query.$or = [
+            { reporterId: { $in: userIds } },
+            { targetId: { $in: postIds } },
+            { reason: { $regex: searchQuery, $options: "i" } },
+            { details: { $regex: searchQuery, $options: "i" } },
+          ];
+        }
+      }
+
+      const totalReports = await Report.countDocuments(query);
+      const totalPages = Math.ceil(totalReports / limit);
+
+      // Query reports
+      const reportPosts = await Report.find(query)
+        .populate("reporterId", "_id username full_name profile_picture email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      // Populate targeted post details manually
+      const populatedReports = await Promise.all(
+        reportPosts.map(async (report) => {
+          const targetPost = await Post.findById(report.targetId)
+            .populate("user", "_id username full_name profile_picture email")
+            .select("content image_urls user isActive isDelete createdAt");
+          return {
+            ...report.toObject(),
+            post: targetPost,
+          };
+        }),
+      );
+
+      // Overall stats for reported posts
+      const totalReportsAll = await Report.countDocuments({ targetType: "post" });
+      const pendingCount = await Report.countDocuments({ targetType: "post", status: "pending" });
+      const resolvedCount = await Report.countDocuments({ targetType: "post", status: "resolved" });
+      const dismissedCount = await Report.countDocuments({ targetType: "post", status: "dismissed" });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy danh sách Report Post thành công!",
+          reportPosts: populatedReports,
+          pagination: {
+            currentPage: pageNumber,
+            totalPages: totalPages || 1,
+            totalReports: totalReports,
+            limit,
+          },
+          stats: {
+            total: totalReportsAll,
+            pending: pendingCount,
+            resolved: resolvedCount,
+            dismissed: dismissedCount,
+          }
+        },
+      };
+    } catch (error) {
+      console.error(
+        "Lỗi hệ thống lấy danh sách báo cáo bài viết admin: ",
+        error,
+      );
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
+
+  // Update report status (pending, resolved, dismissed)
+  async updateReportStatus(id, status) {
+    try {
+      if (!["pending", "resolved", "dismissed"].includes(status)) {
+        return {
+          status: 400,
+          data: {
+            success: false,
+            message: "Trạng thái không hợp lệ",
+          },
+        };
+      }
+
+      const report = await Report.findById(id);
+      if (!report) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy báo cáo",
+          },
+        };
+      }
+
+      report.status = status;
+      await report.save();
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Cập nhật trạng thái báo cáo thành công!",
+          report,
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi hệ thống cập nhật trạng thái báo cáo: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
+}
+
+export default new ReportService();

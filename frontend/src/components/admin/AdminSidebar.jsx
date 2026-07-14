@@ -44,14 +44,20 @@ const AdminSidebar = ({ ...props }) => {
       title: "Dashboard",
       url: "#",
       icon: <LayoutDashboard className="size-4" />,
-      isActive: location.pathname === "/admin" || location.pathname.startsWith("/admin/dashboard"),
+      isActive:
+        location.pathname === "/admin" ||
+        location.pathname.startsWith("/admin/dashboard"),
       items: [
         { title: "Tổng quan", url: "/admin", badge: "" },
         { title: "Người dùng", url: "/admin/dashboard/users", badge: "" },
         { title: "Bài viết", url: "/admin/dashboard/posts", badge: "" },
         { title: "Story", url: "/admin/dashboard/stories", badge: "" },
         { title: "Tin nhắn", url: "/admin/dashboard/messages", badge: "" },
-        { title: "Báo cáo vi phạm", url: "/admin/dashboard/reports", badge: "" },
+        {
+          title: "Báo cáo vi phạm",
+          url: "/admin/dashboard/reports",
+          badge: "",
+        },
       ],
     },
     {
@@ -59,21 +65,21 @@ const AdminSidebar = ({ ...props }) => {
       url: "/admin/users",
       icon: <Users className="size-4" />,
       isActive: location.pathname === "/admin/users",
-      badge: "128", // Example quantity
+      // badge: "128", // Example quantity
     },
     {
       title: "Quản lý bài viết",
       url: "/admin/posts",
       icon: <FileText className="size-4" />,
       isActive: location.pathname === "/admin/posts",
-      badge: "soon",
+      // badge: "soon",
     },
     {
       title: "Quản lý tin nhắn",
       url: "/admin/messages",
       icon: <MessageSquare className="size-4" />,
       isActive: location.pathname === "/admin/messages",
-      badge: "soon",
+      // badge: "soon",
     },
     {
       title: "Báo cáo vi phạm",
@@ -178,8 +184,12 @@ const AdminSidebar = ({ ...props }) => {
                 <Terminal className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="font-semibold text-indigo-600 dark:text-indigo-400">PingUp Admin</span>
-                <span className="truncate text-xs text-muted-foreground">Management Panel</span>
+                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                  PingUp Admin
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  Management Panel
+                </span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -193,7 +203,7 @@ const AdminSidebar = ({ ...props }) => {
           <SidebarMenu className="gap-1.5">
             {navItems.map((item) => {
               const hasSubItems = item.items && item.items.length > 0;
-              
+
               if (hasSubItems) {
                 return (
                   <Collapsible
@@ -204,10 +214,14 @@ const AdminSidebar = ({ ...props }) => {
                     <SidebarMenuButton
                       tooltip={item.title}
                       isActive={item.isActive}
-                      render={item.url !== "#" ? <Link to={item.url} /> : <button />}
+                      render={
+                        item.url !== "#" ? <Link to={item.url} /> : <button />
+                      }
                     >
                       {item.icon}
-                      <span className="truncate flex-1 text-left">{item.title}</span>
+                      <span className="truncate flex-1 text-left">
+                        {item.title}
+                      </span>
                       {renderBadge(item.badge)}
                     </SidebarMenuButton>
                     <CollapsibleTrigger
@@ -224,9 +238,17 @@ const AdminSidebar = ({ ...props }) => {
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton
                               isActive={location.pathname === subItem.url}
-                              render={subItem.url !== "#" ? <Link to={subItem.url} /> : <span className="flex w-full items-center justify-between" />}
+                              render={
+                                subItem.url !== "#" ? (
+                                  <Link to={subItem.url} />
+                                ) : (
+                                  <span className="flex w-full items-center justify-between" />
+                                )
+                              }
                             >
-                              <span className="truncate flex-1 text-left">{subItem.title}</span>
+                              <span className="truncate flex-1 text-left">
+                                {subItem.title}
+                              </span>
                               {renderBadge(subItem.badge)}
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
@@ -242,10 +264,18 @@ const AdminSidebar = ({ ...props }) => {
                   <SidebarMenuButton
                     tooltip={item.title}
                     isActive={item.isActive}
-                    render={item.url !== "#" ? <Link to={item.url} /> : <div className="flex w-full items-center" />}
+                    render={
+                      item.url !== "#" ? (
+                        <Link to={item.url} />
+                      ) : (
+                        <div className="flex w-full items-center" />
+                      )
+                    }
                   >
                     {item.icon}
-                    <span className="truncate flex-1 text-left">{item.title}</span>
+                    <span className="truncate flex-1 text-left">
+                      {item.title}
+                    </span>
                     {renderBadge(item.badge)}
                   </SidebarMenuButton>
                 </SidebarMenuItem>

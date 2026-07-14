@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 
 const SocketContext = createContext();
 
-const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const baseURL = import.meta.env.VITE_API_URL;
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -53,7 +53,9 @@ export const SocketProvider = ({ children }) => {
         setSystemModal({
           open: true,
           title: "Tài khoản bị khóa",
-          message: notification?.content || "Tài khoản của bạn đã bị khóa! Nếu có sai sót vui lòng liên hệ Admin.",
+          message:
+            notification?.content ||
+            "Tài khoản của bạn đã bị khóa! Nếu có sai sót vui lòng liên hệ Admin.",
           type: "lock",
           size: "md",
           showCloseButton: false,
