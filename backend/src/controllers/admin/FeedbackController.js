@@ -1,25 +1,27 @@
-import MessageService from "../../services/admin/MessageService.js";
+import FeedbackService from "../../services/admin/FeedbackService.js";
 
-class MessageController {
-  async getConversations(req, res) {
+class FeedbackController {
+  async getFeedbacks(req, res) {
     try {
       const {
-        searchQuery,
-        statusFilter,
+        searchTerm,
+        filterCategory,
+        filterRating,
         startDate,
         endDate,
         page = 1,
       } = req.query;
-      const result = await MessageService.getConversations(
-        searchQuery,
-        statusFilter,
+      const result = await FeedbackService.getFeedbacks(
+        searchTerm,
+        filterRating,
+        filterCategory,
         startDate,
         endDate,
         page,
       );
       return res.status(result.status).json(result.data);
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách conversations: ", error);
+      console.error("Lỗi khi lấy danh sách feedbacks: ", error);
       res.status(500).json({
         success: false,
         message: "Lỗi hệ thống: " + error.message,
@@ -28,4 +30,4 @@ class MessageController {
   }
 }
 
-export default new MessageController();
+export default new FeedbackController();

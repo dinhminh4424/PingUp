@@ -1,9 +1,8 @@
 import Feedback from "../../models/Feedback.js";
-
 import User from "../../models/User.js";
 
 class FeedbackService {
-  // Get conversations list with pagination and search
+  // Get feedbacks list with pagination and search
   async getFeedbacks(
     searchQuery,
     rankFilter,
@@ -20,7 +19,6 @@ class FeedbackService {
       let search = {};
 
       if (searchQuery) {
-        // Search group name
         const matchedUsers = await User.find({
           $or: [
             { full_name: { $regex: searchQuery, $options: "i" } },
@@ -30,17 +28,18 @@ class FeedbackService {
         const userIds = matchedUsers.map((u) => u._id);
 
         search.$or = [
-          { "group.name": { $regex: searchQuery, $options: "i" } },
-          { "participants.userId": { $in: userIds } },
+          { comment: { $regex: searchQuery, $options: "i" } },
+          { userId: { $in: userIds } },
         ];
       }
 
-      // Filter by status
-      if (rankFilter) {
-        search.rating = rankFilter;
+      // Filter by rating / rank
+      if (rankFilter && rankFilter !== "all") {
+        search.rating = parseInt(rankFilter);
       }
 
-      if (categoryFilter) {
+      // Filter by category
+      if (categoryFilter && categoryFilter !== "all") {
         search.category = categoryFilter;
       }
 
@@ -57,70 +56,30 @@ class FeedbackService {
         }
       }
 
-      const conversations = await Conversation.find(search)
-        .populate(
-          "participants.userId",
-          "_id username full_name profile_picture",
-        )
-        .populate("group.createBy", "_id username full_name")
-        .sort({ lastMessageAt: -1, updatedAt: -1 })
+      const feedbacks = await Feedback.find(search)
+        .populate("userId", "_id username full_name profile_picture email")
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-      const totalFiltered = await Conversation.countDocuments(search);
-
-      // Add message count to each conversation for admin info
-      const conversationsWithCount = await Promise.all(
-        conversations.map(async (conv) => {
-          const messageCount = await Message.countDocuments({
-            conversationId: conv._id,
-          });
-          return {
-            ...conv.toObject(),
-            message_count: messageCount,
-          };
-        }),
-      );
-
-      const totalConversations = await Conversation.countDocuments({
-        isDelete: false,
-      });
-      const directConversations = await Conversation.countDocuments({
-        isDelete: false,
-        type: "direct",
-      });
-      const groupConversations = await Conversation.countDocuments({
-        isDelete: false,
-        type: "group",
-      });
-      const deletedConversations = await Conversation.countDocuments({
-        isDelete: true,
-      });
-      const totalMessages = await Message.countDocuments({});
+      const totalFiltered = await Feedback.countDocuments(search);
 
       return {
         status: 200,
         data: {
           success: true,
-          message: "Lấy danh sách hội thoại thành công!",
-          conversations: conversationsWithCount,
+          message: "Lấy danh sách feedback thành công!",
+          feedbacks: feedbacks,
           pagination: {
             currentPage: Number(page),
             totalPages: Math.ceil(totalFiltered / limit),
-            totalConversations: totalFiltered,
+            totalFeedbacks: totalFiltered,
             limit,
-          },
-          stats: {
-            totalConversations,
-            directConversations,
-            groupConversations,
-            deletedConversations,
-            totalMessages,
           },
         },
       };
     } catch (error) {
-      console.error("Lỗi hệ thống lấy danh sách hội thoại admin: ", error);
+      console.error("Lỗi hệ thống lấy danh sách feedback admin: ", error);
       return {
         status: 500,
         data: { success: false, message: "Lỗi hệ thống: " + error.message },
