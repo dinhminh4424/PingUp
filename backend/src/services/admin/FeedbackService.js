@@ -36,15 +36,12 @@ class FeedbackService {
       }
 
       // Filter by status
-      if (statusFilter === "deleted") {
-        search.isDelete = true;
-      } else {
-        search.isDelete = false;
-        if (statusFilter === "active") {
-          search.isActive = { $ne: false };
-        } else if (statusFilter === "blocked") {
-          search.isActive = false;
-        }
+      if (rankFilter) {
+        search.rating = rankFilter;
+      }
+
+      if (categoryFilter) {
+        search.category = categoryFilter;
       }
 
       // Filter by date range
