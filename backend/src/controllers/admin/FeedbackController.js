@@ -28,6 +28,21 @@ class FeedbackController {
       });
     }
   }
+
+  async updateFeedbackStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const result = await FeedbackService.updateFeedbackStatus(id, status);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái feedback: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống: " + error.message,
+      });
+    }
+  }
 }
 
 export default new FeedbackController();

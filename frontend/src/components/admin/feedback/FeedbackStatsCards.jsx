@@ -12,10 +12,10 @@ const FeedbackStatsCards = ({ stats }) => {
           </div>
           <div>
             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
-              Total Feedback
+              Tổng số phản hồi
             </p>
             <h3 className="text-2xl font-bold text-gray-900 mt-0.5">
-              {stats.totalCount} submissions
+              {stats.totalCount} phản hồi
             </h3>
           </div>
         </CardContent>
@@ -28,7 +28,7 @@ const FeedbackStatsCards = ({ stats }) => {
           </div>
           <div>
             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
-              Average Rating
+              Đánh giá trung bình
             </p>
             <h3 className="text-2xl font-bold text-gray-900 mt-0.5">
               {stats.avgRating} / 5.0
@@ -44,10 +44,10 @@ const FeedbackStatsCards = ({ stats }) => {
           </div>
           <div>
             <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
-              Active Bug Reports
+              Báo cáo lỗi hoạt động
             </p>
             <h3 className="text-2xl font-bold text-gray-900 mt-0.5">
-              {stats.bugCount} active bugs
+              {stats.bugCount} lỗi đang hoạt động
             </h3>
           </div>
         </CardContent>

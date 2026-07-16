@@ -46,15 +46,22 @@ class CommentService {
       // Handle updating replies_count on parent comment if reply
       let parentComment = null;
       if (parentCommentId) {
-        parentComment = await Comment.findByIdAndUpdate(parentCommentId, {
-          $inc: { replies_count: 1 },
-        }, { new: true });
+        parentComment = await Comment.findByIdAndUpdate(
+          parentCommentId,
+          {
+            $inc: { replies_count: 1 },
+          },
+          { new: true },
+        );
       }
 
       const userCurrent = await User.findById(userId);
 
       if (parentCommentId) {
-        if (parentComment && parentComment.user.toString() !== userId.toString()) {
+        if (
+          parentComment &&
+          parentComment.user.toString() !== userId.toString()
+        ) {
           const notif = await NotificationService.createNotification({
             receiver: parentComment.user,
             sender: userId,
@@ -249,8 +256,6 @@ class CommentService {
           $inc: { replies_count: -1 },
         });
       }
-
-    
 
       return {
         status: 200,

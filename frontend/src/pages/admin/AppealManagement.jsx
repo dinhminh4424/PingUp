@@ -15,32 +15,35 @@ const AppealManagement = () => {
       id: "APL-7294",
       user: "NguoiDung01",
       email: "NguoiDung01@gmail.com",
-      type: "Post Removal",
+      type: "Gỡ bài viết",
       targetId: "post_182749",
-      reason: "This post was just a sunset photo from my trip. It doesn't contain any policy violations or spam content. Please review again.",
+      reason: "Bài viết này chỉ là một bức ảnh hoàng hôn từ chuyến đi của tôi. Nó không chứa bất kỳ vi phạm chính sách hay nội dung rác nào. Vui lòng xem xét lại.",
       date: "2026-07-14",
       status: "Pending",
+      media: ["https://images.unsplash.com/photo-1507525428034-b723cf961d3e"],
     },
     {
       id: "APL-6028",
       user: "dinhminh4424",
       email: "dinhminh4424@gmail.com",
-      type: "Feature Restriction",
+      type: "Hạn chế tính năng",
       targetId: "chat_limit",
-      reason: "I was sending a link to my friend for homework help, not spamming. Please unlock my chat features.",
+      reason: "Tôi chỉ gửi một liên kết cho bạn của tôi để nhờ giúp làm bài tập, không phải spam. Vui lòng mở khóa tính năng trò chuyện của tôi.",
       date: "2026-07-13",
       status: "Pending",
+      media: ["https://images.unsplash.com/photo-1434030216411-0b793f4b4173"],
     },
     {
       id: "APL-1048",
       user: "jack_ryan",
       email: "jack@example.com",
-      type: "Account Warning",
+      type: "Cảnh cáo tài khoản",
       targetId: "strike_1",
-      reason: "The system flagged my comment as harassment, but it was just a quote from a movie. No harm intended.",
+      reason: "Hệ thống đã gắn cờ bình luận của tôi là quấy rối, nhưng đó chỉ là một câu trích dẫn trong phim. Tôi không có ý xúc phạm ai cả.",
       date: "2026-07-10",
       status: "Resolved",
       result: "Decision Upheld",
+      media: [],
     },
   ]);
 
@@ -194,7 +197,7 @@ const AppealManagement = () => {
                             </button>
                             <button
                               onClick={() => handleAction(appeal.id, "Resolved", "Decision Upheld")}
-                              className="p-1.5 hover:bg-rose-500/15 rounded-lg text-rose-600 dark:text-rose-450 transition cursor-pointer"
+                              className="p-1.5 hover:bg-rose-500/15 rounded-lg text-rose-600 dark:text-rose-455 transition cursor-pointer"
                               title="Từ chối"
                             >
                               <X className="w-4 h-4" />
@@ -256,6 +259,23 @@ const AppealManagement = () => {
                     "{selectedAppeal.reason}"
                   </p>
                 </div>
+                {selectedAppeal.media && selectedAppeal.media.length > 0 && (
+                  <div>
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">Tệp / Hình ảnh đính kèm</span>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      {selectedAppeal.media.map((url, index) => (
+                        <div key={index} className="relative aspect-video rounded-lg overflow-hidden border border-border bg-muted flex items-center justify-center">
+                          <img
+                            src={url}
+                            alt=""
+                            className="w-full h-full object-cover cursor-zoom-in hover:opacity-95 transition"
+                            onClick={() => window.open(url, "_blank")}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {selectedAppeal.result && (
                   <div>
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Kết quả giải quyết</span>

@@ -86,6 +86,47 @@ class FeedbackService {
       };
     }
   }
+
+  // Update feedback status
+  async updateFeedbackStatus(id, status) {
+    try {
+      const allowedStatuses = ["New", "Reviewed", "Archived"];
+      if (!allowedStatuses.includes(status)) {
+        return {
+          status: 400,
+          data: { success: false, message: "Trạng thái không hợp lệ" },
+        };
+      }
+
+      const feedback = await Feedback.findByIdAndUpdate(
+        id,
+        { status },
+        { new: true }
+      ).populate("userId", "_id username full_name profile_picture email");
+
+      if (!feedback) {
+        return {
+          status: 404,
+          data: { success: false, message: "Không tìm thấy phản hồi" },
+        };
+      }
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Cập nhật trạng thái phản hồi thành công!",
+          feedback,
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi hệ thống cập nhật trạng thái feedback: ", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
 }
 
 export default new FeedbackService();
