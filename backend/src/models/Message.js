@@ -40,6 +40,16 @@ const messageSchema = mongoose.Schema(
         emoji: { type: String, required: true }
       }
     ],
+    isRecall: {
+      type: Boolean,
+      default: false,
+    },
+    deletedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      }
+    ],
     linkPreview: {
       title: { type: String },
       description: { type: String },

@@ -9,6 +9,8 @@ import notificationRoutes from "./NotificationRoutes.js";
 import commentRoutes from "./CommentRoutes.js";
 import messageRoutes from "./MessageRoutes.js";
 import storyRoutes from "./StoryRoutes.js";
+import feedbackRoutes from "./FeedbackRoutes.js";
+import adminRoutes from "./Admin/index.js";
 
 const router = express.Router();
 
@@ -31,5 +33,9 @@ router.use("/comments", commentRoutes);
 router.use("/message", messageRoutes);
 
 router.use("/story", storyRoutes);
+
+router.use("/feedback", feedbackRoutes);
+
+router.use("/admin", adminRoutes);
 
 export default router;

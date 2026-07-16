@@ -239,16 +239,13 @@ const DetailPostModal = ({
     const isCommentAuthorOnline = onlineUsers.includes(comment.user?._id);
 
     return (
-      <div className="flex gap-2 group/item">
+      <div className="flex gap-2 group/item items-start">
         <Link
           to={`/profile/${comment.user?._id}`}
-          className="relative shrink-0"
+          className="relative shrink-0 w-9 h-9"
         >
           <img
-            src={
-              comment.user?.profile_picture ||
-              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
-            }
+            src={comment.user?.profile_picture || "/default-avatar.avif"}
             alt=""
             className="rounded-full object-cover w-9 h-9 hover:opacity-90 transition-opacity cursor-pointer"
           />
@@ -368,7 +365,7 @@ const DetailPostModal = ({
                 className="relative shrink-0"
               >
                 <img
-                  src={post.user?.profile_picture}
+                  src={post.user?.profile_picture || "/default-avatar.avif"}
                   alt=""
                   className="w-10 h-10 rounded-full object-cover shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
                 />
@@ -478,7 +475,7 @@ const DetailPostModal = ({
                 <img
                   src={
                     post.shared_post.user?.profile_picture ||
-                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"
+                    "/default-avatar.avif"
                   }
                   alt=""
                   className="w-7 h-7 rounded-full object-cover"
@@ -623,7 +620,7 @@ const DetailPostModal = ({
 
           <div className="flex gap-2 items-center">
             <img
-              src={userCurrent?.profile_picture}
+              src={userCurrent?.profile_picture || "/default-avatar.avif"}
               alt=""
               className="w-9 h-9 rounded-full object-cover shadow-sm shrink-0"
             />

@@ -18,9 +18,7 @@ const ResentMessages = () => {
       );
       return {
         name: otherUser?.userId?.full_name || "Direct chat",
-        avatar:
-          otherUser?.userId?.profile_picture ||
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100",
+        avatar: otherUser?.userId?.profile_picture || "/default-avatar.avif",
       };
     } else {
       return {

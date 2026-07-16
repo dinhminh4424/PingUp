@@ -27,9 +27,10 @@ export const protectedRoute = (req, res, next) => {
         }
 
         // Tìm User
-        const user = await User.findById(decodedUser.userId).select(
-          "-password",
-        );
+        const user = await User.findOne({
+          _id: decodedUser.userId,
+          isActive: true,
+        }).select("-password");
 
         if (!user) {
           return res.status(404).json({
@@ -49,6 +50,18 @@ export const protectedRoute = (req, res, next) => {
     return res.status(500).json({
       success: false,
       message: "Lỗi server",
+    });
+  }
+};
+
+export const isAdmin = (req, res, next) => {
+  // req.user đã được gán từ middleware protectedRoute trước đó
+  if (req.user && req.user.role === "admin") {
+    next(); // Hợp lệ, đi tiếp
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: "Quyền truy cập bị từ chối. Chỉ dành cho Admin.",
     });
   }
 };

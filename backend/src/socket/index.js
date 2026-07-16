@@ -129,4 +129,4 @@ io.on("connection", async (socket) => {
 });
 
 // Cho phép file khác import dùng:
-export { io, server, app };
+export { io, server, app, onlineUsers };

@@ -139,7 +139,7 @@ class MessageService {
     }
   }
 
-  async getMessages(conversationId, page = 1, limit = 20) {
+  async getMessages(conversationId, page = 1, limit = 20, userId = null) {
     try {
       if (!conversationId) {
         return {
@@ -150,8 +150,13 @@ class MessageService {
 
       const skip = (page - 1) * limit;
 
+      const filter = { conversationId };
+      if (userId) {
+        filter.deletedBy = { $ne: userId };
+      }
+
       // Fetch messages sorted by newest first
-      const messages = await Message.find({ conversationId })
+      const messages = await Message.find(filter)
         .populate("senderId", "_id email username full_name profile_picture")
         .populate("reactions.userId", "_id email username full_name profile_picture")
         .populate({
@@ -166,7 +171,7 @@ class MessageService {
         .skip(skip)
         .limit(limit);
 
-      const totalMessages = await Message.countDocuments({ conversationId });
+      const totalMessages = await Message.countDocuments(filter);
 
       return {
         status: 200,
@@ -179,13 +184,41 @@ class MessageService {
         },
       };
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error("Error getting messages:", error);
       return {
         status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
+
+  async deleteMessageForMe(messageId, userId) {
+    try {
+      const message = await Message.findById(messageId);
+      if (!message) {
+        return {
+          status: 404,
+          data: { success: false, message: "Không tìm thấy tin nhắn" },
+        };
+      }
+
+      if (!message.deletedBy.includes(userId)) {
+        message.deletedBy.push(userId);
+        await message.save();
+      }
+
+      return {
+        status: 200,
         data: {
-          success: false,
-          message: "Lỗi hệ thống khi lấy tin nhắn: " + error.message,
+          success: true,
+          message: "Xóa tin nhắn ở phía bạn thành công",
         },
+      };
+    } catch (error) {
+      console.error("Error deleting message locally:", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
       };
     }
   }
@@ -262,6 +295,61 @@ class MessageService {
           success: false,
           message: "Lỗi hệ thống khi bày tỏ biểu cảm: " + error.message,
         },
+      };
+    }
+  }
+
+  async recallMessage(messageId, userId) {
+    try {
+      const message = await Message.findById(messageId);
+      if (!message) {
+        return {
+          status: 404,
+          data: { success: false, message: "Không tìm thấy tin nhắn" },
+        };
+      }
+
+      if (message.senderId.toString() !== userId.toString()) {
+        return {
+          status: 403,
+          data: { success: false, message: "Bạn không có quyền thu hồi tin nhắn này" },
+        };
+      }
+
+      // Update message
+      message.content = "Tin nhắn đã bị thu hồi";
+      message.imageUrl = [];
+      message.files = [];
+      message.reactions = [];
+      message.linkPreview = undefined;
+      message.isRecall = true;
+
+      await message.save();
+
+      // Broadcast event via socket
+      const conversation = await Conversation.findById(message.conversationId);
+      if (conversation) {
+        conversation.participants.forEach((participant) => {
+          io.to(participant.userId.toString()).emit("messageRecall", {
+            messageId,
+            conversationId: message.conversationId,
+          });
+        });
+      }
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Thu hồi tin nhắn thành công",
+          messageObj: message,
+        },
+      };
+    } catch (error) {
+      console.error("Error recalling message:", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
       };
     }
   }

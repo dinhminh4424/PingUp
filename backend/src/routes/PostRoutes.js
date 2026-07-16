@@ -5,6 +5,7 @@ import { upload } from "../middlewares/UpLoadMiddleware.js";
 const router = express.Router();
 
 // Post
+router.post("/:id/report", upload.array("images"), PostController.createReportPost);
 router.post("/create", upload.array("images"), PostController.createPost);
 router.post("/sharePost", PostController.sharePost);
 

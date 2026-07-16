@@ -1,22 +1,14 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import Feed from "./pages/Feed";
-import Messages from "./pages/Messages";
-import ChatBox from "./pages/ChatBox";
-import Connections from "./pages/Connections";
-import Profile from "./pages/Profile";
-import Discover from "./pages/Discover";
-import Layout from "./pages/layout/Layout";
-import CreatePost from "./pages/CreatePost";
-import Notification from "./pages/Notification";
-import PostDetail from "./pages/PostDetail";
-
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./contexts/AuthContext";
 import { useSocket } from "./contexts/SocketContext";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
+
+import AdminRoutes from "./routes/AdminRoutes";
+import UserRoutes from "./routes/UserRoutes";
 
 const App = () => {
   const { userCurrent } = useAuth();
@@ -34,21 +26,13 @@ const App = () => {
     <>
       <Toaster />
       <Routes>
-        <Route path="/" element={!userCurrent ? <Login /> : <Layout />}>
-          <Route index element={<Feed />} />
-          <Route path="messages" element={<Messages />} />
-          <Route path="messages/:id" element={<ChatBox />} />
-          <Route path="connections" element={<Connections />} />
-          <Route path="discover" element={<Discover />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="profile/:profileId" element={<Profile />} />
-          <Route path="create-post" element={<CreatePost />} />
-          <Route path="notification" element={<Notification />} />
-          <Route path="post/:postId" element={<PostDetail />} />
-        </Route>
         <Route path="/register" element={<Register />} />
+        
+        {/* Route dành riêng cho Admin */}
+        <Route path="/admin/*" element={<AdminRoutes />} />
 
-        <Route path="*" element={<NotFound />} />
+        {/* Tuyến đường chính cho người dùng thường */}
+        <Route path="/*" element={!userCurrent ? <Login /> : <UserRoutes />} />
       </Routes>
     </>
   );

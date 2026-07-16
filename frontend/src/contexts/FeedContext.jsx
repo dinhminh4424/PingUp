@@ -92,10 +92,7 @@ export const FeedProvider = ({ children }) => {
       toast(
         <div className="flex items-center gap-3">
           <img
-            src={
-              post.user?.profile_picture ||
-              "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"
-            }
+            src={post.user?.profile_picture || "/default-avatar.avif"}
             alt=""
             className="w-10 h-10 rounded-full object-cover shadow-sm ring-1 ring-gray-100"
             onError={(e) => {

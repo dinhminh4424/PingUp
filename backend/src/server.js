@@ -44,7 +44,7 @@ import routers from "./routes/index.js";
 app.use("/api", routers);
 // ========================= ENS GỌI API ==================
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 // ============= KẾT NỐI CƠ SỞ DỮ LIỆU ==================
 

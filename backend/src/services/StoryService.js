@@ -197,6 +197,55 @@ class StoryService {
       };
     }
   }
+
+  async viewStory(storyId, userId) {
+    try {
+      if (!storyId || !userId) {
+        return {
+          status: 400,
+          data: { success: false, message: "Thiếu dữ liệu storyId hoặc userId" }
+        };
+      }
+      
+      const story = await Story.findById(storyId);
+      if (!story) {
+        return {
+          status: 404,
+          data: { success: false, message: "Story không tồn tại" }
+        };
+      }
+
+      const hasViewed = story.viewers.some(
+        (viewer) => viewer.user.toString() === userId.toString()
+      );
+
+      if (!hasViewed) {
+        story.viewers.push({
+          user: userId,
+          viewedAt: new Date()
+        });
+        await story.save();
+      }
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Đã đánh dấu xem story",
+          story
+        }
+      };
+    } catch (error) {
+      console.log("Lỗi hệ thống khi xem story: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
 }
 
 export default new StoryService();

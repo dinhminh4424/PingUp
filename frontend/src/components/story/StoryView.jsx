@@ -1,6 +1,7 @@
 import { BadgeCheck, X } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 import moment from "moment";
+import { viewStory as markStoryAsViewedApi } from "../../services/StoryServices.js";
 
 const StoryView = ({ viewStory, setViewStory }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,6 +41,16 @@ const StoryView = ({ viewStory, setViewStory }) => {
 
   useEffect(() => {
     if (!currentStory) return;
+
+    // Call API to mark story as viewed
+    const markAsViewed = async () => {
+      try {
+        await markStoryAsViewedApi(currentStory._id);
+      } catch (err) {
+        console.error("Lỗi khi gửi trạng thái xem story: ", err);
+      }
+    };
+    markAsViewed();
 
     setProcess(0);
     let timer, progressInterval;
@@ -161,7 +172,7 @@ const StoryView = ({ viewStory, setViewStory }) => {
       {/* User Info - Top-left */}
       <div className="absolute top-5 left-4 flex items-center space-x-3 p-2 px-3 sm:px-4 backdrop-blur-md rounded-full bg-black/40 z-30">
         <img
-          src={user?.profile_picture}
+          src={user?.profile_picture || "/default-avatar.avif"}
           className="size-8 sm:size-9 rounded-full object-cover border border-white"
           alt=""
         />
