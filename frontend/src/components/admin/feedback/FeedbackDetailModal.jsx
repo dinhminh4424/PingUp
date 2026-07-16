@@ -38,7 +38,7 @@ const FeedbackDetailModal = ({ isOpen, onClose, feedback, onMarkReviewed }) => {
           Detailed view of the user feedback submission.
         </DialogDescription>
 
-        <div className="py-6 flex flex-col gap-6 max-h-[60vh] overflow-y-auto pr-1">
+        <div className="py-6 flex flex-col gap-6 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
           {/* User Profile */}
           <div className="flex items-center gap-3 bg-slate-50/50 p-4 rounded-2xl border border-slate-100/60">
             <Avatar className="w-12 h-12 border border-slate-200 shadow-sm">
@@ -118,7 +118,7 @@ const FeedbackDetailModal = ({ isOpen, onClose, feedback, onMarkReviewed }) => {
                   return (
                     <div
                       key={i}
-                      className="relative aspect-square rounded-2xl overflow-hidden border border-slate-150 bg-slate-100/50 shadow-sm"
+                      className="relative aspect-square rounded-2xl overflow-hidden border border-slate-100 bg-slate-100/50 shadow-sm"
                     >
                       {isVideo ? (
                         <video

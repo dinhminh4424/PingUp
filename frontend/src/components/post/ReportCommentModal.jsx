@@ -18,13 +18,13 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
   const [imagePreviews, setImagePreviews] = useState([]);
 
   const reportReasons = [
-    "Nội dung mang tính bạo lực, thù ghét hoặc gây phiền toái",
-    "Bắt nạt, quấy rối hoặc lăng mạ/lạm dụng/ngược đãi",
-    "Thông tin sai sự thật, lừa đảo hoặc gian lận",
-    "Nội dung người lớn, khiêu dâm",
-    "Tự tử hoặc tự hại bản thân",
-    "Spam hoặc quấy nhiễu",
-    "Tôi không muốn xem nội dung này",
+    "Violent, hateful, or offensive content",
+    "Bullying, harassment, or abuse",
+    "Misinformation, scams, or fraud",
+    "Adult or sexually explicit content",
+    "Suicide or self-harm",
+    "Spam or harassment",
+    "I do not want to see this content",
   ];
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
       e.preventDefault();
     }
     if (!formReport.reason) {
-      toast.error("Vui lòng chọn lý do báo cáo!");
+      toast.error("Please select a reason for reporting !");
       return;
     }
     try {
@@ -80,17 +80,17 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
         if (onReportSuccess) {
           onReportSuccess(commentId);
         }
-        toast.success("Báo cáo bình luận thành công!", {
+        toast.success("Comment reported successfully!", {
           duration: 3000,
         });
         onClose();
       }
     } catch (error) {
-      console.log("Lỗi: ", error);
-      toast.error("Báo cáo bình luận thất bại!", {
+      console.log("Error: ", error);
+      toast.error ("Comment reported failed!", {
         duration: 3000,
       });
-      setError("Lỗi: " + (error.response?.data?.message || "Báo cáo thất bại."));
+      setError("Error: " + (error.response?.data?.message || "Comment reported failed."));
     } finally {
       setLoading(false);
     }
@@ -104,7 +104,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
             <div className="flex items-center gap-2.5 text-amber-600">
               <ShieldAlert className="w-5.5 h-5.5" />
-              <h2 className="text-lg font-semibold text-gray-900">Báo cáo bình luận / Report Comment</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Report Comment</h2>
             </div>
 
             <button
@@ -128,7 +128,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
               {/* Content */}
               <div className="space-y-2">
                 <label htmlFor="report-reason" className="block text-sm font-medium text-gray-700">
-                  Lý do báo cáo
+                  Reason for reporting
                 </label>
 
                 <select
@@ -139,7 +139,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
                   }}
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition cursor-pointer"
                 >
-                  <option value="">-- Chọn lý do báo cáo --</option>
+                  <option value="">-- Select a reason --</option>
                   {reportReasons.map((reason) => (
                     <option key={reason} value={reason}>
                       {reason}
@@ -156,9 +156,9 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition cursor-pointer"
                 >
                   {showDetails ? (
-                    <>Ẩn chi tiết & ảnh bằng chứng</>
+                    <>Hide details & evidence images</>
                   ) : (
-                    <>+ Thêm mô tả chi tiết & ảnh minh họa (Tùy chọn)</>
+                    <>+ Add detailed description & evidence images (Optional)</>
                   )}
                 </button>
               </div>
@@ -168,21 +168,21 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
                 <div className="space-y-4 pt-2 border-t border-dashed border-gray-200">
                   <div className="space-y-2">
                     <label htmlFor="report-details" className="block text-xs font-medium text-gray-600">
-                      Mô tả chi tiết bằng chứng vi phạm
+                      Description of evidence of violation
                     </label>
                     <textarea
                       id="report-details"
                       rows={3}
                       value={details}
                       onChange={(e) => setDetails(e.target.value)}
-                      placeholder="Cung cấp thêm chi tiết hoặc ngữ cảnh cụ thể..."
+                      placeholder="Provide additional details or specific context..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <label className="block text-xs font-medium text-gray-600">
-                      Hình ảnh bằng chứng (Tùy chọn)
+                      Evidence images (Optional)
                     </label>
 
                     {/* Previews grid */}
@@ -214,7 +214,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
                       />
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Image size={16} className="text-gray-400" />
-                        <span>Chọn ảnh minh họa</span>
+                        <span>Select image</span>
                       </div>
                     </label>
                   </div>
@@ -222,7 +222,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
               )}
 
               <p className="text-xs text-gray-500 leading-relaxed pt-1">
-                Nếu bạn nhận thấy ai đó đang gặp nguy hiểm, đừng chờ đợi. Hãy báo cáo ngay cho cơ quan chức năng hoặc dịch vụ khẩn cấp tại địa phương.
+                If you see someone in danger, don't wait. Report it to the authorities or emergency services in your area immediately.
               </p>
 
               {/* Footer */}
@@ -232,7 +232,7 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
                   type="button"
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm transition cursor-pointer"
                 >
-                  Hủy / Cancel
+                  Cancel
                 </button>
 
                 <button
@@ -243,10 +243,10 @@ const ReportCommentModal = ({ commentId, onClose, onReportSuccess }) => {
                   {loading ? (
                     <>
                       <LoaderCircle className="w-4 h-4 animate-spin" />
-                      Đang gửi...
+                      Sending...
                     </>
                   ) : (
-                    <span>Gửi báo cáo / Report</span>
+                    <span>Report</span>
                   )}
                 </button>
               </div>

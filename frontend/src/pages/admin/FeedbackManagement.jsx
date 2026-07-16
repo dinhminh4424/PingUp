@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { MessageSquare, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { MessageSquare, Search, Filter, ChevronLeft, ChevronRight, RefreshCw, RotateCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import { getFeedbacks } from "../../services/admin/FeedbackService";
 import DateRangeFilter from "../../components/admin/DateRangeFilter";
 import FeedbackStatsCards from "../../components/admin/feedback/FeedbackStatsCards";
 import FeedbackTable from "../../components/admin/feedback/FeedbackTable";
 import FeedbackDetailModal from "../../components/admin/feedback/FeedbackDetailModal";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const FeedbackManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterRating, setFilterRating] = useState("all");
+  const [filterResetKey, setFilterResetKey] = useState(0);
   
   // Date filter state
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
@@ -93,120 +97,166 @@ const FeedbackManagement = () => {
     setPage(1);
   };
 
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setFilterCategory("all");
+    setFilterRating("all");
+    setDateRange({ startDate: "", endDate: "" });
+    setFilterResetKey((prev) => prev + 1);
+    setPage(1);
+    toast.success("Đã đặt lại các bộ lọc");
+  };
+
   useEffect(() => {
     fetchFeedback();
   }, [searchTerm, filterCategory, filterRating, dateRange, page]);
 
   return (
-    <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <MessageSquare className="w-7 h-7 text-indigo-600" />
-              User Feedback Management
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Review ratings, suggestions, and bug reports submitted by users.
-            </p>
-          </div>
+    <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+      {/* Title Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <MessageSquare className="w-6 h-6 text-indigo-600 animate-pulse" />
+            Quản lý phản hồi người dùng
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Xem đánh giá, đề xuất và báo cáo lỗi do người dùng gửi.
+          </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchFeedback}
+          disabled={loading}
+          className="gap-2"
+        >
+          <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+          Tải lại dữ liệu
+        </Button>
+      </div>
 
-        {/* Stats Grid component */}
-        <FeedbackStatsCards stats={stats} />
+      {error && <p className="text-red-600 font-medium">{error}</p>}
 
-        {/* Filters */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by user, comment content..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
-              className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-55/30"
-            />
-          </div>
+      {/* Stats Grid component */}
+      <FeedbackStatsCards stats={stats} />
 
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Date range filter component */}
-            <DateRangeFilter onFilterChange={handleDateFilterChange} />
+      {/* Main Table Card */}
+      <Card className="shadow-xs border-border">
+        <CardHeader className="pb-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <CardTitle className="text-lg">Danh sách phản hồi</CardTitle>
+              <CardDescription>
+                Hiện có {totalFeedbacksCount} phản hồi phù hợp với bộ lọc.
+              </CardDescription>
+            </div>
 
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-400" />
+            {/* Search and Filters */}
+            <div className="flex flex-wrap gap-2 items-center">
+              <div className="relative w-full sm:w-60">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm theo người dùng, bình luận..."
+                  className="pl-8 h-8"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                />
+              </div>
+
+              {/* Date Filter Component */}
+              <DateRangeFilter key={filterResetKey} onFilterChange={handleDateFilterChange} />
+
+              {/* Category Filter */}
               <select
+                className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 value={filterCategory}
                 onChange={(e) => {
                   setFilterCategory(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white cursor-pointer"
               >
-                <option value="all">All Categories</option>
-                <option value="suggestion">Suggestions</option>
-                <option value="bug">Bug Reports</option>
-                <option value="compliment">Compliments</option>
-                <option value="other">Others</option>
+                <option value="all">Tất cả danh mục</option>
+                <option value="suggestion">Đề xuất</option>
+                <option value="bug">Báo cáo lỗi</option>
+                <option value="compliment">Lời khen</option>
+                <option value="other">Khác</option>
               </select>
-            </div>
 
-            <div className="flex items-center gap-2">
+              {/* Rating Filter */}
               <select
+                className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 value={filterRating}
                 onChange={(e) => {
                   setFilterRating(e.target.value);
                   setPage(1);
                 }}
-                className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white cursor-pointer"
               >
-                <option value="all">All Ratings</option>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
+                <option value="all">Tất cả đánh giá</option>
+                <option value="5">5 Sao</option>
+                <option value="4">4 Sao</option>
+                <option value="3">3 Sao</option>
+                <option value="2">2 Sao</option>
+                <option value="1">1 Sao</option>
               </select>
+
+              {/* Reset Filters Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetFilters}
+                className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                title="Đặt lại tất cả bộ lọc"
+              >
+                <RotateCcw className="size-3" />
+                Đặt lại
+              </Button>
             </div>
           </div>
-        </div>
+        </CardHeader>
 
-        {/* Content Table component */}
-        <FeedbackTable
-          feedbacks={feedbacks}
-          loading={loading}
-          onOpenDetail={handleOpenDetail}
-          onMarkReviewed={handleMarkReviewed}
-        />
+        <CardContent className="p-0">
+          <FeedbackTable
+            feedbacks={feedbacks}
+            loading={loading}
+            onOpenDetail={handleOpenDetail}
+            onMarkReviewed={handleMarkReviewed}
+          />
 
-        {/* Pagination controls */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-            <span className="text-xs text-gray-550">
-              Showing page {page} of {totalPages} ({totalFeedbacksCount} total)
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-55 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="w-4 h-4 text-gray-600" />
-              </button>
-              <button
-                disabled={page === totalPages}
-                onClick={() => setPage(page + 1)}
-                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-55 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="w-4 h-4 text-gray-600" />
-              </button>
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-border bg-muted/10">
+              <div className="text-xs text-muted-foreground">
+                Hiển thị trang <span className="font-semibold text-foreground">{page}</span> trên tổng số{" "}
+                <span className="font-semibold text-foreground">{totalPages}</span> trang ({totalFeedbacksCount} kết quả)
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1}
+                  className="h-8 text-xs"
+                >
+                  Trước
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages}
+                  className="h-8 text-xs"
+                >
+                  Sau
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Feedback Detail Modal component */}
       <FeedbackDetailModal

@@ -150,7 +150,7 @@ const MessageDetailModal = ({
                           <span
                             key={i}
                             title={r.userId?.full_name || "Thành viên"}
-                            className="inline-flex items-center gap-0.5 bg-white dark:bg-zinc-900 border border-gray-150 dark:border-zinc-800 px-1.5 py-0.5 rounded-full text-[10px] shadow-2xs select-none"
+                            className="inline-flex items-center gap-0.5 bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 px-1.5 py-0.5 rounded-full text-[10px] shadow-2xs select-none"
                           >
                             <span>{r.emoji}</span>
                             {r.userId && (

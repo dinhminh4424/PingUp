@@ -8,7 +8,7 @@ const MenuItems = ({ setSidebarOpen }) => {
   const unreadCount = Object.values(unreadCounts || {}).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="px-6 text-gray-600 space-y-1 font-medium">
+    <div className="px-6 text-gray-600 dark:text-zinc-400 space-y-1 font-medium">
       {menuItemsData.map(({ to, label, Icon }) => (
         <NavLink
           key={to}
@@ -17,7 +17,9 @@ const MenuItems = ({ setSidebarOpen }) => {
           onClick={() => setSidebarOpen(false)}
           className={({ isActive }) =>
             `px-3.5 py-3 flex items-center justify-between gap-3 rounded-xl transition-all ${
-              isActive ? "bg-indigo-50 text-indigo-700 " : "hover:bg-gray-50"
+              isActive
+                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400"
+                : "hover:bg-gray-50 dark:hover:bg-zinc-800 dark:hover:text-white"
             }`
           }
         >

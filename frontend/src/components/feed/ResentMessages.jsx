@@ -31,8 +31,8 @@ const ResentMessages = () => {
   };
 
   return (
-    <div className="bg-white w-full p-4 rounded-md shadow-sm text-xs text-slate-800 border border-slate-100">
-      <h3 className="font-bold text-slate-800 mb-3 text-[13px] tracking-wide">
+    <div className="bg-white dark:bg-zinc-900 w-full p-4 rounded-md shadow-sm text-xs text-slate-800 dark:text-zinc-100 border border-slate-100 dark:border-zinc-800 transition-colors duration-200">
+      <h3 className="font-bold text-slate-800 dark:text-zinc-200 mb-3 text-[13px] tracking-wide">
         Resent Messages
       </h3>
       <div className="flex flex-col max-h-60 overflow-y-auto no-scrollbar gap-1">
@@ -50,21 +50,21 @@ const ResentMessages = () => {
               <Link
                 key={conversation._id || index}
                 to={`/messages/${conversation._id}`}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition active:scale-[0.99]"
+                className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-zinc-800 transition active:scale-[0.99]"
               >
                 <img
                   src={details.avatar}
-                  className="w-9 h-9 rounded-full object-cover border border-slate-100 flex-shrink-0"
+                  className="w-9 h-9 rounded-full object-cover border border-slate-100 dark:border-zinc-800 flex-shrink-0"
                   alt=""
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline gap-1">
                     <p
-                      className={`font-semibold truncate text-[12px] ${unreadCount > 0 ? "text-slate-900" : "text-slate-700"}`}
+                      className={`font-semibold truncate text-[12px] ${unreadCount > 0 ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-zinc-300"}`}
                     >
                       {details.name}
                     </p>
-                    <span className="text-[9px] text-gray-400 whitespace-nowrap">
+                    <span className="text-[9px] text-gray-400 dark:text-zinc-500 whitespace-nowrap">
                       {conversation.lastMessageAt
                         ? moment(conversation.lastMessageAt).fromNow(true)
                         : ""}
@@ -72,7 +72,7 @@ const ResentMessages = () => {
                   </div>
                   <div className="flex justify-between items-center mt-0.5">
                     <p
-                      className={`text-[11px] truncate flex-1 pr-2 ${unreadCount > 0 ? "text-indigo-600 font-medium" : "text-gray-500"}`}
+                      className={`text-[11px] truncate flex-1 pr-2 ${unreadCount > 0 ? "text-indigo-600 font-medium" : "text-gray-500 dark:text-zinc-400"}`}
                     >
                       {conversation.lastMessage
                         ? conversation.lastMessage.content || "Attachment"

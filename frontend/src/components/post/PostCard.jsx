@@ -69,7 +69,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow p-4 space-y-4 w-full max-w-2xl">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl shadow p-4 space-y-4 w-full max-w-2xl text-gray-900 dark:text-zinc-100 transition-colors duration-200">
         {/* user info  */}
         <div className="flex justify-between items-center">
           <div
@@ -95,7 +95,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                 <span>{post.user.full_name}</span>
                 <BadgeCheck className="w-4 h-4 text-blue-500" />
               </div>
-              <div className="">
+              <div className="text-xs text-gray-500 dark:text-zinc-400">
                 @{post.user.username} - {moment(post.createdAt).fromNow()}
               </div>
             </div>
@@ -109,14 +109,14 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
               <MoreVertical className="w-5 h-5" />
             </button>
 
-            {open && userCurrent._id === post.user._id && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white  rounded-lg shadow-lg border shadow-xl z-50">
+             {open && userCurrent._id === post.user._id && (
+              <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-zinc-950 rounded-lg border border-gray-100 dark:border-zinc-800 shadow-xl z-50 py-1">
                 <button
                   onClick={() => {
                     setOpen(false);
                     setShowUpdateModal(true);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 text-sm font-medium text-gray-700 dark:text-zinc-200 cursor-pointer"
                 >
                   Edit
                 </button>
@@ -125,7 +125,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                     setOpen(false);
                     setShowDeleteModal(true);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 text-sm font-medium text-red-500 cursor-pointer"
                 >
                   Delete
                 </button>
@@ -133,13 +133,13 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
             )}
 
             {open && userCurrent._id !== post.user._id && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white  rounded-lg shadow-lg border shadow-xl z-50">
+              <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-zinc-950 rounded-lg border border-gray-100 dark:border-zinc-800 shadow-xl z-50 py-1">
                 <button
                   onClick={() => {
                     setOpen(false);
                     setShowReportModal(true);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 text-sm font-medium text-gray-700 dark:text-zinc-200 cursor-pointer"
                 >
                   Report
                 </button>
@@ -148,7 +148,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                     setOpen(false);
                     setShowDeleteModal(true);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-zinc-900 text-sm font-medium text-red-500 cursor-pointer"
                 >
                   Delete
                 </button>
@@ -161,7 +161,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
         {post.content && (
           <>
             <div
-              className="text-gray-800 text-sm whitespace-pre-line "
+              className="text-gray-800 dark:text-zinc-200 text-sm whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: postWithHashTag }}
             ></div>
           </>
@@ -182,7 +182,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
         {/* Shared Post Container */}
         {post.post_type === "share" && post.shared_post && (
           <div
-            className="border border-gray-200 rounded-xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors mt-2 cursor-pointer"
+            className="border border-gray-200 dark:border-zinc-800 rounded-xl p-4 bg-gray-50/50 dark:bg-zinc-850/30 hover:bg-gray-50 dark:hover:bg-zinc-850/50 transition-colors mt-2 cursor-pointer"
             onClick={() => navigate(`/post/${post.shared_post._id}`)}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -195,15 +195,15 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                 className="w-7 h-7 rounded-full object-cover"
               />
               <div>
-                <span className="font-bold text-xs text-gray-800">
+                <span className="font-bold text-xs text-gray-800 dark:text-zinc-200">
                   {post.shared_post.user?.full_name}
                 </span>
-                <span className="text-[10px] text-gray-400 block mt-0.5">
+                <span className="text-[10px] text-gray-400 dark:text-zinc-500 block mt-0.5">
                   {moment(post.shared_post.createdAt).fromNow()}
                 </span>
               </div>
             </div>
-            <p className="text-xs text-gray-700 whitespace-pre-line leading-relaxed">
+            <p className="text-xs text-gray-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed">
               {post.shared_post.content}
             </p>
             {post.shared_post.image_urls &&
@@ -222,7 +222,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
         )}
 
         {/* Action */}
-        <div className="flex items-center gap-4 text-gray-600 text-sm pt-2 border-t border-gray-300">
+        <div className="flex items-center gap-4 text-gray-600 dark:text-zinc-400 text-sm pt-2 border-t border-gray-300 dark:border-zinc-800">
           <div className="flex items-center gap-1">
             <Heart
               className={`w-4 h-4 cursor-pointer ${likes.includes(currentUser._id) && "text-red-500 fill-red-500"}`}

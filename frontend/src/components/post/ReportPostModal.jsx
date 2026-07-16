@@ -18,15 +18,15 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
   const [imagePreviews, setImagePreviews] = useState([]);
 
   const reportReasons = [
-    "Vấn đề liên quan đến người dưới 18 tuổi",
-    "Bắt nạt, quấy rối hoặc lăng mạ/lạm dụng/ngược đãi",
-    "Tự tử hoặc tự hại bản thân",
-    "Nội dung mang tính bạo lực, thù ghét hoặc gây phiền toái",
-    "Bán hoặc quảng bá mặt hàng bị hạn chế",
-    "Nội dung người lớn",
-    "Thông tin sai sự thật, lừa đảo hoặc gian lận",
-    "Quyền sở hữu trí tuệ",
-    "Tôi không muốn xem nội dung này",
+    "Issues involving minors",
+    "Bullying, harassment, or abuse",
+    "Suicide or self-harm",
+    "Violent, hateful, or offensive content",
+    "Sale or promotion of restricted items",
+    "Adult content",
+    "Misinformation, scams, or fraud",
+    "Intellectual property rights",
+    "I do not want to see this content",
   ];
 
   useEffect(() => {
@@ -56,7 +56,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
       e.preventDefault();
     }
     if (!formReport.reason) {
-      toast.error("Vui lòng chọn lý do báo cáo!");
+      toast.error("Please select a reason for reporting !");
       return;
     }
     try {
@@ -82,17 +82,17 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
 
       if (res.success) {
         onDelete(postId); // cập nhật ngoài
-        toast.success("Báo cáo bài viết thành công!", {
+        toast.success("Report post successfully!", {
           duration: 3000,
         });
         onClose();
       }
     } catch (error) {
-      console.log("Lỗi: ", error);
-      toast.error("Báo cáo bài viết thất bại!", {
+      console.log("Error: ", error);
+      toast.error("Report post failed!", {
         duration: 3000,
       });
-      setError("Lỗi: " + (error.response?.data?.message || "Báo cáo thất bại."));
+      setError("Error: " + (error.response?.data?.message || "Report post failed."));
     } finally {
       setLoading(false);
     }
@@ -106,7 +106,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
             <div className="flex items-center gap-2.5 text-amber-600">
               <ShieldAlert className="w-5.5 h-5.5" />
-              <h2 className="text-lg font-semibold text-gray-900">Báo cáo bài viết / Report Post</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Report Post</h2>
             </div>
 
             <button
@@ -130,7 +130,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
               {/* Content */}
               <div className="space-y-2">
                 <label htmlFor="report-reason" className="block text-sm font-medium text-gray-700">
-                  Lý do báo cáo
+                  Reason for reporting
                 </label>
 
                 <select
@@ -141,7 +141,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
                   }}
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition"
                 >
-                  <option value="">-- Chọn lý do báo cáo --</option>
+                  <option value="">-- Select a reason for reporting --</option>
                   {reportReasons.map((reason) => (
                     <option key={reason} value={reason}>
                       {reason}
@@ -158,9 +158,9 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition"
                 >
                   {showDetails ? (
-                    <>Ẩn chi tiết & ảnh bằng chứng</>
+                    <>Hide details & evidence images</>
                   ) : (
-                    <>+ Thêm mô tả chi tiết & ảnh minh họa (Tùy chọn)</>
+                    <>+ Add detailed description & evidence images (Optional)</>
                   )}
                 </button>
               </div>
@@ -170,21 +170,21 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
                 <div className="space-y-4 pt-2 border-t border-dashed border-gray-200">
                   <div className="space-y-2">
                     <label htmlFor="report-details" className="block text-xs font-medium text-gray-600">
-                      Mô tả chi tiết bằng chứng vi phạm
+                      Description of evidence of violation
                     </label>
                     <textarea
                       id="report-details"
                       rows={3}
                       value={details}
                       onChange={(e) => setDetails(e.target.value)}
-                      placeholder="Cung cấp thêm chi tiết hoặc ngữ cảnh cụ thể..."
+                      placeholder="Provide additional details or specific context..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <label className="block text-xs font-medium text-gray-600">
-                      Hình ảnh bằng chứng (Tùy chọn)
+                      Evidence images (Optional)
                     </label>
 
                     {/* Previews grid */}
@@ -216,7 +216,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
                       />
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Image size={16} className="text-gray-400" />
-                        <span>Chọn ảnh minh họa</span>
+                        <span>Select an illustrative image, screenshot</span>
                       </div>
                     </label>
                   </div>
@@ -224,7 +224,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
               )}
 
               <p className="text-xs text-gray-500 leading-relaxed pt-1">
-                Nếu bạn nhận thấy ai đó đang gặp nguy hiểm, đừng chờ đợi. Hãy báo cáo ngay cho cơ quan chức năng hoặc dịch vụ khẩn cấp tại địa phương.
+                If you see someone in danger, don't wait. Report it immediately to the authorities or local emergency services.
               </p>
 
               {/* Footer */}
@@ -234,7 +234,7 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
                   type="button"
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm transition"
                 >
-                  Hủy / Cancel
+                  Cancel
                 </button>
 
                 <button
@@ -245,10 +245,10 @@ const ReportPostModal = ({ postId, onClose, onDelete }) => {
                   {loading ? (
                     <>
                       <LoaderCircle className="w-4 h-4 animate-spin" />
-                      Đang gửi...
+                      Sending...
                     </>
                   ) : (
-                    <span>Gửi báo cáo / Report</span>
+                    <span>Report</span>
                   )}
                 </button>
               </div>
