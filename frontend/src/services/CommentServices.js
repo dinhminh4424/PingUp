@@ -34,3 +34,12 @@ export const deleteComment = async (commentId) => {
   const res = await api.delete(`/api/comments/${commentId}`);
   return res.data;
 };
+
+export const reportComment = async (commentId, formData) => {
+  const res = await api.post(`/api/comments/${commentId}/report`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};

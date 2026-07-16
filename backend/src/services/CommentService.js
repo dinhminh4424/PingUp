@@ -1,6 +1,7 @@
 import Comment from "../models/Comment.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import Report from "../models/Report.js";
 import NotificationService from "./NotificationService.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 import { io } from "../socket/index.js";
@@ -263,6 +264,57 @@ class CommentService {
       return {
         status: 500,
         data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
+
+  async createReportComment(id, targetType, userId, reason, details, files) {
+    try {
+      const comment = await Comment.findById(id);
+
+      if (!comment) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy bình luận",
+          },
+        };
+      }
+
+      const listImage = [];
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const uploadResult = await uploadImageFromBuffer(file.buffer);
+          listImage.push(uploadResult.secure_url);
+        }
+      }
+
+      const reportComment = await Report.create({
+        reporterId: userId,
+        targetId: id,
+        targetType: targetType,
+        reason: reason,
+        details: details,
+        file: listImage,
+      });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Báo cáo bình luận thành công!",
+          reportComment,
+        },
+      };
+    } catch (error) {
+      console.log("Lỗi khi Tạo Báo Cáo Bình Luận: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi Khi Tạo Báo Cáo Bình Luận: " + error.message,
+        },
       };
     }
   }

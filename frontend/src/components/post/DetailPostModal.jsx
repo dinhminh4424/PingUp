@@ -12,6 +12,7 @@ import {
   Image as ImageIcon,
   Smile,
   LoaderCircle,
+  ShieldAlert,
 } from "lucide-react";
 import moment from "moment";
 import { useAuth } from "../../contexts/AuthContext";
@@ -25,6 +26,7 @@ import {
 import UpdatePostModal from "./UpdatePostModal";
 import DeletePostModal from "./DeletePostModal";
 import SharePostModal from "./SharePostModal";
+import ReportCommentModal from "./ReportCommentModal";
 import toast from "react-hot-toast";
 import EmojiPicker from "emoji-picker-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -52,6 +54,7 @@ const DetailPostModal = ({
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [commentToReport, setCommentToReport] = useState(null);
 
   const [postLikes, setPostLikes] = useState(post.likes_count || []);
   const hasLikedPost = postLikes.includes(userCurrent?._id);
@@ -281,13 +284,21 @@ const DetailPostModal = ({
               )}
             </div>
 
-            {comment.user?._id === userCurrent?._id && (
+            {comment.user?._id === userCurrent?._id ? (
               <button
                 onClick={() => setCommentToDelete(comment._id)}
                 className="opacity-0 group-hover/item:opacity-100 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500 hover:text-red-600 transition cursor-pointer"
                 title="Delete comment"
               >
                 <Trash2 size={14} />
+              </button>
+            ) : (
+              <button
+                onClick={() => setCommentToReport(comment)}
+                className="opacity-0 group-hover/item:opacity-100 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-500 hover:text-amber-600 transition cursor-pointer"
+                title="Report comment"
+              >
+                <ShieldAlert size={14} />
               </button>
             )}
           </div>
@@ -759,6 +770,12 @@ const DetailPostModal = ({
             setPost(updatedPost);
             if (onUpdate) onUpdate(updatedPost);
           }}
+        />
+      )}
+      {commentToReport && (
+        <ReportCommentModal
+          commentId={commentToReport._id}
+          onClose={() => setCommentToReport(null)}
         />
       )}
     </div>
