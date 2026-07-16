@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { ShieldAlert, Send, FileText, CheckCircle2, History, AlertCircle } from "lucide-react";
+import {
+  ShieldAlert,
+  Send,
+  FileText,
+  CheckCircle2,
+  History,
+  AlertCircle,
+} from "lucide-react";
 
 const Appeal = () => {
   const [appealType, setAppealType] = useState("post_removal");
@@ -41,8 +48,13 @@ const Appeal = () => {
             <CheckCircle2 className="w-10 h-10" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Appeal Submitted</h2>
-            <p className="text-gray-500 text-sm">Our safety and moderation team will review your appeal. This process usually takes 24-48 hours.</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Appeal Submitted
+            </h2>
+            <p className="text-gray-500 text-sm">
+              Our safety and moderation team will review your appeal. This
+              process usually takes 24-48 hours.
+            </p>
           </div>
           <button
             onClick={() => {
@@ -62,62 +74,83 @@ const Appeal = () => {
   return (
     <div className="relative h-full overflow-y-auto bg-slate-50 p-6 md:p-10">
       <div className="max-w-4xl mx-auto flex flex-col lg:flex-row gap-8">
-        
         {/* Main Form */}
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <ShieldAlert className="w-8 h-8 text-indigo-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Submit an Appeal</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Submit an Appeal
+            </h1>
           </div>
-          <p className="text-gray-500 mb-8">If you believe your post was removed or account restricted in error, please submit an appeal request below.</p>
+          <p className="text-gray-500 mb-8">
+            If you believe your post was removed or account restricted in error,
+            please submit an appeal request below.
+          </p>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 md:p-8 flex flex-col gap-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 md:p-8 flex flex-col gap-6"
+          >
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Appeal Category</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Appeal Category
+              </label>
               <select
                 value={appealType}
                 onChange={(e) => setAppealType(e.target.value)}
-                className="px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-slate-50/50 cursor-pointer"
+                className="px-4 py-3 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-slate-50/50 cursor-pointer"
               >
                 <option value="post_removal">Post Removal Appeal</option>
-                <option value="account_warning">Account Warning / Strike</option>
-                <option value="feature_block">Feature Restriction (e.g. Chat/Comment lock)</option>
+                <option value="account_warning">
+                  Account Warning / Strike
+                </option>
+                <option value="feature_block">
+                  Feature Restriction (e.g. Chat/Comment lock)
+                </option>
                 <option value="other">Other Moderation Action</option>
               </select>
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Target Content ID / Link (Optional)</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Target Content ID / Link (Optional)
+              </label>
               <input
                 type="text"
                 placeholder="e.g. post_686e3e47ba0..."
                 value={targetId}
                 onChange={(e) => setTargetId(e.target.value)}
-                className="px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-slate-50/30"
+                className="px-4 py-3 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-slate-50/30"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Why should this decision be reversed?</label>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Why should this decision be reversed?
+              </label>
               <textarea
                 required
                 rows={6}
                 placeholder="Explain clearly why your content or account complies with our Community Guidelines..."
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                className="px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-slate-50/30"
+                className="px-4 py-3 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm bg-slate-50/30"
               />
             </div>
 
             <div className="flex items-start gap-2.5 p-4 rounded-2xl bg-amber-50/50 border border-amber-100 text-amber-800 text-xs">
               <AlertCircle className="w-4.5 h-4.5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <p>Please ensure all information provided is accurate. Frivolous appeals may lead to further account penalties. Review our Community Guidelines prior to submitting.</p>
+              <p>
+                Please ensure all information provided is accurate. Frivolous
+                appeals may lead to further account penalties. Review our
+                Community Guidelines prior to submitting.
+              </p>
             </div>
 
             <div className="flex justify-end mt-2">
               <button
                 type="submit"
-                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl text-sm transition active:scale-95 shadow-lg shadow-indigo-100 flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md text-sm transition active:scale-95 shadow-lg shadow-indigo-100 flex items-center gap-2 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 Submit Appeal
@@ -128,20 +161,29 @@ const Appeal = () => {
 
         {/* Sidebar Status Info */}
         <div className="w-full lg:w-80 flex flex-col gap-6">
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col gap-4">
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-6 flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-gray-700" />
               <h2 className="text-lg font-bold text-gray-900">Your Appeals</h2>
             </div>
-            
+
             <div className="flex flex-col gap-3">
               {pastAppeals.map((appeal) => (
-                <div key={appeal.id} className="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 text-xs">
+                <div
+                  key={appeal.id}
+                  className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 text-xs"
+                >
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold text-gray-800">{appeal.id}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                      appeal.status === "Resolved" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
-                    }`}>
+                    <span className="font-semibold text-gray-800">
+                      {appeal.id}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        appeal.status === "Resolved"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-rose-50 text-rose-700"
+                      }`}
+                    >
                       {appeal.status}
                     </span>
                   </div>
@@ -157,7 +199,6 @@ const Appeal = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

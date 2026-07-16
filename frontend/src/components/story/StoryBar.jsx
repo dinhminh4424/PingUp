@@ -147,7 +147,7 @@ const StoryBar = () => {
               }}
             >
               <img
-                src={story.user?.profile_picture}
+                src={story.user?.profile_picture || "/default-avatar.avif"}
                 alt=""
                 className="absolute size-8 left-3 top-3 z-10 rounded-full ring ring-gray-100 shadow"
               />

@@ -172,7 +172,7 @@ const StoryView = ({ viewStory, setViewStory }) => {
       {/* User Info - Top-left */}
       <div className="absolute top-5 left-4 flex items-center space-x-3 p-2 px-3 sm:px-4 backdrop-blur-md rounded-full bg-black/40 z-30">
         <img
-          src={user?.profile_picture}
+          src={user?.profile_picture || "/default-avatar.avif"}
           className="size-8 sm:size-9 rounded-full object-cover border border-white"
           alt=""
         />

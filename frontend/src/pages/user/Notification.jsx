@@ -431,7 +431,7 @@ const Notification = () => {
             {/* Toggle Chưa đọc */}
             <button
               onClick={() => setShowUnreadOnly(!showUnreadOnly)}
-              className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold rounded-xl px-4 py-2.5 transition-all active:scale-95 cursor-pointer shadow-sm border ${
+              className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold rounded-md px-4 py-2.5 transition-all active:scale-95 cursor-pointer shadow-sm border ${
                 showUnreadOnly
                   ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-100"
                   : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -500,7 +500,9 @@ const Notification = () => {
                   {tabCount > 0 && (
                     <span
                       className={`rounded-full text-[10px] font-bold px-1.5 py-0.5 ml-1 transition-colors ${
-                        isTabActive ? "bg-white text-indigo-600" : "bg-indigo-600 text-white"
+                        isTabActive
+                          ? "bg-white text-indigo-600"
+                          : "bg-indigo-600 text-white"
                       }`}
                     >
                       {tabCount}
@@ -554,10 +556,7 @@ const Notification = () => {
                   <div className="relative shrink-0">
                     {n.sender ? (
                       <img
-                        src={
-                          n.sender.profile_picture ||
-                          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"
-                        }
+                        src={n.sender.profile_picture || "/default-avatar.avif"}
                         alt={n.sender.full_name}
                         className="w-12 h-12 rounded-full object-cover shadow-sm ring-1 ring-gray-100"
                         onError={(e) => {

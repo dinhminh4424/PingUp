@@ -365,7 +365,7 @@ const ChatBox = () => {
                 <img
                   src={
                     user.profile_picture ||
-                    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"
+                    "/default-avatar.avif"
                   }
                   className="size-10 rounded-full object-cover border border-gray-100"
                   alt=""
@@ -498,7 +498,7 @@ const ChatBox = () => {
                       <img
                         src={
                           sender?.profile_picture ||
-                          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200"
+                          "/default-avatar.avif"
                         }
                         className="size-8.5 rounded-full object-cover border border-gray-200 mt-1 flex-shrink-0"
                         alt=""
@@ -1169,7 +1169,7 @@ const ChatBox = () => {
                       <img
                         src={
                           r.userId?.profile_picture ||
-                          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100"
+                          "/default-avatar.avif"
                         }
                         className="size-9 rounded-full object-cover border border-slate-100"
                         alt=""

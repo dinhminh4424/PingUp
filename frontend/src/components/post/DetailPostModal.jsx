@@ -239,10 +239,10 @@ const DetailPostModal = ({
     const isCommentAuthorOnline = onlineUsers.includes(comment.user?._id);
 
     return (
-      <div className="flex gap-2 group/item">
+      <div className="flex gap-2 group/item items-start">
         <Link
           to={`/profile/${comment.user?._id}`}
-          className="relative shrink-0"
+          className="relative shrink-0 w-9 h-9"
         >
           <img
             src={comment.user?.profile_picture || "/default-avatar.avif"}
@@ -620,7 +620,7 @@ const DetailPostModal = ({
 
           <div className="flex gap-2 items-center">
             <img
-              src={userCurrent?.profile_picture}
+              src={userCurrent?.profile_picture || "/default-avatar.avif"}
               alt=""
               className="w-9 h-9 rounded-full object-cover shadow-sm shrink-0"
             />
