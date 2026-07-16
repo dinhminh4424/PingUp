@@ -1,84 +1,85 @@
 import React from "react";
 import { Star, Eye, CheckCircle } from "lucide-react";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
 const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onMarkReviewed }) => {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden w-full">
-      <div className="overflow-x-auto">
-        {loading ? (
-          <div className="p-8 text-center text-gray-500">Đang tải phản hồi...</div>
-        ) : (
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="bg-slate-50/75 border-b border-slate-100 text-slate-500 font-semibold text-xs uppercase tracking-wider">
-                <th className="p-4 pl-6">ID</th>
-                <th className="p-4">User</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Rating</th>
-                <th className="p-4 max-w-md">Message & Media</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 pr-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-750">
+    <div className="rounded-b-xl border-t overflow-hidden w-full">
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Đang tải danh sách phản hồi...</div>
+      ) : (
+        <div className="overflow-x-auto w-full">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/30">
+                <TableHead className="w-[100px] pl-6 py-3">Mã</TableHead>
+                <TableHead className="min-w-[150px]">Người dùng</TableHead>
+                <TableHead className="w-[120px]">Phân loại</TableHead>
+                <TableHead className="w-[120px]">Đánh giá</TableHead>
+                <TableHead className="min-w-[250px]">Nội dung & Media</TableHead>
+                <TableHead className="w-[120px]">Ngày tạo</TableHead>
+                <TableHead className="w-[120px]">Trạng thái</TableHead>
+                <TableHead className="w-[160px] text-right pr-6">Hành động</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {feedbacks.map((fb) => (
-                <tr
+                <TableRow
                   key={fb._id}
                   onClick={() => onOpenDetail(fb)}
-                  className="hover:bg-slate-50/50 transition cursor-pointer"
+                  className="hover:bg-muted/10 transition cursor-pointer"
                 >
-                  <td className="p-4 pl-6 font-semibold text-gray-900">
+                  <TableCell className="pl-6 font-semibold text-foreground">
                     {fb._id.slice(-6).toUpperCase()}
-                  </td>
-                  <td className="p-4">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-2">
                       <img
                         src={fb.userId?.profile_picture || "/default-avatar.avif"}
                         alt=""
-                        className="w-8 h-8 rounded-full object-cover border border-gray-100"
+                        className="w-8 h-8 rounded-full object-cover border border-border"
                       />
                       <div>
-                        <p className="font-semibold text-gray-800">
+                        <p className="font-semibold text-foreground">
                           {fb.userId?.full_name || "Anonymous"}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-muted-foreground">
                           @{fb.userId?.username || "anonymous"}
                         </p>
                       </div>
                     </div>
-                  </td>
-                  <td className="p-4">
+                  </TableCell>
+                  <TableCell>
                     <span
                       className={`px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider ${
                         fb.category === "bug"
-                          ? "bg-rose-50 text-rose-700"
+                          ? "bg-rose-500/10 text-rose-600 dark:text-rose-450"
                           : fb.category === "suggestion"
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-indigo-50 text-indigo-700"
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-450"
+                            : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-455"
                       }`}
                     >
-                      {fb.category}
+                      {fb.category === "bug" ? "Báo lỗi" : fb.category === "suggestion" ? "Góp ý" : fb.category === "compliment" ? "Khen ngợi" : "Khác"}
                     </span>
-                  </td>
-                  <td className="p-4">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-0.5 text-amber-400">
                       {Array.from({ length: fb.rating }).map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-current" />
                       ))}
                       {Array.from({ length: 5 - fb.rating }).map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-slate-200" />
+                        <Star key={i} className="w-4 h-4 text-muted/30" />
                       ))}
                     </div>
-                  </td>
-                  <td className="p-4 max-w-md text-xs leading-relaxed text-slate-655">
-                    <p className="italic font-medium text-slate-700 truncate max-w-sm">"{fb.comment}"</p>
+                  </TableCell>
+                  <TableCell className="max-w-md text-xs leading-relaxed">
+                    <p className="italic font-medium text-foreground truncate max-w-xs">"{fb.comment}"</p>
                     {fb.media && fb.media.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2.5">
                         {fb.media.map((url, i) => {
                           const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes("/video");
                           return (
-                            <div key={i} className="relative w-12 h-12 rounded-lg overflow-hidden border border-slate-100 shadow-sm bg-slate-50 flex-shrink-0">
+                            <div key={i} className="relative w-12 h-12 rounded-lg overflow-hidden border border-border shadow-2xs bg-muted flex-shrink-0">
                               {isVideo ? (
                                 <video src={url} className="w-full h-full object-cover" muted />
                               ) : (
@@ -89,56 +90,56 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onMarkReviewed }) => 
                         })}
                       </div>
                     )}
-                  </td>
-                  <td className="p-4 text-xs text-gray-505">
-                    {new Date(fb.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="p-4">
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground">
+                    {new Date(fb.createdAt).toLocaleDateString("vi-VN")}
+                  </TableCell>
+                  <TableCell>
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
                         fb.status === "New"
-                          ? "bg-indigo-50 text-indigo-700 font-semibold"
-                          : "bg-slate-100 text-slate-505"
+                          ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      {fb.status}
+                      {fb.status === "New" ? "Mới" : "Đã xem"}
                     </span>
-                  </td>
-                  <td className="p-4 pr-6 text-right" onClick={(e) => e.stopPropagation()}>
+                  </TableCell>
+                  <TableCell className="text-right pr-6" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => onOpenDetail(fb)}
-                        className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-700 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
-                        title="View Details"
+                        className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                        title="Xem chi tiết"
                       >
                         <Eye className="w-4 h-4" />
-                        <span>Details</span>
+                        <span>Chi tiết</span>
                       </button>
                       {fb.status === "New" && (
                         <button
                           onClick={() => onMarkReviewed(fb._id)}
-                          className="p-1.5 hover:bg-indigo-50 rounded-lg text-indigo-600 hover:text-indigo-800 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
-                          title="Mark Reviewed"
+                          className="p-1.5 hover:bg-indigo-500/15 rounded-lg text-indigo-600 dark:text-indigo-400 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                          title="Đánh dấu đã xem"
                         >
                           <CheckCircle className="w-4 h-4" />
-                          <span>Review</span>
+                          <span>Duyệt</span>
                         </button>
                       )}
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
               {feedbacks.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="p-8 text-center text-gray-400">
-                    No feedback submissions found.
-                  </td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={8} className="p-8 text-center text-muted-foreground">
+                    Không tìm thấy phản hồi nào.
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
-        )}
-      </div>
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };

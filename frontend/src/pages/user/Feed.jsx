@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { assets } from "../../assets/assets.js";
 import Loading from "../../components/Loading.jsx";
 import StoryBar from "../../components/story/StoryBar.jsx";
 import PostCard from "../../components/post/PostCard.jsx";

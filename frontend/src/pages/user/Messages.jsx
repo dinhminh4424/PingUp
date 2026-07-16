@@ -265,13 +265,13 @@ const Messages = () => {
   };
 
   return !isLoading ? (
-    <div className="min-h-screen relative bg-slate-50">
+    <div className="min-h-screen relative bg-slate-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-6">
         {/* Title */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Messages</h1>
-            <p className="text-slate-600">Talk to your friends and Family</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Messages</h1>
+            <p className="text-slate-600 dark:text-zinc-400">Talk to your friends and Family</p>
           </div>
 
           <button
@@ -293,16 +293,16 @@ const Messages = () => {
               return (
                 <div
                   key={conver._id}
-                  className={`flex gap-4 p-5 bg-white shadow rounded-md border transition ${
+                  className={`flex gap-4 p-5 bg-white dark:bg-zinc-900 shadow rounded-md border transition ${
                     unreadCount > 0
-                      ? "border-indigo-200 ring-2 ring-indigo-50/50 shadow-md"
-                      : "border-gray-100 hover:shadow-md"
+                      ? "border-indigo-200 dark:border-indigo-800 ring-2 ring-indigo-50/50 dark:ring-indigo-950/40 shadow-md"
+                      : "border-gray-100 dark:border-zinc-800 hover:shadow-md"
                   }`}
                 >
                   {renderConversationAvatar(conver)}
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-800 truncate flex items-center gap-1.5">
+                    <p className="font-semibold text-slate-800 dark:text-zinc-100 truncate flex items-center gap-1.5">
                       {conver.type === "group" && (
                         <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
                       )}
@@ -313,7 +313,7 @@ const Messages = () => {
                         </span>
                       )}
                     </p>
-                    <p className="text-slate-500 text-sm truncate">
+                    <p className="text-slate-500 dark:text-zinc-400 text-sm truncate">
                       {conver.type === "direct"
                         ? `@${conver.username}`
                         : `${conver.participants?.length || 0} members`}

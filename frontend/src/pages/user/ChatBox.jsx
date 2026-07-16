@@ -805,7 +805,7 @@ const ChatBox = () => {
                               className="fixed inset-0 z-45"
                               onClick={() => setActiveDropdownMsgId(null)}
                             />
-                            <div className="absolute right-0 bottom-full mb-1 w-32 bg-white dark:bg-zinc-950 rounded-lg shadow-lg border border-gray-150 dark:border-zinc-800 z-50 py-1 font-semibold text-xs text-gray-700 dark:text-gray-200">
+                            <div className="absolute right-0 bottom-full mb-1 w-32 bg-white dark:bg-zinc-950 rounded-lg shadow-lg border border-gray-100 dark:border-zinc-800 z-50 py-1 font-semibold text-xs text-gray-700 dark:text-gray-200">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1194,7 +1194,7 @@ const ChatBox = () => {
         {/* Recall Message Confirmation Modal */}
         {messageToRecall && (
           <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-120 animate-fade-in">
-            <div className="bg-white dark:bg-zinc-950 w-[90%] max-w-sm rounded-xl shadow-2xl border border-gray-150 dark:border-zinc-800 p-5 space-y-4">
+            <div className="bg-white dark:bg-zinc-950 w-[90%] max-w-sm rounded-xl shadow-2xl border border-gray-100 dark:border-zinc-800 p-5 space-y-4">
               <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 text-center">
                 Thu hồi tin nhắn?
               </h3>

@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { Scale, Check, X, AlertCircle, Eye, Search, Filter } from "lucide-react";
+import { Scale, Check, X, AlertCircle, Eye, Search, Filter, RotateCcw } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import toast from "react-hot-toast";
 
 const AppealManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -65,169 +70,197 @@ const AppealManagement = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setFilterType("all");
+    toast.success("Đã đặt lại bộ lọc");
+  };
+
   return (
-    <div className="p-6 md:p-10 bg-slate-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Scale className="w-7 h-7 text-indigo-600" />
-              User Appeals Management
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">Review and action content and account warnings appealed by users.</p>
-          </div>
+    <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
+      {/* Title Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Scale className="w-6 h-6 text-indigo-600" />
+            Quản lý khiếu nại người dùng
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Xem xét và xử lý các khiếu nại về nội dung và cảnh cáo tài khoản từ người dùng.
+          </p>
         </div>
+      </div>
 
-        {/* Filters */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by username, appeal ID, reason..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-slate-55/30"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="px-3 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white cursor-pointer"
-            >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="resolved">Resolved</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Content Table and Details split */}
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          {/* Table List */}
-          <div className="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden w-full">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="bg-slate-50/75 border-b border-slate-100 text-slate-500 font-semibold">
-                    <th className="p-4 pl-6">Appeal ID</th>
-                    <th className="p-4">User</th>
-                    <th className="p-4">Type</th>
-                    <th className="p-4">Date</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 pr-6 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
-                  {filteredAppeals.map((appeal) => (
-                    <tr key={appeal.id} className="hover:bg-slate-50/50 transition">
-                      <td className="p-4 pl-6 font-semibold text-gray-900">{appeal.id}</td>
-                      <td className="p-4">
-                        <div>
-                          <p className="font-semibold text-gray-800">{appeal.user}</p>
-                          <p className="text-xs text-gray-400">{appeal.email}</p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-800">
-                          {appeal.type}
-                        </span>
-                      </td>
-                      <td className="p-4 text-xs text-gray-500">{appeal.date}</td>
-                      <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                          appeal.status === "Pending" ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"
-                        }`}>
-                          {appeal.status}
-                        </span>
-                      </td>
-                      <td className="p-4 pr-6 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => setSelectedAppeal(appeal)}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition cursor-pointer"
-                            title="View Details"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          {appeal.status === "Pending" && (
-                            <>
-                              <button
-                                onClick={() => handleAction(appeal.id, "Resolved", "Approved (Restored)")}
-                                className="p-1.5 hover:bg-emerald-50 rounded-lg text-emerald-600 transition cursor-pointer"
-                                title="Approve Appeal"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleAction(appeal.id, "Resolved", "Decision Upheld")}
-                                className="p-1.5 hover:bg-rose-50 rounded-lg text-rose-600 transition cursor-pointer"
-                                title="Reject Appeal"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredAppeals.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="p-8 text-center text-gray-400">
-                        No appeals found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Details Sidebar panel */}
-          {selectedAppeal && (
-            <div className="w-full lg:w-96 bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-200">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-bold text-gray-900 text-lg">Appeal details</h3>
-                  <p className="text-xs text-gray-400">{selectedAppeal.id}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedAppeal(null)}
-                  className="p-1 hover:bg-slate-100 rounded-lg text-gray-400 hover:text-gray-600 transition cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+      <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+        {/* Table List Card */}
+        <Card className="flex-1 shadow-xs border-border w-full overflow-hidden">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <CardTitle className="text-lg">Danh sách kháng cáo</CardTitle>
+                <CardDescription>
+                  Hiện có {filteredAppeals.length} yêu cầu phù hợp với bộ lọc.
+                </CardDescription>
               </div>
 
-              <hr className="border-slate-100" />
+              {/* Search and Filters */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <div className="relative w-full sm:w-60">
+                  <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Tìm theo người dùng, ID, lý do..."
+                    className="pl-8 h-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
 
-              <div className="flex flex-col gap-3 text-sm">
+                <select
+                  className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none cursor-pointer focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                >
+                  <option value="all">Tất cả trạng thái</option>
+                  <option value="pending">Chờ xử lý</option>
+                  <option value="resolved">Đã giải quyết</option>
+                </select>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleResetFilters}
+                  className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                  title="Đặt lại bộ lọc"
+                >
+                  <RotateCcw className="size-3" />
+                  Đặt lại
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-0 overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/30">
+                  <TableHead className="w-[120px] pl-6 py-3">Mã khiếu nại</TableHead>
+                  <TableHead className="min-w-[150px]">Người dùng</TableHead>
+                  <TableHead className="w-[150px]">Loại khiếu nại</TableHead>
+                  <TableHead className="w-[120px]">Ngày tạo</TableHead>
+                  <TableHead className="w-[120px]">Trạng thái</TableHead>
+                  <TableHead className="w-[150px] text-right pr-6">Hành động</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAppeals.map((appeal) => (
+                  <TableRow key={appeal.id} className="hover:bg-muted/10 transition">
+                    <TableCell className="pl-6 font-semibold text-foreground">{appeal.id}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-semibold text-foreground">{appeal.user}</p>
+                        <p className="text-xs text-muted-foreground">{appeal.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-muted text-foreground">
+                        {appeal.type}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{appeal.date}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                        appeal.status === "Pending" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      }`}>
+                        {appeal.status === "Pending" ? "Chờ xử lý" : "Đã giải quyết"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right pr-6">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setSelectedAppeal(appeal)}
+                          className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground transition cursor-pointer"
+                          title="Xem Chi Tiết"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {appeal.status === "Pending" && (
+                          <>
+                            <button
+                              onClick={() => handleAction(appeal.id, "Resolved", "Approved (Restored)")}
+                              className="p-1.5 hover:bg-emerald-500/15 rounded-lg text-emerald-600 dark:text-emerald-400 transition cursor-pointer"
+                              title="Chấp nhận"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleAction(appeal.id, "Resolved", "Decision Upheld")}
+                              className="p-1.5 hover:bg-rose-500/15 rounded-lg text-rose-600 dark:text-rose-450 transition cursor-pointer"
+                              title="Từ chối"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredAppeals.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="p-8 text-center text-muted-foreground">
+                      Không tìm thấy khiếu nại nào.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Details Sidebar panel */}
+        {selectedAppeal && (
+          <Card className="w-full lg:w-96 shadow-xs border-border flex flex-col animate-in fade-in slide-in-from-right-4 duration-200">
+            <CardHeader className="pb-4 flex flex-row justify-between items-start">
+              <div>
+                <CardTitle className="text-lg">Chi tiết khiếu nại</CardTitle>
+                <CardDescription className="text-xs">{selectedAppeal.id}</CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedAppeal(null)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4 text-sm">
+              <hr className="border-border" />
+
+              <div className="flex flex-col gap-3">
                 <div>
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">User</span>
-                  <p className="font-medium text-gray-800">{selectedAppeal.user} ({selectedAppeal.email})</p>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Người dùng</span>
+                  <p className="font-medium text-foreground">{selectedAppeal.user} ({selectedAppeal.email})</p>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Content ID</span>
-                  <p className="font-medium text-slate-650 bg-slate-50 p-1.5 rounded-lg text-xs break-all mt-1">{selectedAppeal.targetId}</p>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mã nội dung</span>
+                  <p className="font-medium text-foreground bg-muted/50 p-1.5 rounded-lg text-xs break-all mt-1">{selectedAppeal.targetId}</p>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Type</span>
-                  <p className="font-medium text-gray-800">{selectedAppeal.type}</p>
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Loại khiếu nại</span>
+                  <p className="font-medium text-foreground">{selectedAppeal.type}</p>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Statement / Reason</span>
-                  <p className="text-slate-600 mt-1 leading-relaxed bg-slate-50/50 p-3 rounded-xl border border-slate-100/50 text-xs italic">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nội dung / Lý do khiếu nại</span>
+                  <p className="text-muted-foreground mt-1 leading-relaxed bg-muted/20 p-3 rounded-xl border border-border text-xs italic">
                     "{selectedAppeal.reason}"
                   </p>
                 </div>
                 {selectedAppeal.result && (
                   <div>
-                    <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Result</span>
-                    <p className="font-medium text-indigo-600 bg-indigo-50/50 p-2 rounded-lg text-xs mt-1">
-                      {selectedAppeal.result}
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Kết quả giải quyết</span>
+                    <p className="font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 p-2 rounded-lg text-xs mt-1">
+                      {selectedAppeal.result === "Approved (Restored)" ? "Đã khôi phục" : "Giữ nguyên quyết định xử lý"}
                     </p>
                   </div>
                 )}
@@ -235,25 +268,26 @@ const AppealManagement = () => {
 
               {selectedAppeal.status === "Pending" && (
                 <div className="flex gap-2 mt-4">
-                  <button
+                  <Button
                     onClick={() => handleAction(selectedAppeal.id, "Resolved", "Approved (Restored)")}
-                    className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl"
                   >
-                    <Check className="w-3.5 h-3.5" />
-                    Approve
-                  </button>
-                  <button
+                    <Check className="w-3.5 h-3.5 mr-1" />
+                    Chấp nhận
+                  </Button>
+                  <Button
+                    variant="destructive"
                     onClick={() => handleAction(selectedAppeal.id, "Resolved", "Decision Upheld")}
-                    className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl transition active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
+                    className="flex-1 font-semibold text-xs rounded-xl"
                   >
-                    <X className="w-3.5 h-3.5" />
-                    Reject
-                  </button>
+                    <X className="w-3.5 h-3.5 mr-1" />
+                    Từ chối
+                  </Button>
                 </div>
               )}
-            </div>
-          )}
-        </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
