@@ -1191,52 +1191,7 @@ const ConversationInfoSidebar = ({
         )}
       </div>
 
-      {/* Accordion: Thiết lập bảo mật */}
-      <div className="border-b-8 border-slate-50">
-        <button
-          onClick={() => setCollapseSecurity((prev) => !prev)}
-          className="flex items-center justify-between w-full px-4 py-3 hover:bg-slate-50 font-semibold text-sm text-slate-800 transition cursor-pointer"
-        >
-          <span>Security settings</span>
-          {collapseSecurity ? (
-            <ChevronRight className="size-4 text-slate-500" />
-          ) : (
-            <ChevronDown className="size-4 text-slate-500" />
-          )}
-        </button>
-        {!collapseSecurity && (
-          <div className="px-4 pb-3">
-            <div className="flex items-center justify-between py-2.5">
-              <div className="flex items-center gap-3">
-                <Clock className="size-5 text-slate-600" />
-                <div>
-                  <p className="text-xs font-medium text-slate-700">
-                    Auto delete messages
-                  </p>
-                  <p className="text-[10px] text-gray-400">Never</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between py-2.5">
-              <div className="flex items-center gap-3">
-                <EyeOff className="size-5 text-slate-600" />
-                <span className="text-xs font-medium text-slate-700">
-                  Hide chat
-                </span>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hideChatToggle}
-                  onChange={(e) => setHideChatToggle(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-              </label>
-            </div>
-          </div>
-        )}
-      </div>
+    
 
       {/* Danger Zone Actions */}
       <div className="flex flex-col py-2 mb-10">
