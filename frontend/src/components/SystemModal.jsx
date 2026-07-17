@@ -1,6 +1,13 @@
 import React from "react";
 import { useSocket } from "../contexts/SocketContext";
-import { Lock, AlertTriangle, AlertCircle, Info, CheckCircle2, X } from "lucide-react";
+import {
+  Lock,
+  AlertTriangle,
+  AlertCircle,
+  Info,
+  CheckCircle2,
+  X,
+} from "lucide-react";
 
 const SystemModal = () => {
   const { systemModal, setSystemModal } = useSocket();
@@ -50,7 +57,7 @@ const SystemModal = () => {
   // Color theme configuration
   const themeConfig = {
     lock: {
-      bgColor: "bg-red-50/50 dark:bg-red-950/20",
+      bgColor: "bg-red-50/50 dark:bg-red-900/20",
       iconColor: "text-red-600 dark:text-red-400",
       iconBg: "bg-red-100 dark:bg-red-900/30",
       buttonColor: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500",
@@ -58,7 +65,7 @@ const SystemModal = () => {
       IconComponent: Lock,
     },
     danger: {
-      bgColor: "bg-red-50/50 dark:bg-red-950/20",
+      bgColor: "bg-red-50/50 dark:bg-red-900/20",
       iconColor: "text-red-600 dark:text-red-400",
       iconBg: "bg-red-100 dark:bg-red-900/30",
       buttonColor: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500",
@@ -66,26 +73,29 @@ const SystemModal = () => {
       IconComponent: AlertTriangle,
     },
     warning: {
-      bgColor: "bg-amber-50/50 dark:bg-amber-950/10",
+      bgColor: "bg-amber-50/50 dark:bg-amber-900/10",
       iconColor: "text-amber-600 dark:text-amber-400",
       iconBg: "bg-amber-100 dark:bg-amber-900/30",
-      buttonColor: "bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500",
+      buttonColor:
+        "bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500",
       borderColor: "border-amber-100 dark:border-amber-900/50",
       IconComponent: AlertCircle,
     },
     info: {
-      bgColor: "bg-blue-50/50 dark:bg-blue-950/20",
+      bgColor: "bg-blue-50/50 dark:bg-blue-900/20",
       iconColor: "text-blue-600 dark:text-blue-400",
       iconBg: "bg-blue-100 dark:bg-blue-900/30",
-      buttonColor: "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500",
+      buttonColor:
+        "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500",
       borderColor: "border-blue-100 dark:border-blue-900/50",
       IconComponent: Info,
     },
     success: {
-      bgColor: "bg-emerald-50/50 dark:bg-emerald-950/15",
+      bgColor: "bg-emerald-50/50 dark:bg-emerald-900/15",
       iconColor: "text-emerald-600 dark:text-emerald-400",
       iconBg: "bg-emerald-100 dark:bg-emerald-900/30",
-      buttonColor: "bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500",
+      buttonColor:
+        "bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500",
       borderColor: "border-emerald-100 dark:border-emerald-900/50",
       IconComponent: CheckCircle2,
     },
@@ -106,7 +116,9 @@ const SystemModal = () => {
         } bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border ${
           currentTheme.borderColor
         } overflow-hidden transform transition-all duration-200 ${
-          active ? "scale-100 opacity-100 translate-y-0" : "scale-98 opacity-0 translate-y-1"
+          active
+            ? "scale-100 opacity-100 translate-y-0"
+            : "scale-98 opacity-0 translate-y-1"
         }`}
       >
         {/* Header bar / Close button */}
@@ -127,13 +139,19 @@ const SystemModal = () => {
           {/* Optional Illustration Image */}
           {image && (
             <div className="mb-5 max-w-[180px] overflow-hidden rounded-lg">
-              <img src={image} alt="modal-illustration" className="w-full h-auto object-contain" />
+              <img
+                src={image}
+                alt="modal-illustration"
+                className="w-full h-auto object-contain"
+              />
             </div>
           )}
 
           {/* Theme Icon */}
           {!image && Icon && (
-            <div className={`p-3.5 rounded-full ${currentTheme.iconBg} ${currentTheme.iconColor} mb-4`}>
+            <div
+              className={`p-3.5 rounded-full ${currentTheme.iconBg} ${currentTheme.iconColor} mb-4`}
+            >
               <Icon className="w-8 h-8" />
             </div>
           )}

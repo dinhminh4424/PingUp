@@ -101,7 +101,7 @@ const AdminSidebar = ({ ...props }) => {
         {
           title: "Hộp thoại",
           url: "/admin/reports/messages",
-          badge: "soon",
+          badge: "",
         },
         {
           title: "Người dùng",

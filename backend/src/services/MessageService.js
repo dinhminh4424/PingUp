@@ -222,6 +222,36 @@ class MessageService {
       };
     }
   }
+
+  async deleteChatHistory(conversationId, userId) {
+    try {
+      if (!conversationId || !userId) {
+        return {
+          status: 400,
+          data: { success: false, message: "Thiếu thông tin cuộc hội thoại hoặc người dùng" },
+        };
+      }
+
+      await Message.updateMany(
+        { conversationId, deletedBy: { $ne: userId } },
+        { $push: { deletedBy: userId } }
+      );
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Xóa lịch sử trò chuyện thành công",
+        },
+      };
+    } catch (error) {
+      console.error("Error clearing chat history:", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
   async reactToMessage(messageId, userId, emoji) {
     try {
       const message = await Message.findById(messageId);

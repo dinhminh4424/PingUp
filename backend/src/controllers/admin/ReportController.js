@@ -59,6 +59,28 @@ class ReportController {
       });
     }
   }
+
+  async getReportConversation(req, res) {
+    try {
+      const { searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter, reporterFilter } = req.query;
+      const result = await ReportService.getReportConversations(
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page,
+        reasonFilter,
+        reporterFilter
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy report conversation: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy report conversation: " + error.message,
+      });
+    }
+  }
 }
 
 export default new ReportController();

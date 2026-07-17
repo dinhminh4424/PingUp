@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import { register } from "../../services/AuthServices";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, User, UserCheck, Eye, EyeOff, UserPlus } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  UserCheck,
+  Eye,
+  EyeOff,
+  UserPlus,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 const RegisterForm = () => {
@@ -40,7 +48,9 @@ const RegisterForm = () => {
       }
     } catch (error) {
       console.log("Error: ", error);
-      setError(error.response?.data?.message || "Register failed. Please try again.");
+      setError(
+        error.response?.data?.message || "Register failed. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +90,7 @@ const RegisterForm = () => {
               onChange={(e) =>
                 setRegisterForm({ ...registerForm, email: e.target.value })
               }
-              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-800 text-sm placeholder:text-slate-400"
               placeholder="nhap.email@viethoaduong.com"
               required
             />
@@ -102,7 +112,7 @@ const RegisterForm = () => {
               onChange={(e) =>
                 setRegisterForm({ ...registerForm, username: e.target.value })
               }
-              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-800 text-sm placeholder:text-slate-400"
               placeholder="username_cua_ban"
               required
             />
@@ -124,7 +134,7 @@ const RegisterForm = () => {
               onChange={(e) =>
                 setRegisterForm({ ...registerForm, full_name: e.target.value })
               }
-              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
+              className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-800 text-sm placeholder:text-slate-400"
               placeholder="Nguyễn Văn A"
             />
           </div>
@@ -145,7 +155,7 @@ const RegisterForm = () => {
               onChange={(e) =>
                 setRegisterForm({ ...registerForm, password: e.target.value })
               }
-              className="w-full pl-11 pr-12 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
+              className="w-full pl-11 pr-12 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-800 text-sm placeholder:text-slate-400"
               placeholder="Enter your password"
               required
             />
@@ -177,7 +187,7 @@ const RegisterForm = () => {
                   passwordCheck: e.target.value,
                 })
               }
-              className="w-full pl-11 pr-12 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-850 text-sm placeholder:text-slate-400"
+              className="w-full pl-11 pr-12 py-2.5 bg-white border border-slate-200 focus:border-blue-500 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all duration-200 text-slate-800 text-sm placeholder:text-slate-400"
               placeholder="Confirm your password"
               required
             />

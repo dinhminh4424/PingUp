@@ -28,7 +28,35 @@ router.put(
   ConversationController.markAsRead,
 );
 
+// POST Actions
+router.post(
+  "/:conversationId/leave",
+  ConversationController.leaveConversation,
+);
+router.post(
+  "/:conversationId/report",
+  upload.array("images"),
+  ConversationController.reportConversation,
+);
+router.post(
+  "/:conversationId/join-request",
+  ConversationController.requestToJoin,
+);
+router.post(
+  "/:conversationId/approve-request",
+  ConversationController.approveJoinRequest,
+);
+router.post(
+  "/:conversationId/reject-request",
+  ConversationController.rejectJoinRequest,
+);
+router.post(
+  "/:conversationId/disband",
+  ConversationController.disbandGroup,
+);
+
 // GET
+router.get("/search-groups", ConversationController.searchGroups);
 router.get("/:conversationId", ConversationController.getConversationById);
 router.get("/", ConversationController.getConversation);
 

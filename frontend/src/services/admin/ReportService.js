@@ -34,3 +34,18 @@ export const getReportComment = async (searchQuery, statusFilter, startDate, end
   });
   return res.data;
 };
+
+export const getReportConversation = async (searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter = "", reporterFilter = "") => {
+  const res = await api.get(`/api/admin/report/conversations`, {
+    params: {
+      searchQuery,
+      statusFilter,
+      startDate,
+      endDate,
+      page,
+      reasonFilter,
+      reporterFilter,
+    },
+  });
+  return res.data;
+};

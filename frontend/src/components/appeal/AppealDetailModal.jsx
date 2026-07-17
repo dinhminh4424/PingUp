@@ -11,7 +11,9 @@ const AppealDetailModal = ({ appeal, onClose }) => {
         <div className="p-6 pb-4 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-gray-900">Appeal Details</h3>
-            <p className="text-xs text-gray-500 font-mono mt-0.5">#{appeal._id}</p>
+            <p className="text-xs text-gray-500 font-mono mt-0.5">
+              #{appeal._id}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -62,10 +64,15 @@ const AppealDetailModal = ({ appeal, onClose }) => {
                 Content Type
               </span>
               <span className="text-gray-800 font-semibold text-xs bg-slate-100 px-2.5 py-1 rounded-lg">
-                {appeal.targetModel === "Post" ? "Post" :
-                 appeal.targetModel === "Comment" ? "Comment" :
-                 appeal.targetModel === "Conversation" ? "Message" :
-                 appeal.targetModel === "Story" ? "Story" : "Account / User"}
+                {appeal.targetModel === "Post"
+                  ? "Post"
+                  : appeal.targetModel === "Comment"
+                    ? "Comment"
+                    : appeal.targetModel === "Conversation"
+                      ? "Message"
+                      : appeal.targetModel === "Story"
+                        ? "Story"
+                        : "Account / User"}
               </span>
             </div>
             {appeal.targetId && (
@@ -98,12 +105,15 @@ const AppealDetailModal = ({ appeal, onClose }) => {
                         : "bg-rose-50 text-rose-700 border border-rose-200"
                   }`}
                 >
-                  {appeal.status === "Pending" ? "Pending Review" :
-                   appeal.status === "Resolved" ? "Approved (Restored)" : "Rejected"}
+                  {appeal.status === "Pending"
+                    ? "Pending Review"
+                    : appeal.status === "Resolved"
+                      ? "Approved (Restored)"
+                      : "Rejected"}
                 </span>
               </div>
               {appeal.result && (
-                <div className="bg-indigo-50 border border-indigo-100 p-3.5 rounded-2xl text-indigo-950 text-xs">
+                <div className="bg-indigo-50 border border-indigo-100 p-3.5 rounded-2xl text-indigo-900 text-xs">
                   <p className="font-bold mb-1">Moderation Result:</p>
                   <p className="font-medium text-[11px] leading-relaxed">
                     {appeal.result === "Approved (Restored)"

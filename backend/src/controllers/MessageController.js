@@ -255,6 +255,22 @@ class MessageController {
       });
     }
   }
+
+  async deleteChatHistory(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user._id;
+
+      const result = await MessageService.deleteChatHistory(conversationId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi xóa lịch sử trò chuyện: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống: " + error.message,
+      });
+    }
+  }
 }
 
 export default new MessageController();

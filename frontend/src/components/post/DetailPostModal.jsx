@@ -249,7 +249,7 @@ const DetailPostModal = ({
               <img
                 src={comment.user?.profile_picture || "/default-avatar.avif"}
                 alt=""
-                className="rounded-full object-cover w-9 h-9 opacity-50 shadow-sm border border-gray-150"
+                className="rounded-full object-cover w-9 h-9 opacity-50 shadow-sm border border-gray-100"
               />
             </div>
             <div className="flex-1">
@@ -259,7 +259,8 @@ const DetailPostModal = ({
                   Your comment has been blocked
                 </span>
                 <p className="text-[11px] text-rose-600/80 mt-1 leading-relaxed">
-                  This comment violates Community Standards. You can submit an appeal request.
+                  This comment violates Community Standards. You can submit an
+                  appeal request.
                 </p>
                 <button
                   onClick={() => {
@@ -270,11 +271,11 @@ const DetailPostModal = ({
                         targetModel: "Comment",
                         appealType: "Comment Removal Appeal",
                         reason: "Appeal comment block",
-                        details: `Appeal comment block for ID: ${comment._id}\nContent: ${comment.content || ""}`
-                      }
+                        details: `Appeal comment block for ID: ${comment._id}\nContent: ${comment.content || ""}`,
+                      },
                     });
                   }}
-                  className="mt-2 text-[11px] font-bold text-rose-650 hover:text-rose-700 underline cursor-pointer"
+                  className="mt-2 text-[11px] font-bold text-rose-600 hover:text-rose-700 underline cursor-pointer"
                 >
                   Submit Appeal
                 </button>
@@ -285,7 +286,7 @@ const DetailPostModal = ({
       } else {
         return (
           <div className="flex gap-2 items-center py-1">
-            <div className="text-[11px] italic text-gray-400 bg-gray-50 dark:bg-zinc-800 px-3 py-1.5 rounded-full border border-gray-150 flex items-center gap-1.5 select-none">
+            <div className="text-[11px] italic text-gray-400 bg-gray-50 dark:bg-zinc-800 px-3 py-1.5 rounded-full border border-gray-100 flex items-center gap-1.5 select-none">
               <ShieldAlert className="w-3.5 h-3.5 text-gray-400" />
               <span>This comment is unavailable</span>
             </div>
@@ -529,7 +530,7 @@ const DetailPostModal = ({
           {/* Shared Post Container */}
           {post.post_type === "share" && post.shared_post && (
             <div
-              className="border border-gray-250 rounded-xl p-4 bg-gray-50/50 hover:bg-gray-50 transition-colors mt-2 cursor-pointer"
+              className="border border-gray-200 rounded-xl p-4 bg-gray-100/50 hover:bg-gray-100 transition-colors mt-2 cursor-pointer"
               onClick={() => {
                 onClose();
                 navigate(`/post/${post.shared_post._id}`);
@@ -572,36 +573,41 @@ const DetailPostModal = ({
           )}
 
           {/* Warning for Disabled Comments (If active but comments are disabled for author) */}
-          {post.isActive !== false && post.isCommentDisabled === true && userCurrent?._id === post.user?._id && (
-            <div className="border-t border-gray-100 p-5 mt-2">
-              <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 text-sm flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-amber-800 font-bold select-none">
-                  <ShieldAlert className="w-5 h-5 text-amber-600 animate-pulse" />
-                  <span>Comments for this post have been disabled by Admin</span>
+          {post.isActive !== false &&
+            post.isCommentDisabled === true &&
+            userCurrent?._id === post.user?._id && (
+              <div className="border-t border-gray-100 p-5 mt-2">
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 text-sm flex flex-col gap-3">
+                  <div className="flex items-center gap-2 text-amber-800 font-bold select-none">
+                    <ShieldAlert className="w-5 h-5 text-amber-600 animate-pulse" />
+                    <span>
+                      Comments for this post have been disabled by Admin
+                    </span>
+                  </div>
+                  <p className="text-amber-700 leading-relaxed font-medium text-xs">
+                    Admin has disabled comments for this post. If you believe
+                    this is a mistake, you can submit an appeal request.
+                  </p>
+                  <button
+                    onClick={() => {
+                      onClose(); // Close details modal first
+                      navigate("/appeal", {
+                        state: {
+                          targetId: post._id,
+                          targetModel: "Post",
+                          appealType: "Post Removal Appeal",
+                          reason: "Appeal to enable comments",
+                          details: `Appeal to enable comments for post ID: ${post._id}\nContent: ${post.content || ""}`,
+                        },
+                      });
+                    }}
+                    className="w-fit px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
+                  >
+                    Submit Appeal
+                  </button>
                 </div>
-                <p className="text-amber-750 leading-relaxed font-medium text-xs">
-                  Admin has disabled comments for this post. If you believe this is a mistake, you can submit an appeal request.
-                </p>
-                <button
-                  onClick={() => {
-                    onClose(); // Close details modal first
-                    navigate("/appeal", {
-                      state: {
-                        targetId: post._id,
-                        targetModel: "Post",
-                        appealType: "Post Removal Appeal",
-                        reason: "Appeal to enable comments",
-                        details: `Appeal to enable comments for post ID: ${post._id}\nContent: ${post.content || ""}`
-                      }
-                    });
-                  }}
-                  className="w-fit px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
-                >
-                  Submit Appeal
-                </button>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Stats / Actions / Warning for Blocked Post */}
           {post.isActive === false ? (
@@ -610,10 +616,15 @@ const DetailPostModal = ({
                 <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5 text-sm flex flex-col gap-3">
                   <div className="flex items-center gap-2 text-rose-800 font-bold">
                     <ShieldAlert className="w-5 h-5 text-rose-600 animate-pulse" />
-                    <span>This post has been blocked due to Community Standards violation</span>
+                    <span>
+                      This post has been blocked due to Community Standards
+                      violation
+                    </span>
                   </div>
-                  <p className="text-rose-650 leading-relaxed font-medium text-xs">
-                    Your post has been temporarily blocked by the moderation team. If you believe this is a mistake, you can submit an appeal request.
+                  <p className="text-rose-600 leading-relaxed font-medium text-xs">
+                    Your post has been temporarily blocked by the moderation
+                    team. If you believe this is a mistake, you can submit an
+                    appeal request.
                   </p>
                   <button
                     onClick={() => {
@@ -624,8 +635,8 @@ const DetailPostModal = ({
                           targetModel: "Post",
                           appealType: "Post Removal Appeal",
                           reason: "Appeal to unblock post",
-                          details: `Appeal post block for ID: ${post._id}\nContent: ${post.content || ""}`
-                        }
+                          details: `Appeal post block for ID: ${post._id}\nContent: ${post.content || ""}`,
+                        },
                       });
                     }}
                     className="w-fit px-4 py-2 bg-rose-600 hover:bg-rose-705 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
@@ -636,8 +647,13 @@ const DetailPostModal = ({
               ) : (
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center text-sm text-muted-foreground flex flex-col items-center justify-center gap-3">
                   <ShieldAlert className="w-8 h-8 text-slate-400" />
-                  <span className="font-semibold">This content is temporarily unavailable</span>
-                  <span className="text-xs text-gray-500 max-w-md">This post has been blocked due to violation of our Community Standards.</span>
+                  <span className="font-semibold">
+                    This content is temporarily unavailable
+                  </span>
+                  <span className="text-xs text-gray-500 max-w-md">
+                    This post has been blocked due to violation of our Community
+                    Standards.
+                  </span>
                 </div>
               )}
             </div>
@@ -798,7 +814,7 @@ const DetailPostModal = ({
                       ? `Reply ${replyToComment.user?.full_name}...`
                       : `Comment as ${userCurrent?.full_name || "you"}...`
                   }
-                  className="bg-transparent border-none outline-none flex-1 text-sm text-gray-850 placeholder-gray-500"
+                  className="bg-transparent border-none outline-none flex-1 text-sm text-gray-800 placeholder-gray-500"
                 />
 
                 {/* Upload Image Button */}
