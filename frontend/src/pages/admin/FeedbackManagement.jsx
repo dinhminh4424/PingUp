@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MessageSquare, Search, Filter, ChevronLeft, ChevronRight, RefreshCw, RotateCcw } from "lucide-react";
 import toast from "react-hot-toast";
-import { getFeedbacks } from "../../services/admin/FeedbackService";
+import { getFeedbacks, updateFeedbackStatus } from "../../services/admin/FeedbackService";
 import DateRangeFilter from "../../components/admin/DateRangeFilter";
 import FeedbackStatsCards from "../../components/admin/feedback/FeedbackStatsCards";
 import FeedbackTable from "../../components/admin/feedback/FeedbackTable";
@@ -80,11 +80,23 @@ const FeedbackManagement = () => {
     }
   };
 
-  const handleMarkReviewed = (id) => {
-    setFeedbacks((prev) =>
-      prev.map((fb) => (fb._id === id ? { ...fb, status: "Reviewed" } : fb))
-    );
-    toast.success("Feedback marked as reviewed!");
+  const handleUpdateStatus = async (id, newStatus) => {
+    try {
+      const result = await updateFeedbackStatus(id, newStatus);
+      if (result.success) {
+        setFeedbacks((prev) =>
+          prev.map((fb) => (fb._id === id ? { ...fb, status: newStatus } : fb))
+        );
+        fetchFeedback();
+        const statusLabel = newStatus === "Reviewed" ? "đã xem" : "đã duyệt";
+        toast.success(`Đã cập nhật trạng thái phản hồi thành ${statusLabel}!`);
+      } else {
+        toast.error(result.message || "Cập nhật trạng thái thất bại!");
+      }
+    } catch (err) {
+      console.error("Lỗi khi cập nhật trạng thái: ", err);
+      toast.error("Lỗi khi cập nhật trạng thái!");
+    }
   };
 
   const handleOpenDetail = (feedback) => {
@@ -223,7 +235,7 @@ const FeedbackManagement = () => {
             feedbacks={feedbacks}
             loading={loading}
             onOpenDetail={handleOpenDetail}
-            onMarkReviewed={handleMarkReviewed}
+            onUpdateStatus={handleUpdateStatus}
           />
 
           {/* Pagination controls */}
@@ -263,7 +275,7 @@ const FeedbackManagement = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         feedback={selectedFeedback}
-        onMarkReviewed={handleMarkReviewed}
+        onUpdateStatus={handleUpdateStatus}
       />
     </div>
   );

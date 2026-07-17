@@ -241,6 +241,59 @@ const DetailPostModal = ({
 
     const isCommentAuthorOnline = onlineUsers.includes(comment.user?._id);
 
+    if (comment.isActive === false) {
+      if (userCurrent?._id === comment.user?._id) {
+        return (
+          <div className="flex gap-2 items-start py-1">
+            <div className="relative shrink-0 w-9 h-9">
+              <img
+                src={comment.user?.profile_picture || "/default-avatar.avif"}
+                alt=""
+                className="rounded-full object-cover w-9 h-9 opacity-50 shadow-sm border border-gray-150"
+              />
+            </div>
+            <div className="flex-1">
+              <div className="bg-rose-50/70 border border-rose-100/50 rounded-2xl px-4 py-3 max-w-[85%]">
+                <span className="font-semibold text-xs text-rose-800 flex items-center gap-1.5 select-none">
+                  <ShieldAlert className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                  Your comment has been blocked
+                </span>
+                <p className="text-[11px] text-rose-600/80 mt-1 leading-relaxed">
+                  This comment violates Community Standards. You can submit an appeal request.
+                </p>
+                <button
+                  onClick={() => {
+                    onClose(); // Close details modal first
+                    navigate("/appeal", {
+                      state: {
+                        targetId: comment._id,
+                        targetModel: "Comment",
+                        appealType: "Comment Removal Appeal",
+                        reason: "Appeal comment block",
+                        details: `Appeal comment block for ID: ${comment._id}\nContent: ${comment.content || ""}`
+                      }
+                    });
+                  }}
+                  className="mt-2 text-[11px] font-bold text-rose-650 hover:text-rose-700 underline cursor-pointer"
+                >
+                  Submit Appeal
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      } else {
+        return (
+          <div className="flex gap-2 items-center py-1">
+            <div className="text-[11px] italic text-gray-400 bg-gray-50 dark:bg-zinc-800 px-3 py-1.5 rounded-full border border-gray-150 flex items-center gap-1.5 select-none">
+              <ShieldAlert className="w-3.5 h-3.5 text-gray-400" />
+              <span>This comment is unavailable</span>
+            </div>
+          </div>
+        );
+      }
+    }
+
     return (
       <div className="flex gap-2 group/item items-start">
         <Link
@@ -517,196 +570,280 @@ const DetailPostModal = ({
                 )}
             </div>
           )}
-          <div className="flex items-center justify-between text-xs text-gray-500 border-b border-gray-200 pb-3 pt-1">
-            <div className="flex items-center gap-1 select-none">
-              {postLikes.length > 0 && (
-                <span className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white shadow-sm shrink-0">
-                  <Heart size={10} fill="white" />
-                </span>
+
+          {/* Warning for Disabled Comments (If active but comments are disabled for author) */}
+          {post.isActive !== false && post.isCommentDisabled === true && userCurrent?._id === post.user?._id && (
+            <div className="border-t border-gray-100 p-5 mt-2">
+              <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 text-sm flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-amber-800 font-bold select-none">
+                  <ShieldAlert className="w-5 h-5 text-amber-600 animate-pulse" />
+                  <span>Comments for this post have been disabled by Admin</span>
+                </div>
+                <p className="text-amber-750 leading-relaxed font-medium text-xs">
+                  Admin has disabled comments for this post. If you believe this is a mistake, you can submit an appeal request.
+                </p>
+                <button
+                  onClick={() => {
+                    onClose(); // Close details modal first
+                    navigate("/appeal", {
+                      state: {
+                        targetId: post._id,
+                        targetModel: "Post",
+                        appealType: "Post Removal Appeal",
+                        reason: "Appeal to enable comments",
+                        details: `Appeal to enable comments for post ID: ${post._id}\nContent: ${post.content || ""}`
+                      }
+                    });
+                  }}
+                  className="w-fit px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
+                >
+                  Submit Appeal
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Stats / Actions / Warning for Blocked Post */}
+          {post.isActive === false ? (
+            <div className="border-t border-gray-100 p-5 mt-2">
+              {userCurrent?._id === post.user?._id ? (
+                <div className="bg-rose-50 border border-rose-100 rounded-2xl p-5 text-sm flex flex-col gap-3">
+                  <div className="flex items-center gap-2 text-rose-800 font-bold">
+                    <ShieldAlert className="w-5 h-5 text-rose-600 animate-pulse" />
+                    <span>This post has been blocked due to Community Standards violation</span>
+                  </div>
+                  <p className="text-rose-650 leading-relaxed font-medium text-xs">
+                    Your post has been temporarily blocked by the moderation team. If you believe this is a mistake, you can submit an appeal request.
+                  </p>
+                  <button
+                    onClick={() => {
+                      onClose(); // Close details modal first
+                      navigate("/appeal", {
+                        state: {
+                          targetId: post._id,
+                          targetModel: "Post",
+                          appealType: "Post Removal Appeal",
+                          reason: "Appeal to unblock post",
+                          details: `Appeal post block for ID: ${post._id}\nContent: ${post.content || ""}`
+                        }
+                      });
+                    }}
+                    className="w-fit px-4 py-2 bg-rose-600 hover:bg-rose-705 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
+                  >
+                    Submit Appeal
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 text-center text-sm text-muted-foreground flex flex-col items-center justify-center gap-3">
+                  <ShieldAlert className="w-8 h-8 text-slate-400" />
+                  <span className="font-semibold">This content is temporarily unavailable</span>
+                  <span className="text-xs text-gray-500 max-w-md">This post has been blocked due to violation of our Community Standards.</span>
+                </div>
               )}
-              <span>{postLikes.length} Likes</span>
             </div>
-            <div className="flex gap-3 select-none">
-              <span>{post.comments_count || 0} Comments</span>
-              <span>{post.shares_count || 0} Shares</span>
-            </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between text-xs text-gray-500 border-b border-gray-200 pb-3 pt-1">
+                <div className="flex items-center gap-1 select-none">
+                  {postLikes.length > 0 && (
+                    <span className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white shadow-sm shrink-0">
+                      <Heart size={10} fill="white" />
+                    </span>
+                  )}
+                  <span>{postLikes.length} Likes</span>
+                </div>
+                <div className="flex gap-3 select-none">
+                  <span>{post.comments_count || 0} Comments</span>
+                  <span>{post.shares_count || 0} Shares</span>
+                </div>
+              </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-1 border-b border-gray-200 py-1 text-sm font-semibold text-gray-600">
-            <button
-              onClick={handleLikePost}
-              className={`flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${hasLikedPost ? "text-red-500 animate-pulse" : ""}`}
-            >
-              <Heart
-                size={18}
-                fill={hasLikedPost ? "currentColor" : "none"}
-                className={hasLikedPost ? "text-red-500" : "text-gray-600"}
-              />
-              <span>Like</span>
-            </button>
-            <button className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-              <MessageCircle size={18} />
-              <span>Comment</span>
-            </button>
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              <Share2 size={18} />
-              <span>Share</span>
-            </button>
-          </div>
+              {/* Action Buttons */}
+              <div className="grid grid-cols-3 gap-1 border-b border-gray-200 py-1 text-sm font-semibold text-gray-600">
+                <button
+                  onClick={handleLikePost}
+                  className={`flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${hasLikedPost ? "text-red-500 animate-pulse" : ""}`}
+                >
+                  <Heart
+                    size={18}
+                    fill={hasLikedPost ? "currentColor" : "none"}
+                    className={hasLikedPost ? "text-red-500" : "text-gray-600"}
+                  />
+                  <span>Like</span>
+                </button>
+                <button className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                  <MessageCircle size={18} />
+                  <span>Comment</span>
+                </button>
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  <Share2 size={18} />
+                  <span>Share</span>
+                </button>
+              </div>
 
-          {/* Comments List Section */}
-          <div className="space-y-4 pt-2">
-            {loadingComments ? (
-              <div className="flex flex-col items-center justify-center py-6 text-gray-400 gap-2">
-                <span className="w-6 h-6 border-2 border-t-indigo-500 border-gray-200 rounded-full animate-spin" />
-                <span className="text-xs">Loading comments...</span>
+              {/* Comments List Section */}
+              <div className="space-y-4 pt-2">
+                {loadingComments ? (
+                  <div className="flex flex-col items-center justify-center py-6 text-gray-400 gap-2">
+                    <span className="w-6 h-6 border-2 border-t-indigo-500 border-gray-200 rounded-full animate-spin" />
+                    <span className="text-xs">Loading comments...</span>
+                  </div>
+                ) : comments.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    Be the first to comment on this post!
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {comments.map((comment) => (
+                      <CommentBubble key={comment._id} comment={comment} />
+                    ))}
+                  </div>
+                )}
               </div>
-            ) : comments.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 text-sm">
-                Be the first to comment on this post!
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {comments.map((comment) => (
-                  <CommentBubble key={comment._id} comment={comment} />
-                ))}
-              </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
         {/* Sticky Input Footer */}
-        <div className="border-t border-gray-200 px-4 py-3 bg-white shrink-0 relative">
-          {/* Active Reply Banner */}
-          {replyToComment && (
-            <div className="flex items-center justify-between px-3 pb-2 text-xs text-indigo-600 font-semibold select-none animate-fade-in">
-              <span>Replying to {replyToComment.user?.full_name}</span>
-              <button
-                type="button"
-                onClick={() => setReplyToComment(null)}
-                className="text-gray-400 hover:text-gray-600 transition cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-
-          {/* Image Selection Preview */}
-          {commentImage && (
-            <div className="relative inline-block mb-3 ml-11 border border-gray-200 p-1 bg-gray-50 rounded-lg group animate-fade-in">
-              <img
-                src={URL.createObjectURL(commentImage)}
-                alt="Selected preview"
-                className="w-16 h-16 object-cover rounded"
-              />
-              <button
-                type="button"
-                onClick={() => setCommentImage(null)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-800 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md cursor-pointer"
-              >
-                <X size={10} />
-              </button>
-            </div>
-          )}
-
-          {/* Emoji Picker Popover */}
-          {showEmojiPicker && (
-            <div className="absolute bottom-16 right-4 z-50 shadow-2xl rounded-xl overflow-hidden border border-gray-200 animate-fade-in">
-              <EmojiPicker
-                onEmojiClick={(emojiData) =>
-                  setCommentInput((prev) => prev + emojiData.emoji)
-                }
-                width={320}
-                height={350}
-                searchDisabled={false}
-                skinTonesDisabled={true}
-                previewConfig={{ showPreview: false }}
-              />
-            </div>
-          )}
-
-          <div className="flex gap-2 items-center">
-            <img
-              src={userCurrent?.profile_picture || "/default-avatar.avif"}
-              alt=""
-              className="w-9 h-9 rounded-full object-cover shadow-sm shrink-0"
-            />
-
-            {/* Hidden File Input */}
-            <input
-              type="file"
-              accept="image/*"
-              id="comment-image-input"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  setCommentImage(e.target.files[0]);
-                }
-              }}
-            />
-
-            <form
-              onSubmit={(e) => handleAddComment(e, replyToComment?._id)}
-              className="flex-1 flex bg-[#f0f2f5] rounded-full px-4 py-2 items-center border border-gray-100"
-            >
-              <input
-                type="text"
-                value={commentInput}
-                onChange={(e) => setCommentInput(e.target.value)}
-                placeholder={
-                  replyToComment
-                    ? `Reply ${replyToComment.user?.full_name}...`
-                    : `Comment as ${userCurrent?.full_name || "you"}...`
-                }
-                className="bg-transparent border-none outline-none flex-1 text-sm text-gray-800 placeholder-gray-500"
-              />
-
-              {/* Upload Image Button */}
-              <label
-                htmlFor="comment-image-input"
-                className="cursor-pointer text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-gray-200 transition shrink-0 mr-1"
-                title="Attach image"
-              >
-                <ImageIcon size={18} />
-              </label>
-
-              {/* Emoji Picker Trigger */}
-              <button
-                type="button"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-gray-200 transition shrink-0 mr-1.5 cursor-pointer"
-                title="Add emoji"
-              >
-                <Smile size={18} />
-              </button>
-
-              <button
-                type="submit"
-                disabled={
-                  (!commentInput.trim() && !commentImage) || submittingComment
-                }
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition shrink-0 cursor-pointer ${
-                  (commentInput.trim() || commentImage) && !submittingComment
-                    ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
-                    : "text-gray-400 bg-transparent"
-                }`}
-              >
-                {submittingComment ? (
-                  <LoaderCircle
-                    size={14}
-                    className="animate-spin text-indigo-600"
-                  />
-                ) : (
-                  <Send size={14} />
-                )}
-              </button>
-            </form>
+        {post.isActive !== false && post.isCommentDisabled === true && (
+          <div className="border-t border-gray-200 px-5 py-4 bg-gray-50 shrink-0 relative flex items-center justify-center gap-2 select-none text-xs font-semibold text-muted-foreground">
+            <ShieldAlert className="w-4 h-4 text-amber-500 animate-pulse shrink-0" />
+            <span>Comments for this post have been disabled by Admin.</span>
           </div>
-        </div>
+        )}
+
+        {post.isActive !== false && post.isCommentDisabled !== true && (
+          <div className="border-t border-gray-200 px-4 py-3 bg-white shrink-0 relative">
+            {/* Active Reply Banner */}
+            {replyToComment && (
+              <div className="flex items-center justify-between px-3 pb-2 text-xs text-indigo-600 font-semibold select-none animate-fade-in">
+                <span>Replying to {replyToComment.user?.full_name}</span>
+                <button
+                  type="button"
+                  onClick={() => setReplyToComment(null)}
+                  className="text-gray-400 hover:text-gray-600 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            {/* Image Selection Preview */}
+            {commentImage && (
+              <div className="relative inline-block mb-3 ml-11 border border-gray-200 p-1 bg-gray-50 rounded-lg group animate-fade-in">
+                <img
+                  src={URL.createObjectURL(commentImage)}
+                  alt="Selected preview"
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCommentImage(null)}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-800 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md cursor-pointer"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            )}
+
+            {/* Emoji Picker Popover */}
+            {showEmojiPicker && (
+              <div className="absolute bottom-16 right-4 z-50 shadow-2xl rounded-xl overflow-hidden border border-gray-200 animate-fade-in">
+                <EmojiPicker
+                  onEmojiClick={(emojiData) =>
+                    setCommentInput((prev) => prev + emojiData.emoji)
+                  }
+                  width={320}
+                  height={350}
+                  searchDisabled={false}
+                  skinTonesDisabled={true}
+                  previewConfig={{ showPreview: false }}
+                />
+              </div>
+            )}
+
+            <div className="flex gap-2 items-center">
+              <img
+                src={userCurrent?.profile_picture || "/default-avatar.avif"}
+                alt=""
+                className="w-9 h-9 rounded-full object-cover shadow-sm shrink-0"
+              />
+
+              {/* Hidden File Input */}
+              <input
+                type="file"
+                accept="image/*"
+                id="comment-image-input"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setCommentImage(e.target.files[0]);
+                  }
+                }}
+              />
+
+              <form
+                onSubmit={(e) => handleAddComment(e, replyToComment?._id)}
+                className="flex-1 flex bg-[#f0f2f5] rounded-full px-4 py-2 items-center border border-gray-100"
+              >
+                <input
+                  type="text"
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                  placeholder={
+                    replyToComment
+                      ? `Reply ${replyToComment.user?.full_name}...`
+                      : `Comment as ${userCurrent?.full_name || "you"}...`
+                  }
+                  className="bg-transparent border-none outline-none flex-1 text-sm text-gray-850 placeholder-gray-500"
+                />
+
+                {/* Upload Image Button */}
+                <label
+                  htmlFor="comment-image-input"
+                  className="cursor-pointer text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-gray-200 transition shrink-0 mr-1"
+                  title="Attach image"
+                >
+                  <ImageIcon size={18} />
+                </label>
+
+                {/* Emoji Picker Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className="text-gray-500 hover:text-indigo-600 p-1.5 rounded-full hover:bg-gray-200 transition shrink-0 mr-1.5 cursor-pointer"
+                  title="Add emoji"
+                >
+                  <Smile size={18} />
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={
+                    (!commentInput.trim() && !commentImage) || submittingComment
+                  }
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition shrink-0 cursor-pointer ${
+                    (commentInput.trim() || commentImage) && !submittingComment
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
+                      : "text-gray-400 bg-transparent"
+                  }`}
+                >
+                  {submittingComment ? (
+                    <LoaderCircle
+                      size={14}
+                      className="animate-spin text-indigo-600"
+                    />
+                  ) : (
+                    <Send size={14} />
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
 
       {showUpdateModal && (

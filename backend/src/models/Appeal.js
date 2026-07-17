@@ -1,42 +1,83 @@
 import mongoose from "mongoose";
 
-const commentSchema = new mongoose.Schema(
+const appealSchema = new mongoose.Schema(
   {
-    // Người  báo cáo
+    // Người kháng cáo
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    // Đối tượng  kháng cáo
+    // ID đối tượng bị xử lý kỷ luật (ID bài đăng, bình luận, tin nhắn, v.v.)
     targetId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
+      required: true,
+    },
+    // Phân loại thực thể của targetId để biết ID đó thuộc về đối tượng nào
+    targetModel: {
+      type: String,
+      enum: ["Post", "Comment", "Conversation", "User", "Story"],
       required: true,
     },
     // Thể loại kháng cáo
-    targetType: {
+    appealType: {
       type: String,
-      enum: ["post", "comment", "message", "user"],
+      enum: [
+        "Post Removal Appeal",
+        "Comment Removal Appeal",
+        "Chat/Message Restriction Appeal",
+        "Account Warning / Strike",
+        "Account Suspension / Temporary Lock",
+        "Nudity & Sexual Content Strike Appeal",
+        "Hate Speech & Harassment Appeal",
+        "Spam / False Positive Appeal",
+        "Intellectual Property / Copyright Appeal",
+        "Other Moderation Action"
+      ],
       required: true,
     },
-    // Lý do kháng báo cáo
+    // Lý do người dùng muốn rút lại quyết định
     reason: {
       type: String,
       required: true,
       trim: true,
     },
-    // Chi tiết kháng báo cáo
+    // Chi tiết bổ sung từ người dùng
     details: {
       type: String,
       trim: true,
     },
-    // File báo cáo
-    file: [{ type: String, trim: true }],
-    // Trạng thái báo cáo
+    // Hình ảnh hoặc file minh chứng đính kèm
+    media: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    // Trạng thái kháng cáo
     status: {
       type: String,
-      enum: ["pending", "resolved", "dismissed"],
-      default: "pending",
+      enum: ["Pending", "Under Review", "Resolved", "Rejected"],
+      default: "Pending",
+    },
+    // Người xử lý khiếu nại (Admin)
+    resolvedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    // Ngày xử lý khiếu nại
+    resolvedAt: {
+      type: Date,
+    },
+    // Ghi chú của Admin khi xử lý kháng cáo
+    resolutionNotes: {
+      type: String,
+      trim: true,
+    },
+    // Kết quả giải quyết (ví dụ: Approved (Restored) hoặc Decision Upheld)
+    result: {
+      type: String,
+      trim: true,
     },
   },
   {
@@ -44,16 +85,9 @@ const commentSchema = new mongoose.Schema(
   },
 );
 
-commentSchema.index({ post: 1, parentComment: 1, createdAt: -1 });
-commentSchema.index({ post: 1 });
-commentSchema.index({ parentComment: 1 });
-commentSchema.index({ user: 1 });
-commentSchema.index({ mentions: 1 });
+appealSchema.index({ createdAt: -1 });
+appealSchema.index({ user: 1 });
 
-commentSchema.virtual("likesCount").get(function () {
-  return this.likes.length;
-});
+const Appeal = mongoose.model("Appeal", appealSchema);
 
-const Comment = mongoose.model("Comment", commentSchema);
-
-export default Comment;
+export default Appeal;

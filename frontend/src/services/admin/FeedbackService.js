@@ -20,3 +20,8 @@ export const getFeedbacks = async (
   });
   return res.data;
 };
+
+export const updateFeedbackStatus = async (id, status) => {
+  const res = await api.put(`/api/admin/feedback/${id}/status`, { status });
+  return res.data;
+};

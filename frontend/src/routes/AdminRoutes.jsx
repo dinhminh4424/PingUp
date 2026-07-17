@@ -22,6 +22,9 @@ const MessageManagement = lazy(
 const ReportPostManagement = lazy(
   () => import("../pages/admin/ReportPostManagement"),
 );
+const ReportCommentManagement = lazy(
+  () => import("../pages/admin/ReportCommentManagement"),
+);
 const AppealManagement = lazy(() => import("../pages/admin/AppealManagement"));
 const FeedbackManagement = lazy(
   () => import("../pages/admin/FeedbackManagement"),
@@ -52,6 +55,7 @@ const AdminRoutes = () => {
             <Route path="dashboard/messages" element={<MessageStats />} />
             <Route path="dashboard/reports" element={<ReportStats />} />
             <Route path="reports/posts" element={<ReportPostManagement />} />
+            <Route path="reports/comments" element={<ReportCommentManagement />} />
           </Route>
         </Route>
       </Routes>

@@ -6,4 +6,7 @@ const router = express.Router();
 // GET
 router.get("/", FeedbackController.getFeedbacks);
 
+// PUT
+router.put("/:id/status", FeedbackController.updateFeedbackStatus);
+
 export default router;

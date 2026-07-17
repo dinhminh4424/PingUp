@@ -49,6 +49,20 @@ class PostController {
     }
   }
 
+  async toggleCommentDisabled(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await PostService.toggleCommentDisabled(id);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi toggle comment disabled: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống: " + error.message,
+      });
+    }
+  }
+
   async getReportPost(req, res) {
     try {
       const result = await PostService.getReportPost();

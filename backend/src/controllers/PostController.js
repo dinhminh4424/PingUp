@@ -19,8 +19,9 @@ class PostController {
   async getPostsByIdUser(req, res) {
     try {
       const { userId } = req.params;
+      const currentUserId = req.user?._id;
 
-      const result = await PostService.getPostsByIdUser(userId);
+      const result = await PostService.getPostsByIdUser(userId, currentUserId);
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.log("Lỗi khi lấy danh sách getPostsByIdUser: ", error);

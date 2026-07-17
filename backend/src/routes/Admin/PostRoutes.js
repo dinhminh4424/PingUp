@@ -10,5 +10,6 @@ router.get("/reports", PostController.getReportPost);
 // PUT
 router.put("/:id/toggle-active", PostController.toggleActive);
 router.put("/:id/toggle-delete", PostController.toggleDelete);
+router.put("/:id/toggle-comment-disabled", PostController.toggleCommentDisabled);
 
 export default router;

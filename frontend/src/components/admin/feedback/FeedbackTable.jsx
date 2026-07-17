@@ -1,8 +1,8 @@
 import React from "react";
-import { Star, Eye, CheckCircle } from "lucide-react";
+import { Star, Eye, CheckCircle, Check } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 
-const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onMarkReviewed }) => {
+const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => {
   return (
     <div className="rounded-b-xl border-t overflow-hidden w-full">
       {loading ? (
@@ -99,10 +99,18 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onMarkReviewed }) => 
                       className={`px-2.5 py-0.5 rounded-full text-[10px] font-medium ${
                         fb.status === "New"
                           ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
-                          : "bg-muted text-muted-foreground"
+                          : fb.status === "Reviewed"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 font-semibold"
+                            : "bg-slate-500/10 text-slate-600 dark:text-slate-400"
                       }`}
                     >
-                      {fb.status === "New" ? "Mới" : "Đã xem"}
+                      {fb.status === "New"
+                        ? "Mới"
+                        : fb.status === "Reviewed"
+                          ? "Đã duyệt"
+                          : fb.status === "Archived"
+                            ? "Lưu trữ"
+                            : fb.status}
                     </span>
                   </TableCell>
                   <TableCell className="text-right pr-6" onClick={(e) => e.stopPropagation()}>
@@ -117,9 +125,19 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onMarkReviewed }) => 
                       </button>
                       {fb.status === "New" && (
                         <button
-                          onClick={() => onMarkReviewed(fb._id)}
+                          onClick={() => onUpdateStatus(fb._id, "Reviewed")}
                           className="p-1.5 hover:bg-indigo-500/15 rounded-lg text-indigo-600 dark:text-indigo-400 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
                           title="Đánh dấu đã xem"
+                        >
+                          <Check className="w-4 h-4" />
+                          <span>Xem</span>
+                        </button>
+                      )}
+                      {fb.status === "Reviewed" && (
+                        <button
+                          onClick={() => onUpdateStatus(fb._id, "Archived")}
+                          className="p-1.5 hover:bg-emerald-500/15 rounded-lg text-emerald-600 dark:text-emerald-450 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                          title="Đánh dấu đã duyệt"
                         >
                           <CheckCircle className="w-4 h-4" />
                           <span>Duyệt</span>
