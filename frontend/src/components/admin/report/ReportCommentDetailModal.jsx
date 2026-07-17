@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -21,73 +20,20 @@ import {
   XCircle,
   HelpCircle,
 } from "lucide-react";
-import { getCommentsByPost } from "../../../services/CommentServices";
-import { toggleCommentActive, toggleCommentDelete } from "../../../services/admin/CommentService";
 
-const ReportDetailModal = ({
+const ReportCommentDetailModal = ({
   isDetailOpen,
   selectedReport,
   setIsDetailOpen,
   actionLoading,
   handleUpdateStatus,
+  handleToggleCommentActive,
+  handleToggleCommentDelete,
   handleTogglePostActive,
   handleTogglePostDelete,
   handleToggleUserActive,
   handleTogglePostCommentDisabled,
 }) => {
-  const [comments, setComments] = useState([]);
-  const [loadingComments, setLoadingComments] = useState(false);
-
-  const fetchComments = async (postId) => {
-    try {
-      setLoadingComments(true);
-      const res = await getCommentsByPost(postId);
-      if (res.success) {
-        setComments(res.comments || []);
-      }
-    } catch (err) {
-      console.error("Lỗi lấy danh sách bình luận:", err);
-    } finally {
-      setLoadingComments(false);
-    }
-  };
-
-  useEffect(() => {
-    if (selectedReport && selectedReport.post && selectedReport.post._id) {
-      fetchComments(selectedReport.post._id);
-    } else {
-      setComments([]);
-    }
-  }, [selectedReport]);
-
-  const handleToggleCommentActiveLocal = async (commentId) => {
-    try {
-      const res = await toggleCommentActive(commentId);
-      if (res.success) {
-        toast.success(res.message);
-        if (selectedReport && selectedReport.post) {
-          fetchComments(selectedReport.post._id);
-        }
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi khóa bình luận!");
-    }
-  };
-
-  const handleToggleCommentDeleteLocal = async (commentId) => {
-    try {
-      const res = await toggleCommentDelete(commentId);
-      if (res.success) {
-        toast.success(res.message);
-        if (selectedReport && selectedReport.post) {
-          fetchComments(selectedReport.post._id);
-        }
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi xóa bình luận!");
-    }
-  };
-
   if (!selectedReport) return null;
 
   const getInitials = (name) => {
@@ -144,8 +90,8 @@ const ReportDetailModal = ({
     }
   };
 
-  const renderPostStatusBadge = (post) => {
-    if (!post) {
+  const renderCommentStatusBadge = (comment) => {
+    if (!comment) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-500/10 text-red-600 border border-red-500/20">
           Đã xóa hoàn toàn
@@ -153,15 +99,15 @@ const ReportDetailModal = ({
       );
     }
 
-    if (post.isDelete) {
+    if (comment.isDelete) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-          Đã xóa (Lưu trữ)
+          Đã ẩn/xóa
         </span>
       );
     }
 
-    if (!post.isActive) {
+    if (!comment.isActive) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
           Đang bị khóa
@@ -183,7 +129,7 @@ const ReportDetailModal = ({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-lg font-bold flex items-center gap-2">
-                Chi tiết Báo cáo
+                Chi tiết Báo cáo Bình luận
                 <span className="font-mono text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-md">
                   #{selectedReport._id.toUpperCase()}
                 </span>
@@ -201,11 +147,10 @@ const ReportDetailModal = ({
               display: none;
             }
           `}</style>
-
           {/* Left Column: Report Information */}
           <div className="p-6 flex flex-col gap-5">
             <h3 className="text-sm font-bold tracking-tight text-primary flex items-center gap-1.5 border-b pb-2">
-              <AlertTriangle className="size-4 animate-pulse text-amber-550" />
+              <AlertTriangle className="size-4" />
               NỘI DUNG BÁO CÁO
             </h3>
 
@@ -248,7 +193,7 @@ const ReportDetailModal = ({
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1">
                   Lý do báo cáo
                 </h4>
-                <p className="text-xs font-semibold text-foreground bg-amber-500/5 text-amber-800 dark:text-amber-300 px-3 py-2 rounded-md border border-amber-500/10">
+                <p className="text-sm font-semibold text-foreground bg-amber-500/5 text-amber-800 dark:text-amber-300 px-3 py-2 rounded-md border border-amber-500/10">
                   {selectedReport.reason}
                 </p>
               </div>
@@ -257,7 +202,7 @@ const ReportDetailModal = ({
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1 font-medium">
                   Chi tiết mô tả
                 </h4>
-                <p className="text-xs text-foreground/80 bg-muted/30 px-3 py-2 rounded-md border whitespace-pre-line leading-relaxed">
+                <p className="text-sm text-foreground/80 bg-muted/30 px-3 py-2 rounded-md border whitespace-pre-line leading-relaxed">
                   {selectedReport.details ||
                     "(Không có mô tả chi tiết từ người báo cáo)"}
                 </p>
@@ -350,258 +295,256 @@ const ReportDetailModal = ({
             </div>
           </div>
 
-          {/* Right Column: Reported Post Information */}
+          {/* Right Column: Reported Comment Information */}
           <div className="p-6 flex flex-col gap-5 bg-muted/10">
             <h3 className="text-sm font-bold tracking-tight text-primary flex items-center gap-1.5 border-b pb-2">
               <FileText className="size-4" />
-              BÀI VIẾT BÌ BÁO CÁO
+              BÌNH LUẬN BỊ BÁO CÁO
             </h3>
 
-            {selectedReport.post ? (
+            {selectedReport.comment ? (
               <>
-                {/* Post Author Card */}
+                {/* Comment Author Card */}
                 <div>
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-                    Người đăng bài
+                    Người viết bình luận
                   </h4>
                   <div className="flex items-center justify-between gap-3 p-3 bg-muted/40 rounded-lg border bg-background">
                     <div className="flex items-center gap-3 min-w-0">
                       <Avatar className="size-10 border border-border">
                         <AvatarImage
-                          src={selectedReport.post.user?.profile_picture}
+                          src={selectedReport.comment.user?.profile_picture}
                           className="object-cover"
                         />
                         <AvatarFallback className="bg-indigo-500/10 text-indigo-500 text-xs font-bold">
                           {getInitials(
-                            selectedReport.post.user?.full_name ||
-                              selectedReport.post.user?.username,
+                            selectedReport.comment.user?.full_name ||
+                              selectedReport.comment.user?.username,
                           )}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col min-w-0">
                         <span className="font-bold text-sm text-foreground truncate">
-                          {selectedReport.post.user?.full_name ||
+                          {selectedReport.comment.user?.full_name ||
                             "Chưa thiết lập"}
                         </span>
                         <span className="text-xs text-muted-foreground truncate">
-                          @{selectedReport.post.user?.username}
+                          @{selectedReport.comment.user?.username}
                         </span>
                         <span className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
                           <Mail className="size-3 shrink-0" />
-                          {selectedReport.post.user?.email}
+                          {selectedReport.comment.user?.email}
                         </span>
                       </div>
                     </div>
-                    {selectedReport.post.user && (
+                    {selectedReport.comment.user && (
                       <Button
                         size="xs"
-                        variant={selectedReport.post.user.isActive !== false ? "outline" : "default"}
+                        variant={selectedReport.comment.user.isActive !== false ? "outline" : "default"}
                         className={`h-7 px-2 text-[10px] font-semibold cursor-pointer shrink-0 ${
-                          selectedReport.post.user.isActive !== false
+                          selectedReport.comment.user.isActive !== false
                             ? "text-rose-600 border-rose-200 hover:bg-rose-50"
                             : "bg-emerald-600 hover:bg-emerald-700 text-white"
                         }`}
-                        onClick={() => handleToggleUserActive(selectedReport.post.user)}
+                        onClick={() => handleToggleUserActive(selectedReport.comment.user)}
                         disabled={actionLoading}
                       >
                         <Ban className="size-3 mr-1" />
-                        {selectedReport.post.user.isActive !== false ? "Khóa user" : "Mở user"}
+                        {selectedReport.comment.user.isActive !== false ? "Khóa user" : "Mở user"}
                       </Button>
                     )}
                   </div>
                 </div>
 
-                {/* Post Details & Content */}
+                {/* Parent Post Preview */}
+                {selectedReport.comment.post && (
+                  <div>
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                      Bài viết gốc chứa bình luận này
+                    </h4>
+                    <div className="p-3 bg-muted/20 rounded-lg border text-xs leading-relaxed flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-foreground">
+                          Người đăng: @{selectedReport.comment.post.user?.username || "Ẩn danh"}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {selectedReport.comment.post.isActive !== false ? (
+                            <span className="text-emerald-600 font-semibold">Bài viết đang hoạt động</span>
+                          ) : (
+                            <span className="text-rose-600 font-semibold">Bài viết đã bị khóa</span>
+                          )}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground line-clamp-3 bg-background p-2 rounded border border-dashed">
+                        {selectedReport.comment.post.content || <span className="italic">(Không có nội dung chữ)</span>}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Comment Details & Content */}
                 <div className="flex flex-col gap-3">
-                  <div className="flex justify-between items-center bg-muted/50 p-2.5 rounded-lg border bg-background">
+                  <div className="flex justify-between items-center bg-muted/50 p-2.5 rounded-lg border">
                     <span className="text-xs font-semibold text-muted-foreground">
-                      Trạng thái bài viết:
+                      Trạng thái bình luận:
                     </span>
-                    <div>{renderPostStatusBadge(selectedReport.post)}</div>
+                    <div>{renderCommentStatusBadge(selectedReport.comment)}</div>
                   </div>
 
                   <div className="p-4 bg-background rounded-lg border leading-relaxed shadow-2xs">
                     <p className="text-xs text-muted-foreground font-semibold mb-2 flex items-center gap-1">
                       <Clock className="size-3" />
-                      Đăng ngày {formatDate(selectedReport.post.createdAt)}
+                      Viết ngày {formatDate(selectedReport.comment.createdAt)}
                     </p>
-                    <p className="text-xs text-foreground whitespace-pre-line break-words leading-relaxed font-medium">
-                      {selectedReport.post.content || (
+                    <p className="text-sm text-foreground whitespace-pre-line break-words">
+                      {selectedReport.comment.content || (
                         <span className="italic text-muted-foreground">
                           (Không có nội dung văn bản)
                         </span>
                       )}
                     </p>
 
-                    {/* Post Media Grid */}
-                    {selectedReport.post.image_urls &&
-                      selectedReport.post.image_urls.length > 0 && (
-                        <div className="grid grid-cols-2 gap-2 mt-3.5 border-t pt-3 border-dashed">
-                          {selectedReport.post.image_urls.map((imgUrl, i) => (
-                            <img
-                              key={i}
-                              src={imgUrl}
-                              alt={`Ảnh bài viết ${i + 1}`}
-                              className="w-full aspect-square object-cover rounded-lg border shadow-3xs"
-                            />
-                          ))}
-                        </div>
-                      )}
+                    {/* Comment Media image */}
+                    {selectedReport.comment.image_urls && (
+                      <div className="mt-3.5 border-t pt-3 border-dashed">
+                        <img
+                          src={selectedReport.comment.image_urls}
+                          alt="Ảnh đính kèm bình luận"
+                          className="max-h-48 object-contain rounded-lg border shadow-3xs"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Comments List Section */}
-                <div className="border-t border-dashed pt-4 mt-1 flex flex-col gap-2">
-                  <h4 className="text-xs font-semibold text-muted-foreground uppercase">
-                    Bình luận của bài viết ({comments.length})
-                  </h4>
-                  {loadingComments ? (
-                    <div className="flex items-center justify-center py-4 text-xs text-muted-foreground gap-2">
-                      <span className="w-4 h-4 border-2 border-t-primary border-muted rounded-full animate-spin" />
-                      <span>Đang tải bình luận...</span>
-                    </div>
-                  ) : comments.length === 0 ? (
-                    <p className="text-xs italic text-muted-foreground py-2 text-center">
-                      Bài viết chưa có bình luận nào.
-                    </p>
-                  ) : (
-                    <div className="max-h-60 overflow-y-auto space-y-2.5 pr-1 no-scrollbar border rounded-lg p-2.5 bg-background">
-                      {comments.map((comment) => (
-                        <div key={comment._id} className="text-xs border-b pb-2 last:border-0 last:pb-0">
-                          <div className="flex items-center justify-between gap-2 mb-1">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span className="font-bold text-foreground truncate max-w-[100px]">
-                                {comment.user?.full_name || comment.user?.username}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground">
-                                @{comment.user?.username}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                              {/* Toggle Lock Comment */}
-                              <button
-                                onClick={() => handleToggleCommentActiveLocal(comment._id)}
-                                className={`p-1 rounded hover:bg-muted transition cursor-pointer ${
-                                  comment.isActive !== false
-                                    ? "text-rose-600 hover:text-rose-700"
-                                    : "text-emerald-600 hover:text-emerald-700"
-                                }`}
-                                title={comment.isActive !== false ? "Khóa bình luận" : "Mở khóa bình luận"}
-                              >
-                                <Ban className="size-3" />
-                              </button>
-                              {/* Toggle Delete Comment */}
-                              <button
-                                onClick={() => handleToggleCommentDeleteLocal(comment._id)}
-                                className={`p-1 rounded hover:bg-muted transition cursor-pointer ${
-                                  !comment.isDelete
-                                    ? "text-red-500 hover:text-red-650"
-                                    : "text-emerald-500 hover:text-emerald-600"
-                                }`}
-                                title={!comment.isDelete ? "Xóa bình luận" : "Khôi phục bình luận"}
-                              >
-                                <Trash2 className="size-3" />
-                              </button>
-                            </div>
-                          </div>
-                          <p className="text-muted-foreground break-words leading-normal bg-muted/20 p-1.5 rounded border border-dashed">
-                            {comment.content}
-                            {comment.isActive === false && (
-                              <span className="ml-1.5 text-[9px] font-bold text-rose-650 bg-rose-50 px-1 py-0.5 rounded border border-rose-100/50 uppercase select-none">
-                                Đã khóa
-                              </span>
-                            )}
-                            {comment.isDelete && (
-                              <span className="ml-1.5 text-[9px] font-bold text-red-600 bg-red-50 px-1 py-0.5 rounded border border-red-100/50 uppercase select-none">
-                                Đã xóa
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
                 {/* Quick moderation buttons */}
-                <div className="pt-4 border-t border-dashed mt-2">
+                <div className="pt-4 border-t border-dashed mt-4">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-                    Hành động kiểm duyệt bài viết
+                    Hành động kiểm duyệt bình luận
                   </h4>
                   <div className="flex flex-col sm:flex-row gap-2">
                     {/* Toggle Lock */}
                     <Button
                       size="sm"
                       variant={
-                        selectedReport.post.isActive ? "outline" : "default"
+                        selectedReport.comment.isActive ? "outline" : "default"
                       }
                       onClick={() =>
-                        handleTogglePostActive(selectedReport.post)
+                        handleToggleCommentActive(selectedReport.comment)
                       }
                       disabled={actionLoading}
                       className="flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer"
                     >
                       <Ban className="size-3.5" />
-                      {selectedReport.post.isActive
-                        ? "Khóa bài viết"
-                        : "Mở khóa bài viết"}
+                      {selectedReport.comment.isActive
+                        ? "Khóa bình luận"
+                        : "Mở khóa bình luận"}
                     </Button>
 
                     {/* Toggle Soft Delete */}
                     <Button
                       size="sm"
                       variant={
-                        selectedReport.post.isDelete ? "default" : "outline"
+                        selectedReport.comment.isDelete ? "default" : "outline"
                       }
                       onClick={() =>
-                        handleTogglePostDelete(selectedReport.post)
+                        handleToggleCommentDelete(selectedReport.comment)
                       }
                       disabled={actionLoading}
                       className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
-                        !selectedReport.post.isDelete
+                        !selectedReport.comment.isDelete
                           ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-950/20"
                           : "bg-emerald-600 hover:bg-emerald-700 text-white"
                       }`}
                     >
                       <Trash2 className="size-3.5" />
-                      {selectedReport.post.isDelete
-                        ? "Khôi phục bài viết"
-                        : "Xóa bài viết"}
-                    </Button>
-
-                    {/* Toggle Comments Disabled */}
-                    <Button
-                      size="sm"
-                      variant={
-                        selectedReport.post.isCommentDisabled ? "default" : "outline"
-                      }
-                      onClick={() =>
-                        handleTogglePostCommentDisabled(selectedReport.post._id)
-                      }
-                      disabled={actionLoading}
-                      className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
-                        !selectedReport.post.isCommentDisabled
-                          ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-950/20"
-                          : "bg-amber-600 hover:bg-amber-700 text-white"
-                      }`}
-                    >
-                      <XCircle className="size-3.5" />
-                      {selectedReport.post.isCommentDisabled
-                        ? "Mở bình luận"
-                        : "Khóa bình luận"}
+                      {selectedReport.comment.isDelete
+                        ? "Khôi phục bình luận"
+                        : "Xóa bình luận"}
                     </Button>
                   </div>
                 </div>
+
+                {/* Parent Post Moderation Section */}
+                {selectedReport.comment.post && (
+                  <div className="pt-4 border-t border-dashed mt-4">
+                    <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                      Hành động kiểm duyệt bài viết gốc
+                    </h4>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      {/* Toggle Lock Post */}
+                      <Button
+                        size="sm"
+                        variant={
+                          selectedReport.comment.post.isActive !== false ? "outline" : "default"
+                        }
+                        onClick={() =>
+                          handleTogglePostActive(selectedReport.comment.post._id || selectedReport.comment.post)
+                        }
+                        disabled={actionLoading}
+                        className="flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer"
+                      >
+                        <Ban className="size-3.5" />
+                        {selectedReport.comment.post.isActive !== false
+                          ? "Khóa bài viết gốc"
+                          : "Mở khóa bài viết gốc"}
+                      </Button>
+
+                      {/* Toggle Delete Post */}
+                      <Button
+                        size="sm"
+                        variant={
+                          selectedReport.comment.post.isDelete ? "default" : "outline"
+                        }
+                        onClick={() =>
+                          handleTogglePostDelete(selectedReport.comment.post._id || selectedReport.comment.post)
+                        }
+                        disabled={actionLoading}
+                        className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
+                          !selectedReport.comment.post.isDelete
+                            ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        }`}
+                      >
+                        <Trash2 className="size-3.5" />
+                        {selectedReport.comment.post.isDelete
+                          ? "Khôi phục bài viết gốc"
+                          : "Xóa bài viết gốc"}
+                      </Button>
+
+                      {/* Toggle Comments Disabled */}
+                      <Button
+                        size="sm"
+                        variant={
+                          selectedReport.comment.post.isCommentDisabled ? "default" : "outline"
+                        }
+                        onClick={() =>
+                          handleTogglePostCommentDisabled(selectedReport.comment.post._id || selectedReport.comment.post)
+                        }
+                        disabled={actionLoading}
+                        className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
+                          !selectedReport.comment.post.isCommentDisabled
+                            ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-950/20"
+                            : "bg-amber-600 hover:bg-amber-700 text-white"
+                        }`}
+                      >
+                        <XCircle className="size-3.5" />
+                        {selectedReport.comment.post.isCommentDisabled
+                          ? "Mở bình luận"
+                          : "Khóa bình luận"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center p-8 bg-amber-500/5 rounded-lg border border-amber-500/20 text-center my-auto bg-background">
+              <div className="flex flex-col items-center justify-center p-8 bg-amber-500/5 rounded-lg border border-amber-500/20 text-center my-auto">
                 <AlertTriangle className="size-8 text-amber-500 mb-2" />
                 <p className="text-sm font-semibold text-amber-800 dark:text-amber-400">
-                  Bài viết gốc không tồn tại
+                  Bình luận gốc không tồn tại
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-[250px]">
-                  Bài viết bị báo cáo này đã được xóa hoàn toàn khỏi hệ thống
-                  database.
+                  Bình luận bị báo cáo này đã được xóa hoàn toàn khỏi hệ thống database.
                 </p>
               </div>
             )}
@@ -622,4 +565,4 @@ const ReportDetailModal = ({
   );
 };
 
-export default ReportDetailModal;
+export default ReportCommentDetailModal;

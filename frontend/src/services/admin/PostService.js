@@ -23,6 +23,11 @@ export const togglePostDelete = async (postId) => {
   return res.data;
 };
 
+export const togglePostCommentDisabled = async (postId) => {
+  const res = await api.put(`/api/admin/post/${postId}/toggle-comment-disabled`);
+  return res.data;
+};
+
 export const getPostReports = async () => {
   const res = await api.get(`/api/admin/post/reports`);
   return res.data;

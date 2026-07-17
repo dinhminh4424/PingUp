@@ -75,13 +75,20 @@ class PostService {
     }
   }
 
-  async getPostsByIdUser(id) {
+  async getPostsByIdUser(id, currentUserId) {
     try {
-      const posts = await Post.find({
-        isActive: true,
+      const isOwnProfile = currentUserId && currentUserId.toString() === id.toString();
+      
+      const query = {
         isDelete: false,
         user: id,
-      })
+      };
+
+      if (!isOwnProfile) {
+        query.isActive = true;
+      }
+
+      const posts = await Post.find(query)
         .populate(
           "user",
           "_id email username full_name bio profile_picture cover_photo location ",

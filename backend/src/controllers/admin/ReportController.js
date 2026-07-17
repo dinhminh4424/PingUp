@@ -23,6 +23,28 @@ class ReportController {
     }
   }
 
+  async getReportComment(req, res) {
+    try {
+      const { searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter, reporterFilter } = req.query;
+      const result = await ReportService.getReportComments(
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page,
+        reasonFilter,
+        reporterFilter
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy report comment: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy report comment: " + error.message,
+      });
+    }
+  }
+
   async updateReportStatus(req, res) {
     try {
       const { id } = req.params;

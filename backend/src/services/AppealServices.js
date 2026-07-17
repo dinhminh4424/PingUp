@@ -86,6 +86,25 @@ class AppealServices {
       };
     }
   }
+
+  async getAppealsByUser(userId) {
+    try {
+      const appeals = await Appeal.find({ user: userId }).sort({ createdAt: -1 });
+      return {
+        status: 200,
+        data: {
+          success: true,
+          appeals: appeals,
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách kháng cáo: ", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
 }
 
 export default new AppealServices();
