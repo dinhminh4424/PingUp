@@ -74,6 +74,11 @@ const appealSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // Kết quả giải quyết (ví dụ: Approved (Restored) hoặc Decision Upheld)
+    result: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,

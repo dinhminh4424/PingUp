@@ -32,6 +32,20 @@ class AppealController {
       });
     }
   }
+
+  async getMyAppeals(req, res) {
+    try {
+      const userId = req.user._id;
+      const result = await AppealServices.getAppealsByUser(userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách kháng cáo: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi hệ thống: " + error.message,
+      });
+    }
+  }
 }
 
 export default new AppealController();

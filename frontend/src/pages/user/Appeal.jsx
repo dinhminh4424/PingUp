@@ -8,7 +8,9 @@ import {
   Paperclip,
   X,
 } from "lucide-react";
-import { createAppeal } from "../../services/AppealServices";
+import { createAppeal, getAppeal } from "../../services/AppealServices";
+import { useEffect } from "react";
+import AppealDetailModal from "../../components/appeal/AppealDetailModal";
 
 const Appeal = () => {
   const [appealType, setAppealType] = useState("Post Removal Appeal");
@@ -39,23 +41,23 @@ const Appeal = () => {
     setMediaFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Mock list of past appeals to make the page feel rich & authentic
-  const [pastAppeals] = useState([
-    {
-      id: "APL-7294",
-      date: "2026-07-10",
-      type: "Post Removal Appeal",
-      status: "Resolved",
-      result: "Approved (Post restored)",
-    },
-    {
-      id: "APL-1048",
-      date: "2026-06-15",
-      type: "Account Feature Restriction",
-      status: "Rejected",
-      result: "Decision Upheld",
-    },
-  ]);
+  const [pastAppeals, setPastAppeals] = useState([]);
+  const [viewingAppeal, setViewingAppeal] = useState(null);
+
+  const fetchPastAppeals = async () => {
+    try {
+      const res = await getAppeal();
+      if (res.success) {
+        setPastAppeals(res.appeals || []);
+      }
+    } catch (err) {
+      console.error("Lỗi khi tải lịch sử kháng nghị:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPastAppeals();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,6 +80,7 @@ const Appeal = () => {
       const result = await createAppeal(formData);
       if (result.success) {
         setSubmitted(true);
+        fetchPastAppeals();
       } else {
         setError(result.message || "Failed to submit appeal.");
       }
@@ -85,7 +88,7 @@ const Appeal = () => {
       console.error("Lỗi gửi appeal: ", err);
       setError(
         err.response?.data?.message ||
-          "Something went wrong. Please try again.",
+        "Something went wrong. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -328,28 +331,38 @@ const Appeal = () => {
             <div className="flex flex-col gap-3">
               {pastAppeals.map((appeal) => (
                 <div
-                  key={appeal.id}
-                  className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-1 text-xs"
+                  key={appeal._id}
+                  onClick={() => setViewingAppeal(appeal)}
+                  className="p-3.5 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-100/70 hover:border-slate-200 cursor-pointer flex flex-col gap-1 text-xs transition active:scale-[0.98] duration-150"
                 >
                   <div className="flex justify-between items-center">
                     <span className="font-semibold text-gray-800">
-                      {appeal.id}
+                      #{appeal._id.slice(-6).toUpperCase()}
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                        appeal.status === "Resolved"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-rose-50 text-rose-700"
-                      }`}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${appeal.status === "Pending"
+                          ? "bg-amber-50 text-amber-700"
+                          : appeal.status === "Resolved"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-rose-50 text-rose-700"
+                        }`}
                     >
-                      {appeal.status}
+                      {appeal.status === "Pending"
+                        ? "Pending"
+                        : appeal.status === "Resolved"
+                          ? "Approved"
+                          : "Rejected"}
                     </span>
                   </div>
-                  <span className="text-gray-500">{appeal.type}</span>
-                  <span className="text-gray-400 mt-1">{appeal.date}</span>
+                  <span className="text-gray-500">{appeal.appealType}</span>
+                  <span className="text-gray-400 mt-1">
+                    {new Date(appeal.createdAt).toLocaleDateString("vi-VN")}
+                  </span>
                   {appeal.result && (
                     <div className="mt-2 text-slate-700 font-medium bg-white p-2 rounded-lg border border-slate-100/60">
-                      Result: {appeal.result}
+                      Result: {appeal.result === "Approved (Restored)"
+                        ? "Approved (Restored)"
+                        : "Decision Upheld"}
                     </div>
                   )}
                 </div>
@@ -357,6 +370,12 @@ const Appeal = () => {
             </div>
           </div>
         </div>
+
+        {/* Appeal Details Modal */}
+        <AppealDetailModal
+          appeal={viewingAppeal}
+          onClose={() => setViewingAppeal(null)}
+        />
       </div>
     </div>
   );

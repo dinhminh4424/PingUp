@@ -6,6 +6,7 @@ import messageRoutes from "./MessageRoutes.js";
 import statsRoutes from "./StatsRoutes.js";
 import reportRoutes from "./ReportRoutes.js";
 import feedbackRoutes from "./FeedbackRoutes.js";
+import appealRoutes from "./AppealRoutes.js";
 
 import { isAdmin } from "../../middlewares/AuthMiddleware.js";
 
@@ -19,5 +20,6 @@ router.use("/message", messageRoutes);
 router.use("/stats", statsRoutes);
 router.use("/report", reportRoutes);
 router.use("/feedback", feedbackRoutes);
+router.use("/appeal", appealRoutes);
 
 export default router;
