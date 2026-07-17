@@ -38,6 +38,7 @@ const postSchema = new mongoose.Schema(
     ],
     isDelete: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
+    isCommentDisabled: { type: Boolean, default: false },
   },
   {
     timestamps: true,

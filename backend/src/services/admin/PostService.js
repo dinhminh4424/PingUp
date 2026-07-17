@@ -154,6 +154,36 @@ class PostService {
     }
   }
 
+  // Toggle comments disabled status for a post
+  async toggleCommentDisabled(id) {
+    try {
+      const post = await Post.findById(id);
+      if (!post) {
+        return {
+          status: 404,
+          data: { success: false, message: "Không tìm thấy bài viết" },
+        };
+      }
+      post.isCommentDisabled = !post.isCommentDisabled;
+      await post.save();
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: `Đã ${post.isCommentDisabled ? "khóa" : "mở khóa"} tính năng bình luận của bài viết thành công`,
+          post,
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi hệ thống thay đổi trạng thái tính năng bình luận: ", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
+
   // Toggle delete status (soft delete / restore post)
   async toggleDelete(id) {
     try {

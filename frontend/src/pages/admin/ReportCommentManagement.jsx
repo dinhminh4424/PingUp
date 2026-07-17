@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getReportPost, updateReportStatus } from "../../services/admin/ReportService";
+import { getReportComment, updateReportStatus } from "../../services/admin/ReportService";
+import { toggleCommentActive, toggleCommentDelete } from "../../services/admin/CommentService";
 import { togglePostActive, togglePostDelete, togglePostCommentDisabled } from "../../services/admin/PostService";
 import { toggleUserActive } from "../../services/admin/UserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,23 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import DateRangeFilter from "@/components/admin/DateRangeFilter";
-import ReportDetailModal from "@/components/admin/report/ReportDetailModal";
+import ReportCommentDetailModal from "@/components/admin/report/ReportCommentDetailModal";
 import {
   Search,
-  RefreshCw,
   Eye,
   Ban,
   Check,
-  Mail,
   Calendar,
   FileText,
   AlertTriangle,
@@ -44,12 +35,11 @@ import {
   ShieldCheck,
   HelpCircle,
   Clock,
-  UserCheck,
   XCircle,
 } from "lucide-react";
 
-const ReportPostManagement = () => {
-  const [reportPost, setReportPost] = useState([]);
+const ReportCommentManagement = () => {
+  const [reportComment, setReportComment] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -129,7 +119,7 @@ const ReportPostManagement = () => {
       setLoading(true);
       setError("");
 
-      const result = await getReportPost(
+      const result = await getReportComment(
         query,
         status,
         start,
@@ -140,7 +130,7 @@ const ReportPostManagement = () => {
       );
 
       if (result.success) {
-        setReportPost(result.reportPosts);
+        setReportComment(result.reportComments);
         setPagination(result.pagination);
         setCurrentPage(result.pagination.currentPage);
         if (result.stats) {
@@ -154,7 +144,7 @@ const ReportPostManagement = () => {
           "Không thể tải danh sách báo cáo",
       );
       toast.error(
-        error.response?.data?.message || "Lỗi tải dữ liệu báo cáo bài viết!",
+        error.response?.data?.message || "Lỗi tải dữ liệu báo cáo bình luận!",
       );
       console.error("Lỗi: ", error);
     } finally {
@@ -208,6 +198,64 @@ const ReportPostManagement = () => {
     }
   };
 
+  const handleToggleCommentActive = async (comment) => {
+    if (!comment) return;
+    try {
+      setActionLoading(true);
+      const result = await toggleCommentActive(comment._id);
+      if (result.success) {
+        toast.success(result.message);
+        
+        // Refresh details modal state if active
+        if (selectedReport && selectedReport.comment && selectedReport.comment._id === comment._id) {
+          setSelectedReport((prev) => ({
+            ...prev,
+            comment: {
+              ...prev.comment,
+              isActive: !prev.comment.isActive,
+            },
+          }));
+        }
+
+        // Refresh list
+        fetchReports(currentPage);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái bình luận!");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleToggleCommentDelete = async (comment) => {
+    if (!comment) return;
+    try {
+      setActionLoading(true);
+      const result = await toggleCommentDelete(comment._id);
+      if (result.success) {
+        toast.success(result.message);
+
+        // Refresh details modal state if active
+        if (selectedReport && selectedReport.comment && selectedReport.comment._id === comment._id) {
+          setSelectedReport((prev) => ({
+            ...prev,
+            comment: {
+              ...prev.comment,
+              isDelete: !prev.comment.isDelete,
+            },
+          }));
+        }
+
+        // Refresh list
+        fetchReports(currentPage);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bình luận!");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleTogglePostCommentDisabled = async (postId) => {
     if (!postId) return;
     try {
@@ -215,14 +263,16 @@ const ReportPostManagement = () => {
       const result = await togglePostCommentDisabled(postId);
       if (result.success) {
         toast.success(result.message);
-
-        // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post._id === postId) {
+        
+        if (selectedReport && selectedReport.comment && selectedReport.comment.post && (selectedReport.comment.post._id === postId || selectedReport.comment.post === postId)) {
           setSelectedReport((prev) => ({
             ...prev,
-            post: {
-              ...prev.post,
-              isCommentDisabled: !prev.post.isCommentDisabled,
+            comment: {
+              ...prev.comment,
+              post: {
+                ...prev.comment.post,
+                isCommentDisabled: !prev.comment.post.isCommentDisabled,
+              },
             },
           }));
         }
@@ -237,21 +287,24 @@ const ReportPostManagement = () => {
     }
   };
 
-  const handleTogglePostActive = async (post) => {
-    if (!post) return;
+  const handleTogglePostActive = async (postId) => {
+    if (!postId) return;
     try {
       setActionLoading(true);
-      const result = await togglePostActive(post._id);
+      const result = await togglePostActive(postId);
       if (result.success) {
         toast.success(result.message);
         
-        // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post._id === post._id) {
+        // Refresh details modal state if active and matching
+        if (selectedReport && selectedReport.comment && selectedReport.comment.post && (selectedReport.comment.post._id === postId || selectedReport.comment.post === postId)) {
           setSelectedReport((prev) => ({
             ...prev,
-            post: {
-              ...prev.post,
-              isActive: !prev.post.isActive,
+            comment: {
+              ...prev.comment,
+              post: {
+                ...prev.comment.post,
+                isActive: !prev.comment.post.isActive,
+              },
             },
           }));
         }
@@ -266,6 +319,37 @@ const ReportPostManagement = () => {
     }
   };
 
+  const handleTogglePostDelete = async (postId) => {
+    if (!postId) return;
+    try {
+      setActionLoading(true);
+      const result = await togglePostDelete(postId);
+      if (result.success) {
+        toast.success(result.message);
+        
+        if (selectedReport && selectedReport.comment && selectedReport.comment.post && (selectedReport.comment.post._id === postId || selectedReport.comment.post === postId)) {
+          setSelectedReport((prev) => ({
+            ...prev,
+            comment: {
+              ...prev.comment,
+              post: {
+                ...prev.comment.post,
+                isDelete: !prev.comment.post.isDelete,
+              },
+            },
+          }));
+        }
+
+        // Refresh list
+        fetchReports(currentPage);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bài viết!");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleToggleUserActive = async (user) => {
     if (!user) return;
     try {
@@ -274,15 +358,14 @@ const ReportPostManagement = () => {
       if (result.success) {
         toast.success(result.message);
         
-        // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post.user && selectedReport.post.user._id === user._id) {
+        if (selectedReport && selectedReport.comment && selectedReport.comment.user && selectedReport.comment.user._id === user._id) {
           setSelectedReport((prev) => ({
             ...prev,
-            post: {
-              ...prev.post,
+            comment: {
+              ...prev.comment,
               user: {
-                ...prev.post.user,
-                isActive: !prev.post.user.isActive,
+                ...prev.comment.user,
+                isActive: !prev.comment.user.isActive,
               },
             },
           }));
@@ -293,35 +376,6 @@ const ReportPostManagement = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái tài khoản!");
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleTogglePostDelete = async (post) => {
-    if (!post) return;
-    try {
-      setActionLoading(true);
-      const result = await togglePostDelete(post._id);
-      if (result.success) {
-        toast.success(result.message);
-
-        // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post._id === post._id) {
-          setSelectedReport((prev) => ({
-            ...prev,
-            post: {
-              ...prev.post,
-              isDelete: !prev.post.isDelete,
-            },
-          }));
-        }
-
-        // Refresh list
-        fetchReports(currentPage);
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bài viết!");
     } finally {
       setActionLoading(false);
     }
@@ -371,34 +425,33 @@ const ReportPostManagement = () => {
     }
   };
 
-  // Post Status Badge
-  const renderPostStatusBadge = (post) => {
-    if (!post) {
+  const renderCommentStatusBadge = (comment) => {
+    if (!comment) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-500/10 text-red-600 border border-red-500/20">
-          Đã xóa hoàn toàn
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-red-500/10 text-red-600 border border-red-500/25">
+          Đã xóa
         </span>
       );
     }
 
-    if (post.isDelete) {
+    if (comment.isDelete) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
-          Đã xóa (Lưu trữ)
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25">
+          Đã ẩn/xóa
         </span>
       );
     }
 
-    if (!post.isActive) {
+    if (!comment.isActive) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-          Đang bị khóa
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25">
+          Bị khóa
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25">
         Hoạt động
       </span>
     );
@@ -406,112 +459,110 @@ const ReportPostManagement = () => {
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
-      
       {/* Title Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Quản lý báo cáo bài viết
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <AlertTriangle className="w-6 h-6 text-amber-600" />
+            Quản lý báo cáo bình luận
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Theo dõi danh sách báo cáo, kiểm duyệt bài viết và áp dụng các biện pháp xử lý.
+            Xem xét và xử lý các báo cáo về nội dung bình luận vi phạm tiêu chuẩn cộng đồng.
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchReports(currentPage)}
-          disabled={loading}
-          className="gap-2"
-        >
-          <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
-          Tải lại dữ liệu
-        </Button>
       </div>
 
-      {/* Stats Cards Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border border-border/80 shadow-xs">
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Stats */}
+        <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium">Tổng báo cáo</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats.total}</h3>
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground font-medium">Tổng báo cáo</span>
+              <span className="text-2xl font-bold mt-1">{stats.total}</span>
             </div>
-            <div className="size-10 bg-primary/5 rounded-lg flex items-center justify-center text-primary">
+            <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
               <FileText className="size-5" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-border/80 shadow-xs">
+        {/* Pending Stats */}
+        <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium">Chờ xử lý</p>
-              <h3 className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-500">{stats.pending}</h3>
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground font-medium">Chờ xử lý</span>
+              <span className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-500">
+                {stats.pending}
+              </span>
             </div>
-            <div className="size-10 bg-amber-500/5 rounded-lg flex items-center justify-center text-amber-500">
+            <div className="size-10 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-600">
               <Clock className="size-5" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-border/80 shadow-xs">
+        {/* Resolved Stats */}
+        <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium">Đã giải quyết</p>
-              <h3 className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-500">{stats.resolved}</h3>
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground font-medium">Đã giải quyết</span>
+              <span className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-500">
+                {stats.resolved}
+              </span>
             </div>
-            <div className="size-10 bg-emerald-500/5 rounded-lg flex items-center justify-center text-emerald-500">
-              <UserCheck className="size-5" />
+            <div className="size-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-600">
+              <ShieldCheck className="size-5" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-border/80 shadow-xs">
+        {/* Dismissed Stats */}
+        <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground font-medium">Đã bác bỏ</p>
-              <h3 className="text-2xl font-bold mt-1 text-slate-600 dark:text-slate-400">{stats.dismissed}</h3>
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground font-medium">Đã bác bỏ</span>
+              <span className="text-2xl font-bold mt-1 text-slate-500">
+                {stats.dismissed}
+              </span>
             </div>
-            <div className="size-10 bg-slate-500/5 rounded-lg flex items-center justify-center text-slate-500">
+            <div className="size-10 bg-slate-500/10 rounded-lg flex items-center justify-center text-slate-550">
               <XCircle className="size-5" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filter and Query Section */}
-      <Card className="border-border">
-        <CardContent className="p-4">
+      {/* Filter Card */}
+      <Card className="shadow-xs border-border">
+        <CardContent className="p-5">
           <div className="flex flex-col gap-4">
-            
-            <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3">
-              {/* Row 1: Search & Reporter Filter */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Tìm theo ID Báo cáo, nội dung bài viết..."
-                    className="pl-9 text-xs"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Lọc theo người báo cáo (tên/username)..."
-                    className="pl-9 text-xs"
-                    value={reporterFilter}
-                    onChange={(e) => setReporterFilter(e.target.value)}
-                  />
-                </div>
-
-                <Button type="submit" variant="default" className="w-full md:w-auto h-9 text-xs px-6">
-                  Tìm kiếm
-                </Button>
+            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
+              {/* Search query */}
+              <div className="relative md:col-span-6">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Tìm theo Mã BC, Mã Bình luận, Từ khóa nội dung, Lý do..."
+                  className="pl-9 text-xs"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
+
+              {/* Reporter filter */}
+              <div className="relative md:col-span-4">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Lọc theo người báo cáo (tên/username)..."
+                  className="pl-9 text-xs"
+                  value={reporterFilter}
+                  onChange={(e) => setReporterFilter(e.target.value)}
+                />
+              </div>
+
+              <Button type="submit" variant="default" className="md:col-span-2 h-9 text-xs px-6 cursor-pointer">
+                Tìm kiếm
+              </Button>
             </form>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3 border-dashed">
@@ -555,14 +606,13 @@ const ReportPostManagement = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleClearFilters}
-                  className="text-xs h-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 gap-1.5"
+                  className="text-xs h-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="size-3" />
                   Xóa bộ lọc
                 </Button>
               )}
             </div>
-
           </div>
         </CardContent>
       </Card>
@@ -573,7 +623,7 @@ const ReportPostManagement = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Danh sách báo cáo</CardTitle>
             <span className="text-xs text-muted-foreground">
-              Hiển thị {reportPost.length} kết quả trên trang này
+              Hiển thị {reportComment.length} kết quả trên trang này
             </span>
           </div>
         </CardHeader>
@@ -585,18 +635,17 @@ const ReportPostManagement = () => {
                 <TableRow className="bg-muted/30">
                   <TableHead className="w-[80px] pl-4 py-3">Mã báo cáo</TableHead>
                   <TableHead className="w-[125px]">Người báo cáo</TableHead>
-                  <TableHead className="w-[145px]">Bài viết bị báo cáo</TableHead>
+                  <TableHead className="w-[185px]">Bình luận bị báo cáo</TableHead>
                   <TableHead className="w-[135px]">Lý do báo cáo</TableHead>
                   <TableHead className="w-[110px]">Ngày báo cáo</TableHead>
                   <TableHead className="w-[95px]">Trạng thái BC</TableHead>
-                  <TableHead className="w-[95px]">Trạng thái BV</TableHead>
+                  <TableHead className="w-[95px]">Trạng thái BL</TableHead>
                   <TableHead className="w-[55px] text-center pr-4">Chi tiết</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {loading ? (
-                  // Skeleton rows when loading
                   Array.from({ length: 5 }).map((_, idx) => (
                     <TableRow key={idx}>
                       <TableCell className="pl-4 py-4">
@@ -637,7 +686,7 @@ const ReportPostManagement = () => {
                       </TableCell>
                     </TableRow>
                   ))
-                ) : reportPost.length === 0 ? (
+                ) : reportComment.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={8}
@@ -655,7 +704,7 @@ const ReportPostManagement = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  reportPost.map((report) => (
+                  reportComment.map((report) => (
                     <TableRow
                       key={report._id}
                       className="hover:bg-muted/10 transition-colors"
@@ -689,12 +738,12 @@ const ReportPostManagement = () => {
                         </div>
                       </TableCell>
 
-                      {/* Targeted Post */}
+                      {/* Targeted Comment */}
                       <TableCell>
-                        <div className="flex items-center gap-2 max-w-[135px]">
-                          {report.post?.image_urls?.[0] ? (
+                        <div className="flex items-center gap-2 max-w-[175px]">
+                          {report.comment?.image_urls ? (
                             <img
-                              src={report.post.image_urls[0]}
+                              src={report.comment.image_urls}
                               alt="Thumbnail"
                               className="size-7 rounded object-cover border border-border shrink-0"
                             />
@@ -703,12 +752,12 @@ const ReportPostManagement = () => {
                               <ImageIcon className="size-3" />
                             </div>
                           )}
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] text-foreground font-medium truncate" title={report.post?.content || "(Không có nội dung chữ)"}>
-                              {report.post?.content || "(Không có nội dung chữ)"}
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <span className="text-[11px] text-foreground font-medium truncate block w-full" title={report.comment?.content || "(Không có nội dung chữ)"}>
+                              {report.comment?.content || "(Không có nội dung chữ)"}
                             </span>
-                            <span className="text-[9px] text-muted-foreground truncate">
-                              Bởi @{report.post?.user?.username || "unknown"}
+                            <span className="text-[9px] text-muted-foreground truncate block w-full">
+                              Bởi @{report.comment?.user?.username || "unknown"}
                             </span>
                           </div>
                         </div>
@@ -729,15 +778,15 @@ const ReportPostManagement = () => {
                       {/* Report Status */}
                       <TableCell>{renderStatusBadge(report.status)}</TableCell>
 
-                      {/* Post Status */}
-                      <TableCell>{renderPostStatusBadge(report.post)}</TableCell>
+                      {/* Comment Status */}
+                      <TableCell>{renderCommentStatusBadge(report.comment)}</TableCell>
 
                       {/* Actions */}
                       <TableCell className="pr-4 text-center">
                         <Button
                           variant="outline"
                           size="icon"
-                          className="size-7"
+                          className="size-7 cursor-pointer"
                           onClick={() => handleViewDetails(report)}
                           title="Xem chi tiết"
                         >
@@ -761,7 +810,7 @@ const ReportPostManagement = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-8"
+                  className="size-8 cursor-pointer"
                   onClick={() => fetchReports(currentPage - 1)}
                   disabled={currentPage === 1 || loading}
                 >
@@ -774,7 +823,7 @@ const ReportPostManagement = () => {
                     <Button
                       key={pageNum}
                       variant={currentPage === pageNum ? "default" : "outline"}
-                      className="size-8 text-xs font-medium"
+                      className="size-8 text-xs font-medium cursor-pointer"
                       onClick={() => fetchReports(pageNum)}
                       disabled={loading}
                     >
@@ -786,7 +835,7 @@ const ReportPostManagement = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="size-8"
+                  className="size-8 cursor-pointer"
                   onClick={() => fetchReports(currentPage + 1)}
                   disabled={currentPage === pagination.totalPages || loading}
                 >
@@ -800,21 +849,22 @@ const ReportPostManagement = () => {
 
       {/* Report Detail Modal */}
       {selectedReport && (
-        <ReportDetailModal
+        <ReportCommentDetailModal
           isDetailOpen={isDetailOpen}
           selectedReport={selectedReport}
           setIsDetailOpen={setIsDetailOpen}
           actionLoading={actionLoading}
           handleUpdateStatus={handleUpdateStatus}
+          handleToggleCommentActive={handleToggleCommentActive}
+          handleToggleCommentDelete={handleToggleCommentDelete}
           handleTogglePostActive={handleTogglePostActive}
           handleTogglePostDelete={handleTogglePostDelete}
           handleToggleUserActive={handleToggleUserActive}
           handleTogglePostCommentDisabled={handleTogglePostCommentDisabled}
         />
       )}
-
     </div>
   );
 };
 
-export default ReportPostManagement;
+export default ReportCommentManagement;

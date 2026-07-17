@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   ShieldAlert,
   Send,
@@ -9,15 +10,17 @@ import {
   X,
 } from "lucide-react";
 import { createAppeal, getAppeal } from "../../services/AppealServices";
-import { useEffect } from "react";
 import AppealDetailModal from "../../components/appeal/AppealDetailModal";
 
 const Appeal = () => {
-  const [appealType, setAppealType] = useState("Post Removal Appeal");
-  const [targetModel, setTargetModel] = useState("Post");
-  const [targetId, setTargetId] = useState("");
-  const [reason, setReason] = useState("");
-  const [details, setDetails] = useState("");
+  const location = useLocation();
+  const prefill = location.state || {};
+
+  const [appealType, setAppealType] = useState(prefill.appealType || "Post Removal Appeal");
+  const [targetModel, setTargetModel] = useState(prefill.targetModel || "Post");
+  const [targetId, setTargetId] = useState(prefill.targetId || "");
+  const [reason, setReason] = useState(prefill.reason || "");
+  const [details, setDetails] = useState(prefill.details || "");
   const [submitted, setSubmitted] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [mediaFiles, setMediaFiles] = useState([]);
