@@ -16,7 +16,7 @@ const reportSchema = new mongoose.Schema(
     // Thể loại báo cáo
     targetType: {
       type: String,
-      enum: ["post", "comment", "message", "user"],
+      enum: ["post", "comment", "message", "user", "group", "conversation"],
       required: true,
     },
     // Lý do báo cáo

@@ -10,5 +10,6 @@ router.post("/", upload.fields([{ name: "images" }, { name: "files" }]), Message
 router.post("/:messageId/react", MessageController.reactToMessage);
 router.delete("/:messageId/recall", MessageController.recallMessage);
 router.delete("/:messageId/delete", MessageController.deleteMessageForMe);
+router.delete("/conversations/:conversationId/clear-history", MessageController.deleteChatHistory);
 
 export default router;

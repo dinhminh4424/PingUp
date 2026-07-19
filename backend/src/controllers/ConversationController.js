@@ -156,6 +156,107 @@ class ConversationController {
       });
     }
   }
+
+  async leaveConversation(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user?._id;
+
+      const result = await ConversationService.leaveGroup(conversationId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi rời cuộc hội thoại: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi rời cuộc hội thoại: " + error.message,
+      });
+    }
+  }
+
+  async reportConversation(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user?._id;
+      const { reason, details } = req.body;
+
+      let reportImages = [];
+      if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          try {
+            const uploadResult = await uploadImageFromBuffer(file.buffer);
+            reportImages.push(uploadResult.secure_url);
+          } catch (uploadError) {
+            console.error("Lỗi upload ảnh báo cáo: ", uploadError);
+          }
+        }
+      }
+
+      const result = await ConversationService.reportGroup(conversationId, userId, reason, details, reportImages);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi báo cáo cuộc hội thoại: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi báo cáo cuộc hội thoại: " + error.message,
+      });
+    }
+  }
+
+  async searchGroups(req, res) {
+    try {
+      const { query } = req.query;
+      const result = await ConversationService.searchGroups(query || "");
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async requestToJoin(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user?._id;
+      const result = await ConversationService.requestToJoin(conversationId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async approveJoinRequest(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const { userId } = req.body;
+      const adminId = req.user?._id;
+      const result = await ConversationService.approveJoinRequest(conversationId, userId, adminId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async rejectJoinRequest(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const { userId } = req.body;
+      const adminId = req.user?._id;
+      const result = await ConversationService.rejectJoinRequest(conversationId, userId, adminId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  async disbandGroup(req, res) {
+    try {
+      const { conversationId } = req.params;
+      const userId = req.user?._id;
+      const result = await ConversationService.disbandGroup(conversationId, userId);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
 }
 
 export default new ConversationController();

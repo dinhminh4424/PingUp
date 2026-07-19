@@ -110,8 +110,8 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
               <MoreVertical className="w-5 h-5" />
             </button>
 
-             {open && userCurrent._id === post.user._id && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-zinc-950 rounded-lg border border-gray-100 dark:border-zinc-800 shadow-xl z-50 py-1">
+            {open && userCurrent._id === post.user._id && (
+              <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-zinc-900 rounded-lg border border-gray-100 dark:border-zinc-800 shadow-xl z-50 py-1">
                 <button
                   onClick={() => {
                     setOpen(false);
@@ -134,7 +134,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
             )}
 
             {open && userCurrent._id !== post.user._id && (
-              <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-zinc-950 rounded-lg border border-gray-100 dark:border-zinc-800 shadow-xl z-50 py-1">
+              <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-zinc-900 rounded-lg border border-gray-100 dark:border-zinc-800 shadow-xl z-50 py-1">
                 <button
                   onClick={() => {
                     setOpen(false);
@@ -183,7 +183,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
         {/* Shared Post Container */}
         {post.post_type === "share" && post.shared_post && (
           <div
-            className="border border-gray-200 dark:border-zinc-800 rounded-xl p-4 bg-gray-50/50 dark:bg-zinc-850/30 hover:bg-gray-50 dark:hover:bg-zinc-850/50 transition-colors mt-2 cursor-pointer"
+            className="border border-gray-200 dark:border-zinc-800 rounded-xl p-4 bg-gray-50/50 dark:bg-zinc-800/30 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors mt-2 cursor-pointer"
             onClick={() => navigate(`/post/${post.shared_post._id}`)}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -223,44 +223,52 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
         )}
 
         {/* Warning for Disabled Comments (If active but comments are disabled for author) */}
-        {post.isActive !== false && post.isCommentDisabled === true && currentUser?._id === post.user?._id && (
-          <div className="bg-amber-50 border border-amber-100 dark:bg-amber-950/20 dark:border-amber-900/30 rounded-2xl p-4 my-2 text-xs flex flex-col gap-2.5">
-            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-450 font-bold select-none">
-              <ShieldAlert className="w-4 h-4 text-amber-600 animate-pulse" />
-              <span>Comments for this post have been disabled by Admin</span>
+        {post.isActive !== false &&
+          post.isCommentDisabled === true &&
+          currentUser?._id === post.user?._id && (
+            <div className="bg-amber-50 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-900/30 rounded-2xl p-4 my-2 text-xs flex flex-col gap-2.5">
+              <div className="flex items-center gap-2 text-amber-800 dark:text-amber-400 font-bold select-none">
+                <ShieldAlert className="w-4 h-4 text-amber-600 animate-pulse" />
+                <span>Comments for this post have been disabled by Admin</span>
+              </div>
+              <p className="text-amber-700 dark:text-amber-400/80 leading-relaxed font-medium">
+                Admin has disabled comments for this post. If you believe this
+                is a mistake, you can submit an appeal request.
+              </p>
+              <button
+                onClick={() => {
+                  navigate("/appeal", {
+                    state: {
+                      targetId: post._id,
+                      targetModel: "Post",
+                      appealType: "Post Removal Appeal",
+                      reason: "Appeal to enable comments",
+                      details: `Appeal to enable comments for post ID: ${post._id}\nContent: ${post.content || ""}`,
+                    },
+                  });
+                }}
+                className="w-fit px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
+              >
+                Submit Appeal
+              </button>
             </div>
-            <p className="text-amber-750 dark:text-amber-400/80 leading-relaxed font-medium">
-              Admin has disabled comments for this post. If you believe this is a mistake, you can submit an appeal request.
-            </p>
-            <button
-              onClick={() => {
-                navigate("/appeal", {
-                  state: {
-                    targetId: post._id,
-                    targetModel: "Post",
-                    appealType: "Post Removal Appeal",
-                    reason: "Appeal to enable comments",
-                    details: `Appeal to enable comments for post ID: ${post._id}\nContent: ${post.content || ""}`
-                  }
-                });
-              }}
-              className="w-fit px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
-            >
-              Submit Appeal
-            </button>
-          </div>
-        )}
+          )}
 
         {/* Action / Warning for Blocked Post */}
         {post.isActive === false ? (
           currentUser?._id === post.user?._id ? (
-            <div className="bg-rose-50 border border-rose-100 dark:bg-rose-950/20 dark:border-rose-900/30 rounded-2xl p-4 my-1 text-xs flex flex-col gap-2.5">
-              <div className="flex items-center gap-2 text-rose-800 dark:text-rose-450 font-bold">
+            <div className="bg-rose-50 border border-rose-100 dark:bg-rose-900/20 dark:border-rose-900/30 rounded-2xl p-4 my-1 text-xs flex flex-col gap-2.5">
+              <div className="flex items-center gap-2 text-rose-800 dark:text-rose-400 font-bold">
                 <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse" />
-                <span>This post has been blocked due to Community Standards violation</span>
+                <span>
+                  This post has been blocked due to Community Standards
+                  violation
+                </span>
               </div>
-              <p className="text-rose-650 dark:text-rose-400/80 leading-relaxed font-medium">
-                Your post has been temporarily blocked by the moderation team. If you believe this is a mistake, you can submit an appeal request.
+              <p className="text-rose-600 dark:text-rose-400/80 leading-relaxed font-medium">
+                Your post has been temporarily blocked by the moderation team.
+                If you believe this is a mistake, you can submit an appeal
+                request.
               </p>
               <button
                 onClick={() => {
@@ -270,8 +278,8 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                       targetModel: "Post",
                       appealType: "Post Removal Appeal",
                       reason: "Appeal to unblock post",
-                      details: `Appeal post block for ID: ${post._id}\nContent: ${post.content || ""}`
-                    }
+                      details: `Appeal post block for ID: ${post._id}\nContent: ${post.content || ""}`,
+                    },
                   });
                 }}
                 className="w-fit px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold hover:shadow-xs transition duration-150 cursor-pointer"
@@ -280,9 +288,12 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
               </button>
             </div>
           ) : (
-            <div className="bg-slate-50 border border-slate-200 dark:bg-zinc-850/50 dark:border-zinc-800 rounded-2xl p-4 my-1 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+            <div className="bg-slate-50 border border-slate-200 dark:bg-zinc-800/50 dark:border-zinc-800 rounded-2xl p-4 my-1 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
               <ShieldAlert className="w-4 h-4 text-slate-400" />
-              <span>This content is temporarily unavailable due to Community Standards violation.</span>
+              <span>
+                This content is temporarily unavailable due to Community
+                Standards violation.
+              </span>
             </div>
           )
         ) : (
@@ -297,13 +308,23 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
             <div
               onClick={() => setShowDetailModal(true)}
               className={`flex items-center gap-1 cursor-pointer transition-colors ${
-                post.isCommentDisabled ? "text-amber-500 hover:text-amber-600" : "hover:text-blue-500"
+                post.isCommentDisabled
+                  ? "text-amber-500 hover:text-amber-600"
+                  : "hover:text-blue-500"
               }`}
-              title={post.isCommentDisabled ? "Comments disabled by Admin" : "Comments"}
+              title={
+                post.isCommentDisabled
+                  ? "Comments disabled by Admin"
+                  : "Comments"
+              }
             >
               <MessageCircle className="w-4 h-5" />
               <span>{post.comments_count || 0}</span>
-              {post.isCommentDisabled && <span className="text-[9px] font-bold bg-amber-100 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 px-1 py-0.5 rounded border border-amber-200 dark:border-amber-900/30">Locked</span>}
+              {post.isCommentDisabled && (
+                <span className="text-[9px] font-bold bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 px-1 py-0.5 rounded border border-amber-200 dark:border-amber-900/30">
+                  Locked
+                </span>
+              )}
             </div>
             <div
               onClick={() => setShowShareModal(true)}

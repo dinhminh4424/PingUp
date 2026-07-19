@@ -180,7 +180,7 @@ const UserCard = ({ user }) => {
           <button
             onClick={handleRejectRequest}
             disabled={loading}
-            className="px-3 py-2 border border-red-350 hover:bg-red-50 text-red-600 rounded-md cursor-pointer transition font-semibold text-xs shrink-0"
+            className="px-3 py-2 border border-red-300 hover:bg-red-50 text-red-600 rounded-md cursor-pointer transition font-semibold text-xs shrink-0"
           >
             Cancel
           </button>

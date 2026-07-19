@@ -11,6 +11,11 @@ const participantSchema = mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    role: {
+      type: String,
+      enum: ["admin", "member"],
+      default: "member",
+    },
   },
   { _id: false }, // cho biết participantSchema này ko phải là 1 bảng riêng chỉ là 1 schema phụ nên ko cần id
 );
@@ -94,7 +99,23 @@ const conversationSchema = new mongoose.Schema(
     isDelete: {
       type: Boolean,
       default: false
-    }
+    },
+    isDisband: {
+      type: Boolean,
+      default: false
+    },
+    joinRequests: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        requestedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true },
 );

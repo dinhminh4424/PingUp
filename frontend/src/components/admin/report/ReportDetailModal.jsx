@@ -22,7 +22,10 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { getCommentsByPost } from "../../../services/CommentServices";
-import { toggleCommentActive, toggleCommentDelete } from "../../../services/admin/CommentService";
+import {
+  toggleCommentActive,
+  toggleCommentDelete,
+} from "../../../services/admin/CommentService";
 
 const ReportDetailModal = ({
   isDetailOpen,
@@ -205,7 +208,7 @@ const ReportDetailModal = ({
           {/* Left Column: Report Information */}
           <div className="p-6 flex flex-col gap-5">
             <h3 className="text-sm font-bold tracking-tight text-primary flex items-center gap-1.5 border-b pb-2">
-              <AlertTriangle className="size-4 animate-pulse text-amber-550" />
+              <AlertTriangle className="size-4 animate-pulse text-amber-500" />
               NỘI DUNG BÁO CÁO
             </h3>
 
@@ -322,7 +325,7 @@ const ReportDetailModal = ({
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-950/20 cursor-pointer"
+                        className="flex-1 h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-900/20 cursor-pointer"
                         onClick={() =>
                           handleUpdateStatus(selectedReport._id, "dismissed")
                         }
@@ -395,17 +398,25 @@ const ReportDetailModal = ({
                     {selectedReport.post.user && (
                       <Button
                         size="xs"
-                        variant={selectedReport.post.user.isActive !== false ? "outline" : "default"}
+                        variant={
+                          selectedReport.post.user.isActive !== false
+                            ? "outline"
+                            : "default"
+                        }
                         className={`h-7 px-2 text-[10px] font-semibold cursor-pointer shrink-0 ${
                           selectedReport.post.user.isActive !== false
                             ? "text-rose-600 border-rose-200 hover:bg-rose-50"
                             : "bg-emerald-600 hover:bg-emerald-700 text-white"
                         }`}
-                        onClick={() => handleToggleUserActive(selectedReport.post.user)}
+                        onClick={() =>
+                          handleToggleUserActive(selectedReport.post.user)
+                        }
                         disabled={actionLoading}
                       >
                         <Ban className="size-3 mr-1" />
-                        {selectedReport.post.user.isActive !== false ? "Khóa user" : "Mở user"}
+                        {selectedReport.post.user.isActive !== false
+                          ? "Khóa user"
+                          : "Mở user"}
                       </Button>
                     )}
                   </div>
@@ -467,11 +478,15 @@ const ReportDetailModal = ({
                   ) : (
                     <div className="max-h-60 overflow-y-auto space-y-2.5 pr-1 no-scrollbar border rounded-lg p-2.5 bg-background">
                       {comments.map((comment) => (
-                        <div key={comment._id} className="text-xs border-b pb-2 last:border-0 last:pb-0">
+                        <div
+                          key={comment._id}
+                          className="text-xs border-b pb-2 last:border-0 last:pb-0"
+                        >
                           <div className="flex items-center justify-between gap-2 mb-1">
                             <div className="flex items-center gap-1.5 min-w-0">
                               <span className="font-bold text-foreground truncate max-w-[100px]">
-                                {comment.user?.full_name || comment.user?.username}
+                                {comment.user?.full_name ||
+                                  comment.user?.username}
                               </span>
                               <span className="text-[10px] text-muted-foreground">
                                 @{comment.user?.username}
@@ -480,25 +495,37 @@ const ReportDetailModal = ({
                             <div className="flex items-center gap-1 shrink-0">
                               {/* Toggle Lock Comment */}
                               <button
-                                onClick={() => handleToggleCommentActiveLocal(comment._id)}
+                                onClick={() =>
+                                  handleToggleCommentActiveLocal(comment._id)
+                                }
                                 className={`p-1 rounded hover:bg-muted transition cursor-pointer ${
                                   comment.isActive !== false
                                     ? "text-rose-600 hover:text-rose-700"
                                     : "text-emerald-600 hover:text-emerald-700"
                                 }`}
-                                title={comment.isActive !== false ? "Khóa bình luận" : "Mở khóa bình luận"}
+                                title={
+                                  comment.isActive !== false
+                                    ? "Khóa bình luận"
+                                    : "Mở khóa bình luận"
+                                }
                               >
                                 <Ban className="size-3" />
                               </button>
                               {/* Toggle Delete Comment */}
                               <button
-                                onClick={() => handleToggleCommentDeleteLocal(comment._id)}
+                                onClick={() =>
+                                  handleToggleCommentDeleteLocal(comment._id)
+                                }
                                 className={`p-1 rounded hover:bg-muted transition cursor-pointer ${
                                   !comment.isDelete
-                                    ? "text-red-500 hover:text-red-650"
+                                    ? "text-red-500 hover:text-red-700"
                                     : "text-emerald-500 hover:text-emerald-600"
                                 }`}
-                                title={!comment.isDelete ? "Xóa bình luận" : "Khôi phục bình luận"}
+                                title={
+                                  !comment.isDelete
+                                    ? "Xóa bình luận"
+                                    : "Khôi phục bình luận"
+                                }
                               >
                                 <Trash2 className="size-3" />
                               </button>
@@ -507,7 +534,7 @@ const ReportDetailModal = ({
                           <p className="text-muted-foreground break-words leading-normal bg-muted/20 p-1.5 rounded border border-dashed">
                             {comment.content}
                             {comment.isActive === false && (
-                              <span className="ml-1.5 text-[9px] font-bold text-rose-650 bg-rose-50 px-1 py-0.5 rounded border border-rose-100/50 uppercase select-none">
+                              <span className="ml-1.5 text-[9px] font-bold text-rose-600 bg-rose-50 px-1 py-0.5 rounded border border-rose-100/50 uppercase select-none">
                                 Đã khóa
                               </span>
                             )}
@@ -559,7 +586,7 @@ const ReportDetailModal = ({
                       disabled={actionLoading}
                       className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
                         !selectedReport.post.isDelete
-                          ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-950/20"
+                          ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-900/20"
                           : "bg-emerald-600 hover:bg-emerald-700 text-white"
                       }`}
                     >
@@ -573,7 +600,9 @@ const ReportDetailModal = ({
                     <Button
                       size="sm"
                       variant={
-                        selectedReport.post.isCommentDisabled ? "default" : "outline"
+                        selectedReport.post.isCommentDisabled
+                          ? "default"
+                          : "outline"
                       }
                       onClick={() =>
                         handleTogglePostCommentDisabled(selectedReport.post._id)
@@ -581,7 +610,7 @@ const ReportDetailModal = ({
                       disabled={actionLoading}
                       className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
                         !selectedReport.post.isCommentDisabled
-                          ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-950/20"
+                          ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-900/20"
                           : "bg-amber-600 hover:bg-amber-700 text-white"
                       }`}
                     >
@@ -608,7 +637,7 @@ const ReportDetailModal = ({
           </div>
         </div>
 
-        <DialogFooter className="p-4 border-t bg-muted/20">
+        <DialogFooter className="p-4 m-2 border-t bg-muted/20">
           <Button
             variant="outline"
             onClick={() => setIsDetailOpen(false)}

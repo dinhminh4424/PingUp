@@ -18,7 +18,11 @@ import {
 import moment from "moment";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getCommentsByPost, createComment, deleteComment } from "@/services/CommentServices";
+import {
+  getCommentsByPost,
+  createComment,
+  deleteComment,
+} from "@/services/CommentServices";
 import toast from "react-hot-toast";
 
 const PostDetailModal = ({
@@ -94,12 +98,12 @@ const PostDetailModal = ({
       const res = await createComment(
         post._id,
         commentInput,
-        replyToComment ? replyToComment._id : null
+        replyToComment ? replyToComment._id : null,
       );
       if (res.success) {
         if (replyToComment) {
           setComments((prev) =>
-            insertReplyIntoTree(prev, replyToComment._id, res.comment)
+            insertReplyIntoTree(prev, replyToComment._id, res.comment),
           );
           setReplyToComment(null);
         } else {
@@ -121,7 +125,7 @@ const PostDetailModal = ({
       }
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Lỗi hệ thống khi gửi bình luận!"
+        err.response?.data?.message || "Lỗi hệ thống khi gửi bình luận!",
       );
     }
   };
@@ -133,7 +137,7 @@ const PostDetailModal = ({
       if (res.success) {
         toast.success("Xóa bình luận thành công");
         fetchComments();
-        
+
         const updatedPost = {
           ...post,
           comments_count: Math.max(0, (post.comments_count || 0) - 1),
@@ -183,7 +187,7 @@ const PostDetailModal = ({
             {/* Admin can delete any comment */}
             <button
               onClick={() => handleDeleteComment(comment._id)}
-              className="opacity-0 group-hover/item:opacity-100 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-zinc-950 text-gray-500 hover:text-red-600 transition cursor-pointer"
+              className="opacity-0 group-hover/item:opacity-100 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-zinc-900 text-gray-500 hover:text-red-600 transition cursor-pointer"
               title="Delete comment"
             >
               <Trash2 size={14} />
@@ -219,10 +223,9 @@ const PostDetailModal = ({
 
   return (
     <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-white dark:bg-zinc-950 rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden animate-in zoom-in-95 duration-200">
-        
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-2xl h-[90vh] flex flex-col shadow-2xl border border-gray-200 dark:border-zinc-800 overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 sticky top-0 z-10 shrink-0">
+        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 sticky top-0 z-10 shrink-0">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 select-none">
             Post of {post.user?.full_name}
           </h2>
@@ -236,15 +239,26 @@ const PostDetailModal = ({
 
         {/* Modal Scrollable Container */}
         <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
-          
           {/* ADMIN ACTION PANEL - HIGHLIGHTED BANNER */}
-          <div className="bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in slide-in-from-top duration-300">
+          <div className="bg-indigo-50/70 dark:bg-indigo-900/40 border border-indigo-100 dark:border-indigo-900 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in slide-in-from-top duration-300">
             <div className="space-y-1">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Bảng điều khiển Admin</span>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                Bảng điều khiển Admin
+              </span>
               <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
-                Báo cáo: <span className="text-amber-600 font-bold">{post.reports_count || 0} lượt</span> | Trạng thái:{" "}
-                <span className={`font-semibold ${post.isDelete ? "text-rose-500" : post.isActive ? "text-emerald-600" : "text-amber-500"}`}>
-                  {post.isDelete ? "Đã xóa" : post.isActive ? "Đang hoạt động" : "Đang bị khóa"}
+                Báo cáo:{" "}
+                <span className="text-amber-600 font-bold">
+                  {post.reports_count || 0} lượt
+                </span>{" "}
+                | Trạng thái:{" "}
+                <span
+                  className={`font-semibold ${post.isDelete ? "text-rose-500" : post.isActive ? "text-emerald-600" : "text-amber-500"}`}
+                >
+                  {post.isDelete
+                    ? "Đã xóa"
+                    : post.isActive
+                      ? "Đang hoạt động"
+                      : "Đang bị khóa"}
                 </span>
               </p>
             </div>
@@ -257,9 +271,15 @@ const PostDetailModal = ({
                   className="h-8 text-xs font-semibold"
                 >
                   {post.isActive ? (
-                    <><Ban className="size-3 mr-1" />Khóa</>
+                    <>
+                      <Ban className="size-3 mr-1" />
+                      Khóa
+                    </>
                   ) : (
-                    <><Check className="size-3 mr-1" />Mở khóa</>
+                    <>
+                      <Check className="size-3 mr-1" />
+                      Mở khóa
+                    </>
                   )}
                 </Button>
               )}
@@ -270,9 +290,15 @@ const PostDetailModal = ({
                 className="h-8 text-xs font-semibold"
               >
                 {post.isDelete ? (
-                  <><RotateCcw className="size-3 mr-1" />Khôi phục</>
+                  <>
+                    <RotateCcw className="size-3 mr-1" />
+                    Khôi phục
+                  </>
                 ) : (
-                  <><Trash2 className="size-3 mr-1" />Xóa bài</>
+                  <>
+                    <Trash2 className="size-3 mr-1" />
+                    Xóa bài
+                  </>
                 )}
               </Button>
             </div>
@@ -334,7 +360,9 @@ const PostDetailModal = ({
               <div className="flex items-center gap-2 mb-2">
                 <Avatar className="w-7 h-7">
                   <AvatarImage src={post.shared_post.user?.profile_picture} />
-                  <AvatarFallback>{getInitials(post.shared_post.user?.full_name)}</AvatarFallback>
+                  <AvatarFallback>
+                    {getInitials(post.shared_post.user?.full_name)}
+                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <span className="font-bold text-xs text-gray-800 dark:text-gray-200">
@@ -348,68 +376,99 @@ const PostDetailModal = ({
               <p className="text-xs text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
                 {post.shared_post.content}
               </p>
-              {post.shared_post.image_urls && post.shared_post.image_urls.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {post.shared_post.image_urls.map((img, index) => (
-                    <img
-                      src={img}
-                      key={index}
-                      className={`w-full h-32 object-cover rounded-lg ${post.shared_post.image_urls.length === 1 && "col-span-2 h-auto max-h-64"}`}
-                    />
-                  ))}
-                </div>
-              )}
+              {post.shared_post.image_urls &&
+                post.shared_post.image_urls.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    {post.shared_post.image_urls.map((img, index) => (
+                      <img
+                        src={img}
+                        key={index}
+                        className={`w-full h-32 object-cover rounded-lg ${post.shared_post.image_urls.length === 1 && "col-span-2 h-auto max-h-64"}`}
+                      />
+                    ))}
+                  </div>
+                )}
             </div>
           )}
 
           {/* Post Information Details Block */}
           <div className="bg-gray-50/50 dark:bg-zinc-900/30 rounded-xl p-3.5 border border-gray-100 dark:border-zinc-900/80 space-y-2 text-xs text-gray-600 dark:text-gray-400">
-            <h3 className="font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider text-[10px] border-b pb-1 border-gray-200 dark:border-zinc-800">Thông tin chi tiết</h3>
+            <h3 className="font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wider text-[10px] border-b pb-1 border-gray-200 dark:border-zinc-800">
+              Thông tin chi tiết
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4">
               <div>
-                <span className="font-medium text-gray-450">Email người đăng:</span>{" "}
-                <span className="text-gray-800 dark:text-gray-200 font-semibold">{post.user?.email || "Chưa cập nhật"}</span>
+                <span className="font-medium text-gray-400">
+                  Email người đăng:
+                </span>{" "}
+                <span className="text-gray-800 dark:text-gray-200 font-semibold">
+                  {post.user?.email || "Chưa cập nhật"}
+                </span>
               </div>
               <div>
-                <span className="font-medium text-gray-450">Loại bài đăng:</span>{" "}
-                <span className="text-gray-800 dark:text-gray-200 font-semibold uppercase">{post.post_type || "text"}</span>
+                <span className="font-medium text-gray-400">
+                  Loại bài đăng:
+                </span>{" "}
+                <span className="text-gray-800 dark:text-gray-200 font-semibold uppercase">
+                  {post.post_type || "text"}
+                </span>
               </div>
               <div>
-                <span className="font-medium text-gray-450">Ngày đăng:</span>{" "}
-                <span className="text-gray-800 dark:text-gray-200 font-semibold">{moment(post.createdAt).format("DD/MM/YYYY HH:mm")}</span>
+                <span className="font-medium text-gray-400">Ngày đăng:</span>{" "}
+                <span className="text-gray-800 dark:text-gray-200 font-semibold">
+                  {moment(post.createdAt).format("DD/MM/YYYY HH:mm")}
+                </span>
               </div>
               <div>
-                <span className="font-medium text-gray-450">Cập nhật cuối:</span>{" "}
-                <span className="text-gray-800 dark:text-gray-200 font-semibold">{moment(post.updatedAt).format("DD/MM/YYYY HH:mm")}</span>
+                <span className="font-medium text-gray-400">
+                  Cập nhật cuối:
+                </span>{" "}
+                <span className="text-gray-800 dark:text-gray-200 font-semibold">
+                  {moment(post.updatedAt).format("DD/MM/YYYY HH:mm")}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Reports List */}
           {post.reports && post.reports.length > 0 && (
-            <div className="bg-amber-500/5 dark:bg-amber-950/10 border border-amber-200/50 dark:border-amber-900/50 rounded-xl p-3.5 space-y-2.5">
-              <h3 className="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider text-[10px] flex items-center gap-1.5 border-b pb-1 border-amber-200 dark:border-amber-950">
+            <div className="bg-amber-500/5 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-900/50 rounded-xl p-3.5 space-y-2.5">
+              <h3 className="font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider text-[10px] flex items-center gap-1.5 border-b pb-1 border-amber-200 dark:border-amber-900">
                 <span className="size-2 bg-amber-500 rounded-full animate-pulse" />
                 <span>Chi tiết báo cáo vi phạm ({post.reports.length})</span>
               </h3>
               <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
                 {post.reports.map((report) => (
-                  <div key={report._id} className="bg-white dark:bg-zinc-900/40 border border-amber-100 dark:border-zinc-800/40 p-2.5 rounded-lg text-xs space-y-1.5 shadow-xs">
+                  <div
+                    key={report._id}
+                    className="bg-white dark:bg-zinc-900/40 border border-amber-100 dark:border-zinc-800/40 p-2.5 rounded-lg text-xs space-y-1.5 shadow-xs"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <Avatar className="size-5 border">
-                          <AvatarImage src={report.reporterId?.profile_picture} />
-                          <AvatarFallback className="text-[8px]">{getInitials(report.reporterId?.full_name)}</AvatarFallback>
+                          <AvatarImage
+                            src={report.reporterId?.profile_picture}
+                          />
+                          <AvatarFallback className="text-[8px]">
+                            {getInitials(report.reporterId?.full_name)}
+                          </AvatarFallback>
                         </Avatar>
                         <span className="font-semibold text-gray-800 dark:text-gray-200">
-                          {report.reporterId?.full_name || `@${report.reporterId?.username}`}
+                          {report.reporterId?.full_name ||
+                            `@${report.reporterId?.username}`}
                         </span>
                       </div>
-                      <span className="text-[10px] text-gray-400">{moment(report.createdAt).fromNow()}</span>
+                      <span className="text-[10px] text-gray-400">
+                        {moment(report.createdAt).fromNow()}
+                      </span>
                     </div>
-                    <div className="bg-amber-500/5 dark:bg-zinc-950 px-2 py-1 rounded border border-amber-100/50 dark:border-zinc-850">
-                      <span className="font-semibold text-amber-800 dark:text-amber-400">Lý do:</span>{" "}
-                      <span className="text-gray-700 dark:text-gray-300 font-medium">{report.reason}</span>
+                    <div className="bg-amber-500/5 dark:bg-zinc-900 px-2 py-1 rounded border border-amber-100/50 dark:border-zinc-800">
+                      <span className="font-semibold text-amber-800 dark:text-amber-400">
+                        Lý do:
+                      </span>{" "}
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">
+                        {report.reason}
+                      </span>
                       {report.details && (
                         <div className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 border-t border-dashed pt-1 border-gray-200 dark:border-zinc-800">
                           {report.details}
@@ -430,7 +489,9 @@ const PostDetailModal = ({
                   <Heart size={10} fill="white" />
                 </span>
               )}
-              <span>{post.likesCountValue || post.likes_count?.length || 0} Likes</span>
+              <span>
+                {post.likesCountValue || post.likes_count?.length || 0} Likes
+              </span>
             </div>
             <div className="flex gap-3 select-none font-medium">
               <span>{post.comments_count || 0} Comments</span>
@@ -476,7 +537,7 @@ const PostDetailModal = ({
         </div>
 
         {/* Sticky Input Footer */}
-        <div className="border-t border-gray-200 dark:border-zinc-800 px-4 py-3 bg-white dark:bg-zinc-950 shrink-0 relative">
+        <div className="border-t border-gray-200 dark:border-zinc-800 px-4 py-3 bg-white dark:bg-zinc-900 shrink-0 relative">
           {/* Active Reply Banner */}
           {replyToComment && (
             <div className="flex items-center justify-between px-3 pb-2 text-xs text-indigo-600 dark:text-indigo-400 font-semibold select-none animate-fade-in">
@@ -495,7 +556,7 @@ const PostDetailModal = ({
             {/* Input form */}
             <form
               onSubmit={handleAddComment}
-              className="flex-1 flex bg-[#f0f2f5] dark:bg-zinc-900 rounded-full px-4 py-2 items-center border border-gray-100 dark:border-zinc-850"
+              className="flex-1 flex bg-[#f0f2f5] dark:bg-zinc-900 rounded-full px-4 py-2 items-center border border-gray-100 dark:border-zinc-800"
             >
               <input
                 ref={commentInputRef}
@@ -530,7 +591,7 @@ const PostDetailModal = ({
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition shrink-0 cursor-pointer ${
                   commentInput.trim()
                     ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-md"
-                    : "text-gray-450 bg-transparent"
+                    : "text-gray-400 bg-transparent"
                 }`}
               >
                 <Send size={14} />
@@ -538,7 +599,6 @@ const PostDetailModal = ({
             </form>
           </div>
         </div>
-
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ const UserLayout = () => {
       {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       {/* Main content */}
-      <div className="flex flex-1 bg-slate-50 dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 overflow-y-auto transition-colors duration-200">
+      <div className="flex flex-1 bg-slate-50 dark:bg-zinc-900 text-gray-900 dark:text-zinc-100 overflow-y-auto transition-colors duration-200">
         <div className="w-full">
           <Outlet />
         </div>

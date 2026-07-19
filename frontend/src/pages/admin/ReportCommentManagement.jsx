@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getReportComment, updateReportStatus } from "../../services/admin/ReportService";
-import { toggleCommentActive, toggleCommentDelete } from "../../services/admin/CommentService";
-import { togglePostActive, togglePostDelete, togglePostCommentDisabled } from "../../services/admin/PostService";
+import {
+  getReportComment,
+  updateReportStatus,
+} from "../../services/admin/ReportService";
+import {
+  toggleCommentActive,
+  toggleCommentDelete,
+} from "../../services/admin/CommentService";
+import {
+  togglePostActive,
+  togglePostDelete,
+  togglePostCommentDisabled,
+} from "../../services/admin/PostService";
 import { toggleUserActive } from "../../services/admin/UserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -22,15 +32,12 @@ import ReportCommentDetailModal from "@/components/admin/report/ReportCommentDet
 import {
   Search,
   Eye,
-  Ban,
-  Check,
-  Calendar,
+  
   FileText,
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
   Image as ImageIcon,
-  Trash2,
   RotateCcw,
   ShieldCheck,
   HelpCircle,
@@ -113,7 +120,7 @@ const ReportCommentManagement = () => {
     reason = reasonFilter,
     reporter = reporterFilter,
     start = startDate,
-    end = endDate
+    end = endDate,
   ) => {
     try {
       setLoading(true);
@@ -126,7 +133,7 @@ const ReportCommentManagement = () => {
         end,
         page,
         reason,
-        reporter
+        reporter,
       );
 
       if (result.success) {
@@ -153,12 +160,28 @@ const ReportCommentManagement = () => {
   };
 
   useEffect(() => {
-    fetchReports(1, searchQuery, statusFilter, reasonFilter, reporterFilter, startDate, endDate);
+    fetchReports(
+      1,
+      searchQuery,
+      statusFilter,
+      reasonFilter,
+      reporterFilter,
+      startDate,
+      endDate,
+    );
   }, [statusFilter, reasonFilter, startDate, endDate]);
 
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
-    fetchReports(1, searchQuery, statusFilter, reasonFilter, reporterFilter, startDate, endDate);
+    fetchReports(
+      1,
+      searchQuery,
+      statusFilter,
+      reasonFilter,
+      reporterFilter,
+      startDate,
+      endDate,
+    );
   };
 
   const handleClearFilters = () => {
@@ -176,10 +199,12 @@ const ReportCommentManagement = () => {
       setActionLoading(true);
       const result = await updateReportStatus(reportId, newStatus);
       if (result.success) {
-        toast.success(`Đã cập nhật trạng thái báo cáo thành: ${
-          newStatus === "resolved" ? "Giải quyết" : "Bác bỏ"
-        }`);
-        
+        toast.success(
+          `Đã cập nhật trạng thái báo cáo thành: ${
+            newStatus === "resolved" ? "Giải quyết" : "Bác bỏ"
+          }`,
+        );
+
         // Refresh details modal state if active
         if (selectedReport && selectedReport._id === reportId) {
           setSelectedReport((prev) => ({
@@ -192,7 +217,9 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi cập nhật trạng thái báo cáo!");
+      toast.error(
+        err.response?.data?.message || "Lỗi cập nhật trạng thái báo cáo!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -205,9 +232,13 @@ const ReportCommentManagement = () => {
       const result = await toggleCommentActive(comment._id);
       if (result.success) {
         toast.success(result.message);
-        
+
         // Refresh details modal state if active
-        if (selectedReport && selectedReport.comment && selectedReport.comment._id === comment._id) {
+        if (
+          selectedReport &&
+          selectedReport.comment &&
+          selectedReport.comment._id === comment._id
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             comment: {
@@ -221,7 +252,9 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái bình luận!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái bình luận!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -236,7 +269,11 @@ const ReportCommentManagement = () => {
         toast.success(result.message);
 
         // Refresh details modal state if active
-        if (selectedReport && selectedReport.comment && selectedReport.comment._id === comment._id) {
+        if (
+          selectedReport &&
+          selectedReport.comment &&
+          selectedReport.comment._id === comment._id
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             comment: {
@@ -250,7 +287,9 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bình luận!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bình luận!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -263,8 +302,14 @@ const ReportCommentManagement = () => {
       const result = await togglePostCommentDisabled(postId);
       if (result.success) {
         toast.success(result.message);
-        
-        if (selectedReport && selectedReport.comment && selectedReport.comment.post && (selectedReport.comment.post._id === postId || selectedReport.comment.post === postId)) {
+
+        if (
+          selectedReport &&
+          selectedReport.comment &&
+          selectedReport.comment.post &&
+          (selectedReport.comment.post._id === postId ||
+            selectedReport.comment.post === postId)
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             comment: {
@@ -281,7 +326,10 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái tính năng bình luận!");
+      toast.error(
+        err.response?.data?.message ||
+          "Lỗi thay đổi trạng thái tính năng bình luận!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -294,9 +342,15 @@ const ReportCommentManagement = () => {
       const result = await togglePostActive(postId);
       if (result.success) {
         toast.success(result.message);
-        
+
         // Refresh details modal state if active and matching
-        if (selectedReport && selectedReport.comment && selectedReport.comment.post && (selectedReport.comment.post._id === postId || selectedReport.comment.post === postId)) {
+        if (
+          selectedReport &&
+          selectedReport.comment &&
+          selectedReport.comment.post &&
+          (selectedReport.comment.post._id === postId ||
+            selectedReport.comment.post === postId)
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             comment: {
@@ -313,7 +367,9 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái bài viết!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái bài viết!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -326,8 +382,14 @@ const ReportCommentManagement = () => {
       const result = await togglePostDelete(postId);
       if (result.success) {
         toast.success(result.message);
-        
-        if (selectedReport && selectedReport.comment && selectedReport.comment.post && (selectedReport.comment.post._id === postId || selectedReport.comment.post === postId)) {
+
+        if (
+          selectedReport &&
+          selectedReport.comment &&
+          selectedReport.comment.post &&
+          (selectedReport.comment.post._id === postId ||
+            selectedReport.comment.post === postId)
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             comment: {
@@ -344,7 +406,9 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bài viết!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bài viết!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -357,8 +421,13 @@ const ReportCommentManagement = () => {
       const result = await toggleUserActive(user._id);
       if (result.success) {
         toast.success(result.message);
-        
-        if (selectedReport && selectedReport.comment && selectedReport.comment.user && selectedReport.comment.user._id === user._id) {
+
+        if (
+          selectedReport &&
+          selectedReport.comment &&
+          selectedReport.comment.user &&
+          selectedReport.comment.user._id === user._id
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             comment: {
@@ -375,7 +444,9 @@ const ReportCommentManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái tài khoản!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái tài khoản!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -436,7 +507,7 @@ const ReportCommentManagement = () => {
 
     if (comment.isDelete) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/25">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/25">
           Đã ẩn/xóa
         </span>
       );
@@ -467,7 +538,8 @@ const ReportCommentManagement = () => {
             Quản lý báo cáo bình luận
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Xem xét và xử lý các báo cáo về nội dung bình luận vi phạm tiêu chuẩn cộng đồng.
+            Xem xét và xử lý các báo cáo về nội dung bình luận vi phạm tiêu
+            chuẩn cộng đồng.
           </p>
         </div>
       </div>
@@ -478,7 +550,9 @@ const ReportCommentManagement = () => {
         <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground font-medium">Tổng báo cáo</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Tổng báo cáo
+              </span>
               <span className="text-2xl font-bold mt-1">{stats.total}</span>
             </div>
             <div className="size-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
@@ -491,7 +565,9 @@ const ReportCommentManagement = () => {
         <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground font-medium">Chờ xử lý</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Chờ xử lý
+              </span>
               <span className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-500">
                 {stats.pending}
               </span>
@@ -506,7 +582,9 @@ const ReportCommentManagement = () => {
         <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground font-medium">Đã giải quyết</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Đã giải quyết
+              </span>
               <span className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-500">
                 {stats.resolved}
               </span>
@@ -521,12 +599,14 @@ const ReportCommentManagement = () => {
         <Card className="shadow-xs border-border">
           <CardContent className="p-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground font-medium">Đã bác bỏ</span>
+              <span className="text-xs text-muted-foreground font-medium">
+                Đã bác bỏ
+              </span>
               <span className="text-2xl font-bold mt-1 text-slate-500">
                 {stats.dismissed}
               </span>
             </div>
-            <div className="size-10 bg-slate-500/10 rounded-lg flex items-center justify-center text-slate-550">
+            <div className="size-10 bg-slate-500/10 rounded-lg flex items-center justify-center text-slate-500">
               <XCircle className="size-5" />
             </div>
           </CardContent>
@@ -537,7 +617,10 @@ const ReportCommentManagement = () => {
       <Card className="shadow-xs border-border">
         <CardContent className="p-5">
           <div className="flex flex-col gap-4">
-            <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
+            <form
+              onSubmit={handleSearchSubmit}
+              className="grid grid-cols-1 md:grid-cols-12 gap-3"
+            >
               {/* Search query */}
               <div className="relative md:col-span-6">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -560,7 +643,11 @@ const ReportCommentManagement = () => {
                 />
               </div>
 
-              <Button type="submit" variant="default" className="md:col-span-2 h-9 text-xs px-6 cursor-pointer">
+              <Button
+                type="submit"
+                variant="default"
+                className="md:col-span-2 h-9 text-xs px-6 cursor-pointer"
+              >
                 Tìm kiếm
               </Button>
             </form>
@@ -568,7 +655,9 @@ const ReportCommentManagement = () => {
             <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3 border-dashed">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-muted-foreground">Lọc theo ngày:</span>
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Lọc theo ngày:
+                  </span>
                   <DateRangeFilter onFilterChange={handleDateFilterChange} />
                 </div>
 
@@ -601,12 +690,17 @@ const ReportCommentManagement = () => {
                 </div>
               </div>
 
-              {(searchQuery || statusFilter !== "all" || reasonFilter !== "all" || reporterFilter || startDate || endDate) && (
+              {(searchQuery ||
+                statusFilter !== "all" ||
+                reasonFilter !== "all" ||
+                reporterFilter ||
+                startDate ||
+                endDate) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleClearFilters}
-                  className="text-xs h-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 gap-1.5 cursor-pointer"
+                  className="text-xs h-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 gap-1.5 cursor-pointer"
                 >
                   <RotateCcw className="size-3" />
                   Xóa bộ lọc
@@ -633,14 +727,20 @@ const ReportCommentManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead className="w-[80px] pl-4 py-3">Mã báo cáo</TableHead>
+                  <TableHead className="w-[80px] pl-4 py-3">
+                    Mã báo cáo
+                  </TableHead>
                   <TableHead className="w-[125px]">Người báo cáo</TableHead>
-                  <TableHead className="w-[185px]">Bình luận bị báo cáo</TableHead>
+                  <TableHead className="w-[185px]">
+                    Bình luận bị báo cáo
+                  </TableHead>
                   <TableHead className="w-[135px]">Lý do báo cáo</TableHead>
                   <TableHead className="w-[110px]">Ngày báo cáo</TableHead>
                   <TableHead className="w-[95px]">Trạng thái BC</TableHead>
                   <TableHead className="w-[95px]">Trạng thái BL</TableHead>
-                  <TableHead className="w-[55px] text-center pr-4">Chi tiết</TableHead>
+                  <TableHead className="w-[55px] text-center pr-4">
+                    Chi tiết
+                  </TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -698,7 +798,8 @@ const ReportCommentManagement = () => {
                           Không tìm thấy báo cáo nào
                         </p>
                         <p className="text-xs">
-                          Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc thời gian.
+                          Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc thời
+                          gian.
                         </p>
                       </div>
                     </TableCell>
@@ -724,14 +825,23 @@ const ReportCommentManagement = () => {
                               className="object-cover"
                             />
                             <AvatarFallback className="bg-primary/5 text-primary text-[9px] font-semibold">
-                              {getInitials(report.reporterId?.full_name || report.reporterId?.username)}
+                              {getInitials(
+                                report.reporterId?.full_name ||
+                                  report.reporterId?.username,
+                              )}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-semibold text-[11px] text-foreground truncate max-w-[85px]" title={report.reporterId?.full_name}>
+                            <span
+                              className="font-semibold text-[11px] text-foreground truncate max-w-[85px]"
+                              title={report.reporterId?.full_name}
+                            >
                               {report.reporterId?.full_name || "Chưa đặt tên"}
                             </span>
-                            <span className="text-[9px] text-muted-foreground truncate max-w-[85px]" title={report.reporterId?.username}>
+                            <span
+                              className="text-[9px] text-muted-foreground truncate max-w-[85px]"
+                              title={report.reporterId?.username}
+                            >
                               @{report.reporterId?.username || "unknown"}
                             </span>
                           </div>
@@ -753,8 +863,15 @@ const ReportCommentManagement = () => {
                             </div>
                           )}
                           <div className="flex flex-col min-w-0 flex-1">
-                            <span className="text-[11px] text-foreground font-medium truncate block w-full" title={report.comment?.content || "(Không có nội dung chữ)"}>
-                              {report.comment?.content || "(Không có nội dung chữ)"}
+                            <span
+                              className="text-[11px] text-foreground font-medium truncate block w-full"
+                              title={
+                                report.comment?.content ||
+                                "(Không có nội dung chữ)"
+                              }
+                            >
+                              {report.comment?.content ||
+                                "(Không có nội dung chữ)"}
                             </span>
                             <span className="text-[9px] text-muted-foreground truncate block w-full">
                               Bởi @{report.comment?.user?.username || "unknown"}
@@ -779,7 +896,9 @@ const ReportCommentManagement = () => {
                       <TableCell>{renderStatusBadge(report.status)}</TableCell>
 
                       {/* Comment Status */}
-                      <TableCell>{renderCommentStatusBadge(report.comment)}</TableCell>
+                      <TableCell>
+                        {renderCommentStatusBadge(report.comment)}
+                      </TableCell>
 
                       {/* Actions */}
                       <TableCell className="pr-4 text-center">
@@ -804,7 +923,8 @@ const ReportCommentManagement = () => {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t">
               <p className="text-xs text-muted-foreground">
-                Đang hiển thị trang <b>{pagination.currentPage}</b> trên tổng số <b>{pagination.totalPages}</b> trang
+                Đang hiển thị trang <b>{pagination.currentPage}</b> trên tổng số{" "}
+                <b>{pagination.totalPages}</b> trang
               </p>
               <div className="flex items-center gap-1.5">
                 <Button

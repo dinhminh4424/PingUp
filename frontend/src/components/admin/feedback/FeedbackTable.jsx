@@ -1,12 +1,26 @@
 import React from "react";
 import { Star, Eye, CheckCircle, Check } from "lucide-react";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 
-const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => {
+const FeedbackTable = ({
+  feedbacks,
+  loading,
+  onOpenDetail,
+  onUpdateStatus,
+}) => {
   return (
     <div className="rounded-b-xl border-t overflow-hidden w-full">
       {loading ? (
-        <div className="p-8 text-center text-muted-foreground">Đang tải danh sách phản hồi...</div>
+        <div className="p-8 text-center text-muted-foreground">
+          Đang tải danh sách phản hồi...
+        </div>
       ) : (
         <div className="overflow-x-auto w-full">
           <Table>
@@ -16,10 +30,14 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                 <TableHead className="min-w-[150px]">Người dùng</TableHead>
                 <TableHead className="w-[120px]">Phân loại</TableHead>
                 <TableHead className="w-[120px]">Đánh giá</TableHead>
-                <TableHead className="min-w-[250px]">Nội dung & Media</TableHead>
+                <TableHead className="min-w-[250px]">
+                  Nội dung & Media
+                </TableHead>
                 <TableHead className="w-[120px]">Ngày tạo</TableHead>
                 <TableHead className="w-[120px]">Trạng thái</TableHead>
-                <TableHead className="w-[160px] text-right pr-6">Hành động</TableHead>
+                <TableHead className="w-[160px] text-right pr-6">
+                  Hành động
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -35,7 +53,9 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <img
-                        src={fb.userId?.profile_picture || "/default-avatar.avif"}
+                        src={
+                          fb.userId?.profile_picture || "/default-avatar.avif"
+                        }
                         alt=""
                         className="w-8 h-8 rounded-full object-cover border border-border"
                       />
@@ -53,13 +73,19 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                     <span
                       className={`px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider ${
                         fb.category === "bug"
-                          ? "bg-rose-500/10 text-rose-600 dark:text-rose-450"
+                          ? "bg-rose-500/10 text-rose-600 dark:text-rose-400"
                           : fb.category === "suggestion"
-                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-450"
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                             : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-455"
                       }`}
                     >
-                      {fb.category === "bug" ? "Báo lỗi" : fb.category === "suggestion" ? "Góp ý" : fb.category === "compliment" ? "Khen ngợi" : "Khác"}
+                      {fb.category === "bug"
+                        ? "Báo lỗi"
+                        : fb.category === "suggestion"
+                          ? "Góp ý"
+                          : fb.category === "compliment"
+                            ? "Khen ngợi"
+                            : "Khác"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -73,17 +99,32 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                     </div>
                   </TableCell>
                   <TableCell className="max-w-md text-xs leading-relaxed">
-                    <p className="italic font-medium text-foreground truncate max-w-xs">"{fb.comment}"</p>
+                    <p className="italic font-medium text-foreground truncate max-w-xs">
+                      "{fb.comment}"
+                    </p>
                     {fb.media && fb.media.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2.5">
                         {fb.media.map((url, i) => {
-                          const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes("/video");
+                          const isVideo =
+                            url.match(/\.(mp4|webm|ogg|mov)$/i) ||
+                            url.includes("/video");
                           return (
-                            <div key={i} className="relative w-12 h-12 rounded-lg overflow-hidden border border-border shadow-2xs bg-muted flex-shrink-0">
+                            <div
+                              key={i}
+                              className="relative w-12 h-12 rounded-lg overflow-hidden border border-border shadow-2xs bg-muted flex-shrink-0"
+                            >
                               {isVideo ? (
-                                <video src={url} className="w-full h-full object-cover" muted />
+                                <video
+                                  src={url}
+                                  className="w-full h-full object-cover"
+                                  muted
+                                />
                               ) : (
-                                <img src={url} alt="" className="w-full h-full object-cover" />
+                                <img
+                                  src={url}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
                               )}
                             </div>
                           );
@@ -100,7 +141,7 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                         fb.status === "New"
                           ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
                           : fb.status === "Reviewed"
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 font-semibold"
+                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
                             : "bg-slate-500/10 text-slate-600 dark:text-slate-400"
                       }`}
                     >
@@ -113,7 +154,10 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                             : fb.status}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right pr-6" onClick={(e) => e.stopPropagation()}>
+                  <TableCell
+                    className="text-right pr-6"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => onOpenDetail(fb)}
@@ -136,7 +180,7 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
                       {fb.status === "Reviewed" && (
                         <button
                           onClick={() => onUpdateStatus(fb._id, "Archived")}
-                          className="p-1.5 hover:bg-emerald-500/15 rounded-lg text-emerald-600 dark:text-emerald-450 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
+                          className="p-1.5 hover:bg-emerald-500/15 rounded-lg text-emerald-600 dark:text-emerald-400 transition cursor-pointer flex items-center gap-1 text-xs font-semibold"
                           title="Đánh dấu đã duyệt"
                         >
                           <CheckCircle className="w-4 h-4" />
@@ -149,7 +193,10 @@ const FeedbackTable = ({ feedbacks, loading, onOpenDetail, onUpdateStatus }) => 
               ))}
               {feedbacks.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="p-8 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={8}
+                    className="p-8 text-center text-muted-foreground"
+                  >
                     Không tìm thấy phản hồi nào.
                   </TableCell>
                 </TableRow>

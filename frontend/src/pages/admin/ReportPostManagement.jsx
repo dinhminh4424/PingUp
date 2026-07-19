@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getReportPost, updateReportStatus } from "../../services/admin/ReportService";
-import { togglePostActive, togglePostDelete, togglePostCommentDisabled } from "../../services/admin/PostService";
+import {
+  getReportPost,
+  updateReportStatus,
+} from "../../services/admin/ReportService";
+import {
+  togglePostActive,
+  togglePostDelete,
+  togglePostCommentDisabled,
+} from "../../services/admin/PostService";
 import { toggleUserActive } from "../../services/admin/UserService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -123,7 +130,7 @@ const ReportPostManagement = () => {
     reason = reasonFilter,
     reporter = reporterFilter,
     start = startDate,
-    end = endDate
+    end = endDate,
   ) => {
     try {
       setLoading(true);
@@ -136,7 +143,7 @@ const ReportPostManagement = () => {
         end,
         page,
         reason,
-        reporter
+        reporter,
       );
 
       if (result.success) {
@@ -163,12 +170,28 @@ const ReportPostManagement = () => {
   };
 
   useEffect(() => {
-    fetchReports(1, searchQuery, statusFilter, reasonFilter, reporterFilter, startDate, endDate);
+    fetchReports(
+      1,
+      searchQuery,
+      statusFilter,
+      reasonFilter,
+      reporterFilter,
+      startDate,
+      endDate,
+    );
   }, [statusFilter, reasonFilter, startDate, endDate]);
 
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
-    fetchReports(1, searchQuery, statusFilter, reasonFilter, reporterFilter, startDate, endDate);
+    fetchReports(
+      1,
+      searchQuery,
+      statusFilter,
+      reasonFilter,
+      reporterFilter,
+      startDate,
+      endDate,
+    );
   };
 
   const handleClearFilters = () => {
@@ -186,10 +209,12 @@ const ReportPostManagement = () => {
       setActionLoading(true);
       const result = await updateReportStatus(reportId, newStatus);
       if (result.success) {
-        toast.success(`Đã cập nhật trạng thái báo cáo thành: ${
-          newStatus === "resolved" ? "Giải quyết" : "Bác bỏ"
-        }`);
-        
+        toast.success(
+          `Đã cập nhật trạng thái báo cáo thành: ${
+            newStatus === "resolved" ? "Giải quyết" : "Bác bỏ"
+          }`,
+        );
+
         // Refresh details modal state if active
         if (selectedReport && selectedReport._id === reportId) {
           setSelectedReport((prev) => ({
@@ -202,7 +227,9 @@ const ReportPostManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi cập nhật trạng thái báo cáo!");
+      toast.error(
+        err.response?.data?.message || "Lỗi cập nhật trạng thái báo cáo!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -217,7 +244,11 @@ const ReportPostManagement = () => {
         toast.success(result.message);
 
         // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post._id === postId) {
+        if (
+          selectedReport &&
+          selectedReport.post &&
+          selectedReport.post._id === postId
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             post: {
@@ -231,7 +262,10 @@ const ReportPostManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái tính năng bình luận!");
+      toast.error(
+        err.response?.data?.message ||
+          "Lỗi thay đổi trạng thái tính năng bình luận!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -244,9 +278,13 @@ const ReportPostManagement = () => {
       const result = await togglePostActive(post._id);
       if (result.success) {
         toast.success(result.message);
-        
+
         // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post._id === post._id) {
+        if (
+          selectedReport &&
+          selectedReport.post &&
+          selectedReport.post._id === post._id
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             post: {
@@ -260,7 +298,9 @@ const ReportPostManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái bài viết!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái bài viết!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -273,9 +313,14 @@ const ReportPostManagement = () => {
       const result = await toggleUserActive(user._id);
       if (result.success) {
         toast.success(result.message);
-        
+
         // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post.user && selectedReport.post.user._id === user._id) {
+        if (
+          selectedReport &&
+          selectedReport.post &&
+          selectedReport.post.user &&
+          selectedReport.post.user._id === user._id
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             post: {
@@ -292,7 +337,9 @@ const ReportPostManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái tài khoản!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái tài khoản!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -307,7 +354,11 @@ const ReportPostManagement = () => {
         toast.success(result.message);
 
         // Refresh details modal state if active
-        if (selectedReport && selectedReport.post && selectedReport.post._id === post._id) {
+        if (
+          selectedReport &&
+          selectedReport.post &&
+          selectedReport.post._id === post._id
+        ) {
           setSelectedReport((prev) => ({
             ...prev,
             post: {
@@ -321,7 +372,9 @@ const ReportPostManagement = () => {
         fetchReports(currentPage);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bài viết!");
+      toast.error(
+        err.response?.data?.message || "Lỗi thay đổi trạng thái xóa bài viết!",
+      );
     } finally {
       setActionLoading(false);
     }
@@ -406,7 +459,6 @@ const ReportPostManagement = () => {
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full animate-in fade-in duration-300">
-      
       {/* Title Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -414,7 +466,8 @@ const ReportPostManagement = () => {
             Quản lý báo cáo bài viết
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Theo dõi danh sách báo cáo, kiểm duyệt bài viết và áp dụng các biện pháp xử lý.
+            Theo dõi danh sách báo cáo, kiểm duyệt bài viết và áp dụng các biện
+            pháp xử lý.
           </p>
         </div>
         <Button
@@ -434,8 +487,12 @@ const ReportPostManagement = () => {
         <Card className="border border-border/80 shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Tổng báo cáo</p>
-              <h3 className="text-2xl font-bold mt-1 text-foreground">{stats.total}</h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                Tổng báo cáo
+              </p>
+              <h3 className="text-2xl font-bold mt-1 text-foreground">
+                {stats.total}
+              </h3>
             </div>
             <div className="size-10 bg-primary/5 rounded-lg flex items-center justify-center text-primary">
               <FileText className="size-5" />
@@ -446,8 +503,12 @@ const ReportPostManagement = () => {
         <Card className="border border-border/80 shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Chờ xử lý</p>
-              <h3 className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-500">{stats.pending}</h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                Chờ xử lý
+              </p>
+              <h3 className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-500">
+                {stats.pending}
+              </h3>
             </div>
             <div className="size-10 bg-amber-500/5 rounded-lg flex items-center justify-center text-amber-500">
               <Clock className="size-5" />
@@ -458,8 +519,12 @@ const ReportPostManagement = () => {
         <Card className="border border-border/80 shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Đã giải quyết</p>
-              <h3 className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-500">{stats.resolved}</h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                Đã giải quyết
+              </p>
+              <h3 className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-500">
+                {stats.resolved}
+              </h3>
             </div>
             <div className="size-10 bg-emerald-500/5 rounded-lg flex items-center justify-center text-emerald-500">
               <UserCheck className="size-5" />
@@ -470,8 +535,12 @@ const ReportPostManagement = () => {
         <Card className="border border-border/80 shadow-xs">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs text-muted-foreground font-medium">Đã bác bỏ</p>
-              <h3 className="text-2xl font-bold mt-1 text-slate-600 dark:text-slate-400">{stats.dismissed}</h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                Đã bác bỏ
+              </p>
+              <h3 className="text-2xl font-bold mt-1 text-slate-600 dark:text-slate-400">
+                {stats.dismissed}
+              </h3>
             </div>
             <div className="size-10 bg-slate-500/5 rounded-lg flex items-center justify-center text-slate-500">
               <XCircle className="size-5" />
@@ -484,7 +553,6 @@ const ReportPostManagement = () => {
       <Card className="border-border">
         <CardContent className="p-4">
           <div className="flex flex-col gap-4">
-            
             <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3">
               {/* Row 1: Search & Reporter Filter */}
               <div className="flex flex-col md:flex-row gap-3">
@@ -508,7 +576,11 @@ const ReportPostManagement = () => {
                   />
                 </div>
 
-                <Button type="submit" variant="default" className="w-full md:w-auto h-9 text-xs px-6">
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-full md:w-auto h-9 text-xs px-6"
+                >
                   Tìm kiếm
                 </Button>
               </div>
@@ -517,7 +589,9 @@ const ReportPostManagement = () => {
             <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-3 border-dashed">
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-muted-foreground">Lọc theo ngày:</span>
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Lọc theo ngày:
+                  </span>
                   <DateRangeFilter onFilterChange={handleDateFilterChange} />
                 </div>
 
@@ -550,19 +624,23 @@ const ReportPostManagement = () => {
                 </div>
               </div>
 
-              {(searchQuery || statusFilter !== "all" || reasonFilter !== "all" || reporterFilter || startDate || endDate) && (
+              {(searchQuery ||
+                statusFilter !== "all" ||
+                reasonFilter !== "all" ||
+                reporterFilter ||
+                startDate ||
+                endDate) && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleClearFilters}
-                  className="text-xs h-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 gap-1.5"
+                  className="text-xs h-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 gap-1.5"
                 >
                   <RotateCcw className="size-3" />
                   Xóa bộ lọc
                 </Button>
               )}
             </div>
-
           </div>
         </CardContent>
       </Card>
@@ -583,14 +661,20 @@ const ReportPostManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/30">
-                  <TableHead className="w-[80px] pl-4 py-3">Mã báo cáo</TableHead>
+                  <TableHead className="w-[80px] pl-4 py-3">
+                    Mã báo cáo
+                  </TableHead>
                   <TableHead className="w-[125px]">Người báo cáo</TableHead>
-                  <TableHead className="w-[145px]">Bài viết bị báo cáo</TableHead>
+                  <TableHead className="w-[145px]">
+                    Bài viết bị báo cáo
+                  </TableHead>
                   <TableHead className="w-[135px]">Lý do báo cáo</TableHead>
                   <TableHead className="w-[110px]">Ngày báo cáo</TableHead>
                   <TableHead className="w-[95px]">Trạng thái BC</TableHead>
                   <TableHead className="w-[95px]">Trạng thái BV</TableHead>
-                  <TableHead className="w-[55px] text-center pr-4">Chi tiết</TableHead>
+                  <TableHead className="w-[55px] text-center pr-4">
+                    Chi tiết
+                  </TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -649,7 +733,8 @@ const ReportPostManagement = () => {
                           Không tìm thấy báo cáo nào
                         </p>
                         <p className="text-xs">
-                          Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc thời gian.
+                          Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc thời
+                          gian.
                         </p>
                       </div>
                     </TableCell>
@@ -675,14 +760,23 @@ const ReportPostManagement = () => {
                               className="object-cover"
                             />
                             <AvatarFallback className="bg-primary/5 text-primary text-[9px] font-semibold">
-                              {getInitials(report.reporterId?.full_name || report.reporterId?.username)}
+                              {getInitials(
+                                report.reporterId?.full_name ||
+                                  report.reporterId?.username,
+                              )}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-semibold text-[11px] text-foreground truncate max-w-[85px]" title={report.reporterId?.full_name}>
+                            <span
+                              className="font-semibold text-[11px] text-foreground truncate max-w-[85px]"
+                              title={report.reporterId?.full_name}
+                            >
                               {report.reporterId?.full_name || "Chưa đặt tên"}
                             </span>
-                            <span className="text-[9px] text-muted-foreground truncate max-w-[85px]" title={report.reporterId?.username}>
+                            <span
+                              className="text-[9px] text-muted-foreground truncate max-w-[85px]"
+                              title={report.reporterId?.username}
+                            >
                               @{report.reporterId?.username || "unknown"}
                             </span>
                           </div>
@@ -704,8 +798,15 @@ const ReportPostManagement = () => {
                             </div>
                           )}
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] text-foreground font-medium truncate" title={report.post?.content || "(Không có nội dung chữ)"}>
-                              {report.post?.content || "(Không có nội dung chữ)"}
+                            <span
+                              className="text-[11px] text-foreground font-medium truncate"
+                              title={
+                                report.post?.content ||
+                                "(Không có nội dung chữ)"
+                              }
+                            >
+                              {report.post?.content ||
+                                "(Không có nội dung chữ)"}
                             </span>
                             <span className="text-[9px] text-muted-foreground truncate">
                               Bởi @{report.post?.user?.username || "unknown"}
@@ -730,7 +831,9 @@ const ReportPostManagement = () => {
                       <TableCell>{renderStatusBadge(report.status)}</TableCell>
 
                       {/* Post Status */}
-                      <TableCell>{renderPostStatusBadge(report.post)}</TableCell>
+                      <TableCell>
+                        {renderPostStatusBadge(report.post)}
+                      </TableCell>
 
                       {/* Actions */}
                       <TableCell className="pr-4 text-center">
@@ -755,7 +858,8 @@ const ReportPostManagement = () => {
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between px-6 py-4 border-t">
               <p className="text-xs text-muted-foreground">
-                Đang hiển thị trang <b>{pagination.currentPage}</b> trên tổng số <b>{pagination.totalPages}</b> trang
+                Đang hiển thị trang <b>{pagination.currentPage}</b> trên tổng số{" "}
+                <b>{pagination.totalPages}</b> trang
               </p>
               <div className="flex items-center gap-1.5">
                 <Button
@@ -812,7 +916,6 @@ const ReportPostManagement = () => {
           handleTogglePostCommentDisabled={handleTogglePostCommentDisabled}
         />
       )}
-
     </div>
   );
 };

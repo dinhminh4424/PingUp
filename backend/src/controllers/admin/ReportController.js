@@ -3,7 +3,15 @@ import ReportService from "../../services/admin/ReportService.js";
 class ReportController {
   async getReportPost(req, res) {
     try {
-      const { searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter, reporterFilter } = req.query;
+      const {
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page = 1,
+        reasonFilter,
+        reporterFilter,
+      } = req.query;
       const result = await ReportService.getReportPosts(
         searchQuery,
         statusFilter,
@@ -11,7 +19,7 @@ class ReportController {
         endDate,
         page,
         reasonFilter,
-        reporterFilter
+        reporterFilter,
       );
       return res.status(result.status).json(result.data);
     } catch (error) {
@@ -25,7 +33,15 @@ class ReportController {
 
   async getReportComment(req, res) {
     try {
-      const { searchQuery, statusFilter, startDate, endDate, page = 1, reasonFilter, reporterFilter } = req.query;
+      const {
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page = 1,
+        reasonFilter,
+        reporterFilter,
+      } = req.query;
       const result = await ReportService.getReportComments(
         searchQuery,
         statusFilter,
@@ -33,7 +49,7 @@ class ReportController {
         endDate,
         page,
         reasonFilter,
-        reporterFilter
+        reporterFilter,
       );
       return res.status(result.status).json(result.data);
     } catch (error) {
@@ -56,6 +72,66 @@ class ReportController {
       res.status(500).json({
         success: false,
         message: "Lỗi hệ thống: " + error.message,
+      });
+    }
+  }
+
+  async getReportConversation(req, res) {
+    try {
+      const {
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page = 1,
+        reasonFilter,
+        reporterFilter,
+      } = req.query;
+      const result = await ReportService.getReportConversations(
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page,
+        reasonFilter,
+        reporterFilter,
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy report conversation: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy report conversation: " + error.message,
+      });
+    }
+  }
+
+  async getReportUser(req, res) {
+    try {
+      const {
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page = 1,
+        reasonFilter,
+        reporterFilter,
+      } = req.query;
+      const result = await ReportService.getReportUsers(
+        searchQuery,
+        statusFilter,
+        startDate,
+        endDate,
+        page,
+        reasonFilter,
+        reporterFilter,
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi Khi Lấy Report User: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi Khi Lấy Report User: " + error.message,
       });
     }
   }

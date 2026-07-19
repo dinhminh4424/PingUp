@@ -113,6 +113,31 @@ class UserController {
       });
     }
   }
+
+  async createReportUser(req, res) {
+    try {
+      const { id } = req.params;
+      const { targetType, reason, details } = req.body;
+      const files = req.files;
+      const userId = req.user._id;
+
+      const result = await UserService.createReportUser(
+        id,
+        targetType,
+        userId,
+        reason,
+        details,
+        files,
+      );
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.log("Lỗi khi Tạo Báo Cáo User: ", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi Khi Tạo Báo Cáo User: " + error.message,
+      });
+    }
+  }
 }
 
 export default new UserController();

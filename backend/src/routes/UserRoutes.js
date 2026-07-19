@@ -19,4 +19,11 @@ router.put(
   UserController.updateInfoUser,
 );
 
+// POST
+router.post(
+  "/:id/report",
+  upload.array("images"),
+  UserController.createReportUser,
+);
+
 export default router;

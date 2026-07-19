@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Report from "../models/Report.js";
 import Follow from "../models/Follow.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 import Connection from "../models/Connection.js";
@@ -229,6 +230,71 @@ class UserService {
         data: {
           success: false,
           message: "Lỗi hệ thống tìm kiếm người dùng: " + error.message,
+        },
+      };
+    }
+  }
+
+  async createReportUser(
+    id,
+    targetType = "user",
+    userId,
+    reason,
+    details,
+    files,
+  ) {
+    try {
+      if (!id) {
+        return {
+          status: 400,
+          data: {
+            success: false,
+            message: "Thiếu Id User Báo Cáo",
+          },
+        };
+      }
+      const user = await User.findById(id);
+      if (!user) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Thiếu Id User Báo Cáo",
+          },
+        };
+      }
+
+      const listImage = [];
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const uploadResult = await uploadImageFromBuffer(file.buffer);
+          listImage.push(uploadResult.secure_url);
+        }
+      }
+
+      const report = await Report.create({
+        reporterId: userId,
+        targetId: id,
+        targetType: targetType,
+        reason: reason,
+        details: details,
+        file: listImage,
+      });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Tạo Báo Cáo User Thành Công",
+          report,
+        },
+      };
+    } catch (error) {
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi Hệ Thống Khi Báo Cáo Người Dùng: " + error.message,
         },
       };
     }
