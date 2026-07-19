@@ -11,7 +11,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertTriangle,
   Mail,
-  FileText,
   Clock,
   Ban,
   ShieldCheck,
@@ -19,8 +18,6 @@ import {
   HelpCircle,
   User,
   Heart,
-  MessageCircle,
-  Activity,
   Share2,
   MessageSquare,
 } from "lucide-react";
@@ -59,12 +56,18 @@ const ReportUserDetailModal = ({
           setConvsLoading(true);
 
           // Fetch posts, reported conversations, and other report types in parallel
-          const [postsRes, convReportsRes, userReportsRes, postReportsRes, commentReportsRes] = await Promise.all([
+          const [
+            postsRes,
+            convReportsRes,
+            userReportsRes,
+            postReportsRes,
+            commentReportsRes,
+          ] = await Promise.all([
             getPostsByIdUser(selectedReport.user._id),
             getReportConversation(),
             getReportUser(selectedReport.user._id),
             getReportPost(),
-            getReportComment()
+            getReportComment(),
           ]);
 
           if (postsRes.success) {
@@ -73,39 +76,50 @@ const ReportUserDetailModal = ({
 
           if (convReportsRes.success && convReportsRes.reportConversations) {
             // Filter conversations where the reported user is a participant or creator
-            const filtered = convReportsRes.reportConversations.filter((report) => {
-              const conv = report.conversation;
-              if (!conv) return false;
-              const isParticipant = conv.participants?.some(
-                (p) => {
-                  const pId = p.userId?._id?.toString() || p.userId?.toString() || p.toString();
+            const filtered = convReportsRes.reportConversations.filter(
+              (report) => {
+                const conv = report.conversation;
+                if (!conv) return false;
+                const isParticipant = conv.participants?.some((p) => {
+                  const pId =
+                    p.userId?._id?.toString() ||
+                    p.userId?.toString() ||
+                    p.toString();
                   return pId === selectedReport.user._id.toString();
-                }
-              );
-              const isCreator = conv.group?.createBy?.toString() === selectedReport.user._id.toString();
-              return isParticipant || isCreator;
-            });
+                });
+                const isCreator =
+                  conv.group?.createBy?.toString() ===
+                  selectedReport.user._id.toString();
+                return isParticipant || isCreator;
+              },
+            );
             setReportedConvs(filtered);
           }
 
           let userReportsCount = 0;
           if (userReportsRes.success && userReportsRes.reportUsers) {
             userReportsCount = userReportsRes.reportUsers.filter(
-              (r) => r.targetId?.toString() === selectedReport.user._id.toString()
+              (r) =>
+                r.targetId?.toString() === selectedReport.user._id.toString(),
             ).length;
           }
 
           let postReportsCount = 0;
           if (postReportsRes.success && postReportsRes.reportPosts) {
             postReportsCount = postReportsRes.reportPosts.filter(
-              (r) => (r.post?.user?._id?.toString() || r.post?.user?.toString()) === selectedReport.user._id.toString()
+              (r) =>
+                (r.post?.user?._id?.toString() || r.post?.user?.toString()) ===
+                selectedReport.user._id.toString(),
             ).length;
           }
 
           let commentReportsCount = 0;
           if (commentReportsRes.success && commentReportsRes.reportComments) {
             commentReportsCount = commentReportsRes.reportComments.filter(
-              (r) => (r.comment?.user?._id?.toString() || r.comment?.user?.toString()) === selectedReport.user._id.toString()
+              (r) =>
+                (r.comment?.user?._id?.toString() ||
+                  r.comment?.user?.toString()) ===
+                selectedReport.user._id.toString(),
             ).length;
           }
 
@@ -114,7 +128,6 @@ const ReportUserDetailModal = ({
             postReports: postReportsCount,
             commentReports: commentReportsCount,
           });
-
         } catch (error) {
           console.error("Lỗi khi tải dữ liệu của user:", error);
         } finally {
@@ -472,7 +485,9 @@ const ReportUserDetailModal = ({
                               <span>{formatDate(post.createdAt)}</span>
                               <span className="font-semibold px-1.5 py-0.5 bg-muted rounded">
                                 {post.isActive !== false ? (
-                                  <span className="text-emerald-600">Active</span>
+                                  <span className="text-emerald-600">
+                                    Active
+                                  </span>
                                 ) : (
                                   <span className="text-rose-600">Locked</span>
                                 )}
@@ -498,15 +513,24 @@ const ReportUserDetailModal = ({
                               </div>
                             )}
                             <div className="flex items-center gap-4 text-[10px] text-muted-foreground pt-1 border-t border-dashed mt-1">
-                              <span className="flex items-center gap-1" title="Lượt thích">
+                              <span
+                                className="flex items-center gap-1"
+                                title="Lượt thích"
+                              >
                                 <Heart className="size-3 text-rose-500" />
                                 {post.likes_count?.length || 0}
                               </span>
-                              <span className="flex items-center gap-1" title="Bình luận">
+                              <span
+                                className="flex items-center gap-1"
+                                title="Bình luận"
+                              >
                                 <MessageSquare className="size-3 text-blue-500" />
                                 {post.comments_count || 0}
                               </span>
-                              <span className="flex items-center gap-1" title="Chia sẻ">
+                              <span
+                                className="flex items-center gap-1"
+                                title="Chia sẻ"
+                              >
                                 <Share2 className="size-3 text-emerald-500" />
                                 {post.shares_count || 0}
                               </span>
@@ -525,8 +549,13 @@ const ReportUserDetailModal = ({
                         </div>
                       ) : reportedConvs.length === 0 ? (
                         <div className="text-center py-6 text-xs text-muted-foreground border border-dashed rounded-lg bg-background/50 text-left p-4">
-                          <p className="font-semibold text-foreground mb-1">Không có hộp thoại vi phạm</p>
-                          <p className="text-[11px] leading-normal text-muted-foreground">Chưa có cuộc hội thoại hoặc nhóm chat nào liên quan đến người dùng này bị báo cáo.</p>
+                          <p className="font-semibold text-foreground mb-1">
+                            Không có hộp thoại vi phạm
+                          </p>
+                          <p className="text-[11px] leading-normal text-muted-foreground">
+                            Chưa có cuộc hội thoại hoặc nhóm chat nào liên quan
+                            đến người dùng này bị báo cáo.
+                          </p>
                         </div>
                       ) : (
                         reportedConvs.map((report) => {
@@ -537,11 +566,15 @@ const ReportUserDetailModal = ({
                               className="p-3 bg-background rounded-lg border flex flex-col gap-2 shadow-2xs hover:shadow-xs transition-shadow text-left"
                             >
                               <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                                <span className="font-semibold text-primary">#{report._id.toUpperCase()}</span>
+                                <span className="font-semibold text-primary">
+                                  #{report._id.toUpperCase()}
+                                </span>
                                 <span>{formatDate(report.createdAt)}</span>
                               </div>
                               <p className="text-xs font-bold text-foreground">
-                                {conv?.full_name || conv?.group?.name || "Hộp thoại nhóm"}
+                                {conv?.full_name ||
+                                  conv?.group?.name ||
+                                  "Hộp thoại nhóm"}
                               </p>
                               <div className="text-[10px] text-amber-700 bg-amber-500/5 p-1.5 rounded border border-amber-500/10">
                                 Lý do báo cáo: {report.reason}
@@ -557,35 +590,55 @@ const ReportUserDetailModal = ({
                     <div className="space-y-4 text-left">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="p-3 bg-background border rounded-lg shadow-2xs">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tổng số Bài viết</p>
-                          <p className="text-lg font-bold mt-0.5 text-primary">{userPosts.length}</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            Tổng số Bài viết
+                          </p>
+                          <p className="text-lg font-bold mt-0.5 text-primary">
+                            {userPosts.length}
+                          </p>
                         </div>
                         <div className="p-3 bg-background border rounded-lg shadow-2xs">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Lượt Thích Nhận được</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            Lượt Thích Nhận được
+                          </p>
                           <p className="text-lg font-bold mt-0.5 text-rose-600">
-                            {userPosts.reduce((acc, p) => acc + (p.likes_count?.length || 0), 0)}
+                            {userPosts.reduce(
+                              (acc, p) => acc + (p.likes_count?.length || 0),
+                              0,
+                            )}
                           </p>
                         </div>
                         <div className="p-3 bg-background border rounded-lg shadow-2xs">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Lượt chia sẻ bài viết</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            Lượt chia sẻ bài viết
+                          </p>
                           <p className="text-lg font-bold mt-0.5 text-emerald-600">
-                            {userPosts.reduce((acc, p) => acc + (p.shares_count || 0), 0)}
+                            {userPosts.reduce(
+                              (acc, p) => acc + (p.shares_count || 0),
+                              0,
+                            )}
                           </p>
                         </div>
                         <div className="p-3 bg-background border rounded-lg shadow-2xs">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Báo cáo Tài khoản</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            Báo cáo Tài khoản
+                          </p>
                           <p className="text-lg font-bold mt-0.5 text-amber-600">
                             {userReportStats.userReports} lần
                           </p>
                         </div>
                         <div className="p-3 bg-background border rounded-lg shadow-2xs">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Báo cáo Bài viết</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            Báo cáo Bài viết
+                          </p>
                           <p className="text-lg font-bold mt-0.5 text-amber-650">
                             {userReportStats.postReports} lần
                           </p>
                         </div>
                         <div className="p-3 bg-background border rounded-lg shadow-2xs">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Báo cáo Bình luận</p>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            Báo cáo Bình luận
+                          </p>
                           <p className="text-lg font-bold mt-0.5 text-amber-650">
                             {userReportStats.commentReports} lần
                           </p>
@@ -595,8 +648,12 @@ const ReportUserDetailModal = ({
                       <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-lg text-[11px] text-amber-800 dark:text-amber-300 leading-normal flex items-start gap-2">
                         <AlertTriangle className="size-4 shrink-0 mt-0.5" />
                         <div>
-                          <p className="font-semibold mb-0.5">Lưu ý kiểm duyệt</p>
-                          Admin nên đối chiếu thông tin bài viết, lịch sử hoạt động và các báo cáo khác của người dùng này để đưa ra quyết định xử lý phù hợp nhất.
+                          <p className="font-semibold mb-0.5">
+                            Lưu ý kiểm duyệt
+                          </p>
+                          Admin nên đối chiếu thông tin bài viết, lịch sử hoạt
+                          động và các báo cáo khác của người dùng này để đưa ra
+                          quyết định xử lý phù hợp nhất.
                         </div>
                       </div>
                     </div>

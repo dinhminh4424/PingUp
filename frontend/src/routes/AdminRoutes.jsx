@@ -15,6 +15,7 @@ const MessageStats = lazy(
 );
 const ReportStats = lazy(() => import("../pages/admin/dashboard/ReportStats"));
 const UserManagement = lazy(() => import("../pages/admin/UserManagement"));
+const UserDetail = lazy(() => import("../pages/admin/UserDetail"));
 const PostManagement = lazy(() => import("../pages/admin/PostManagement"));
 const MessageManagement = lazy(
   () => import("../pages/admin/MessageManagement"),
@@ -52,6 +53,7 @@ const AdminRoutes = () => {
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="users/:id" element={<UserDetail />} />
             <Route path="posts" element={<PostManagement />} />
             <Route path="messages" element={<MessageManagement />} />
             <Route path="appeals" element={<AppealManagement />} />
