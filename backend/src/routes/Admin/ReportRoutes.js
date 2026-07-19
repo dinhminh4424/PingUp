@@ -7,6 +7,7 @@ const router = express.Router();
 router.get("/posts", ReportController.getReportPost);
 router.get("/comments", ReportController.getReportComment);
 router.get("/conversations", ReportController.getReportConversation);
+router.get("/users", ReportController.getReportUser);
 
 // PUT
 router.put("/:id/status", ReportController.updateReportStatus);

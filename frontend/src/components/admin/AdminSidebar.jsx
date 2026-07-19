@@ -106,7 +106,7 @@ const AdminSidebar = ({ ...props }) => {
         {
           title: "Người dùng",
           url: "/admin/reports/users",
-          badge: "soon",
+          badge: "",
         },
       ],
     },
