@@ -267,7 +267,7 @@ const ReportCommentDetailModal = ({
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-950/20 cursor-pointer"
+                        className="flex-1 h-8 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-900/20 cursor-pointer"
                         onClick={() =>
                           handleUpdateStatus(selectedReport._id, "dismissed")
                         }
@@ -340,17 +340,25 @@ const ReportCommentDetailModal = ({
                     {selectedReport.comment.user && (
                       <Button
                         size="xs"
-                        variant={selectedReport.comment.user.isActive !== false ? "outline" : "default"}
+                        variant={
+                          selectedReport.comment.user.isActive !== false
+                            ? "outline"
+                            : "default"
+                        }
                         className={`h-7 px-2 text-[10px] font-semibold cursor-pointer shrink-0 ${
                           selectedReport.comment.user.isActive !== false
                             ? "text-rose-600 border-rose-200 hover:bg-rose-50"
                             : "bg-emerald-600 hover:bg-emerald-700 text-white"
                         }`}
-                        onClick={() => handleToggleUserActive(selectedReport.comment.user)}
+                        onClick={() =>
+                          handleToggleUserActive(selectedReport.comment.user)
+                        }
                         disabled={actionLoading}
                       >
                         <Ban className="size-3 mr-1" />
-                        {selectedReport.comment.user.isActive !== false ? "Khóa user" : "Mở user"}
+                        {selectedReport.comment.user.isActive !== false
+                          ? "Khóa user"
+                          : "Mở user"}
                       </Button>
                     )}
                   </div>
@@ -365,18 +373,28 @@ const ReportCommentDetailModal = ({
                     <div className="p-3 bg-muted/20 rounded-lg border text-xs leading-relaxed flex flex-col gap-1.5">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-foreground">
-                          Người đăng: @{selectedReport.comment.post.user?.username || "Ẩn danh"}
+                          Người đăng: @
+                          {selectedReport.comment.post.user?.username ||
+                            "Ẩn danh"}
                         </span>
                         <span className="text-[10px] text-muted-foreground">
                           {selectedReport.comment.post.isActive !== false ? (
-                            <span className="text-emerald-600 font-semibold">Bài viết đang hoạt động</span>
+                            <span className="text-emerald-600 font-semibold">
+                              Bài viết đang hoạt động
+                            </span>
                           ) : (
-                            <span className="text-rose-600 font-semibold">Bài viết đã bị khóa</span>
+                            <span className="text-rose-600 font-semibold">
+                              Bài viết đã bị khóa
+                            </span>
                           )}
                         </span>
                       </div>
                       <p className="text-muted-foreground line-clamp-3 bg-background p-2 rounded border border-dashed">
-                        {selectedReport.comment.post.content || <span className="italic">(Không có nội dung chữ)</span>}
+                        {selectedReport.comment.post.content || (
+                          <span className="italic">
+                            (Không có nội dung chữ)
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -388,7 +406,9 @@ const ReportCommentDetailModal = ({
                     <span className="text-xs font-semibold text-muted-foreground">
                       Trạng thái bình luận:
                     </span>
-                    <div>{renderCommentStatusBadge(selectedReport.comment)}</div>
+                    <div>
+                      {renderCommentStatusBadge(selectedReport.comment)}
+                    </div>
                   </div>
 
                   <div className="p-4 bg-background rounded-lg border leading-relaxed shadow-2xs">
@@ -453,7 +473,7 @@ const ReportCommentDetailModal = ({
                       disabled={actionLoading}
                       className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
                         !selectedReport.comment.isDelete
-                          ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-950/20"
+                          ? "text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 dark:hover:bg-rose-900/20"
                           : "bg-emerald-600 hover:bg-emerald-700 text-white"
                       }`}
                     >
@@ -476,10 +496,15 @@ const ReportCommentDetailModal = ({
                       <Button
                         size="sm"
                         variant={
-                          selectedReport.comment.post.isActive !== false ? "outline" : "default"
+                          selectedReport.comment.post.isActive !== false
+                            ? "outline"
+                            : "default"
                         }
                         onClick={() =>
-                          handleTogglePostActive(selectedReport.comment.post._id || selectedReport.comment.post)
+                          handleTogglePostActive(
+                            selectedReport.comment.post._id ||
+                              selectedReport.comment.post,
+                          )
                         }
                         disabled={actionLoading}
                         className="flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer"
@@ -494,10 +519,15 @@ const ReportCommentDetailModal = ({
                       <Button
                         size="sm"
                         variant={
-                          selectedReport.comment.post.isDelete ? "default" : "outline"
+                          selectedReport.comment.post.isDelete
+                            ? "default"
+                            : "outline"
                         }
                         onClick={() =>
-                          handleTogglePostDelete(selectedReport.comment.post._id || selectedReport.comment.post)
+                          handleTogglePostDelete(
+                            selectedReport.comment.post._id ||
+                              selectedReport.comment.post,
+                          )
                         }
                         disabled={actionLoading}
                         className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
@@ -516,15 +546,20 @@ const ReportCommentDetailModal = ({
                       <Button
                         size="sm"
                         variant={
-                          selectedReport.comment.post.isCommentDisabled ? "default" : "outline"
+                          selectedReport.comment.post.isCommentDisabled
+                            ? "default"
+                            : "outline"
                         }
                         onClick={() =>
-                          handleTogglePostCommentDisabled(selectedReport.comment.post._id || selectedReport.comment.post)
+                          handleTogglePostCommentDisabled(
+                            selectedReport.comment.post._id ||
+                              selectedReport.comment.post,
+                          )
                         }
                         disabled={actionLoading}
                         className={`flex-1 text-xs gap-1.5 h-8.5 font-semibold cursor-pointer ${
                           !selectedReport.comment.post.isCommentDisabled
-                            ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-950/20"
+                            ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-900/20"
                             : "bg-amber-600 hover:bg-amber-700 text-white"
                         }`}
                       >
@@ -544,14 +579,15 @@ const ReportCommentDetailModal = ({
                   Bình luận gốc không tồn tại
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-[250px]">
-                  Bình luận bị báo cáo này đã được xóa hoàn toàn khỏi hệ thống database.
+                  Bình luận bị báo cáo này đã được xóa hoàn toàn khỏi hệ thống
+                  database.
                 </p>
               </div>
             )}
           </div>
         </div>
 
-        <DialogFooter className="p-4 border-t bg-muted/20">
+        <DialogFooter className="p-4 m-2 border-t bg-muted/20">
           <Button
             variant="outline"
             onClick={() => setIsDetailOpen(false)}

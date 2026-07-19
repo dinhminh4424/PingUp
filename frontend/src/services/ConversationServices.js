@@ -53,3 +53,48 @@ export const markConversationAsRead = async (conversationId) => {
   const res = await api.put(`/api/conversation/${conversationId}/read`);
   return res.data;
 };
+
+export const leaveConversation = async (conversationId) => {
+  const res = await api.post(`/api/conversation/${conversationId}/leave`);
+  return res.data;
+};
+
+export const reportConversation = async (conversationId, reason, details, imageFiles = []) => {
+  const formData = new FormData();
+  formData.append("reason", reason);
+  formData.append("details", details);
+  imageFiles.forEach((file) => {
+    formData.append("images", file);
+  });
+  const res = await api.post(`/api/conversation/${conversationId}/report`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+export const searchGroups = async (query) => {
+  const res = await api.get(`/api/conversation/search-groups?query=${encodeURIComponent(query)}`);
+  return res.data;
+};
+
+export const requestToJoinGroup = async (conversationId) => {
+  const res = await api.post(`/api/conversation/${conversationId}/join-request`);
+  return res.data;
+};
+
+export const approveJoinRequest = async (conversationId, userId) => {
+  const res = await api.post(`/api/conversation/${conversationId}/approve-request`, { userId });
+  return res.data;
+};
+
+export const rejectJoinRequest = async (conversationId, userId) => {
+  const res = await api.post(`/api/conversation/${conversationId}/reject-request`, { userId });
+  return res.data;
+};
+
+export const disbandGroup = async (conversationId) => {
+  const res = await api.post(`/api/conversation/${conversationId}/disband`);
+  return res.data;
+};

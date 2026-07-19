@@ -2,7 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import { assets } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import MenuItems from "./MenuItems";
-import { LogOut, PlusCircle, User, User2Icon, Shield, ChevronsUpDown, Settings, Sparkles, MessageSquare, ShieldAlert } from "lucide-react";
+import {
+  LogOut,
+  PlusCircle,
+  User,
+  User2Icon,
+  Shield,
+  ChevronsUpDown,
+  Settings,
+  Sparkles,
+  MessageSquare,
+  ShieldAlert,
+} from "lucide-react";
 
 import { logout } from "../services/AuthServices";
 import { useAuth } from "../contexts/AuthContext";
@@ -68,32 +79,47 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           </Link>
         )}
       </div>
-      <div ref={menuRef} className="relative w-full border-t border-gray-200 dark:border-zinc-800 p-4 px-7 flex items-center justify-between">
+      <div
+        ref={menuRef}
+        className="relative w-full border-t border-gray-200 dark:border-zinc-800 p-4 px-7 flex items-center justify-between"
+      >
         <div
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex gap-2 items-center cursor-pointer flex-1 min-w-0"
         >
           <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
             {user.profile_picture ? (
-              <img src={user.profile_picture} alt="" className="w-full h-full object-cover rounded-full" />
+              <img
+                src={user.profile_picture}
+                alt=""
+                className="w-full h-full object-cover rounded-full"
+              />
             ) : (
-              <img src="/default-avatar.avif" alt="" className="w-full h-full object-cover rounded-full" />
+              <img
+                src="/default-avatar.avif"
+                alt=""
+                className="w-full h-full object-cover rounded-full"
+              />
             )}
           </div>
 
           <div className="min-w-0 flex-1">
-            <h1 className="text-sm font-medium text-gray-900 dark:text-zinc-100 truncate">{user.full_name}</h1>
-            <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">@{user.username}</p>
+            <h1 className="text-sm font-medium text-gray-900 dark:text-zinc-100 truncate">
+              {user.full_name}
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">
+              @{user.username}
+            </p>
           </div>
         </div>
-        
+
         <ChevronsUpDown
           onClick={() => setMenuOpen(!menuOpen)}
           className="w-4 h-4 text-gray-400 hover:text-gray-700 transition cursor-pointer flex-shrink-0 ml-2"
         />
 
         {menuOpen && (
-          <div className="absolute bottom-16 left-6 right-6 bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-xl z-30 p-2 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          <div className="absolute bottom-16 left-6 right-6 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-xl z-30 p-2 flex flex-col gap-1 animate-in fade-in slide-in-from-bottom-2 duration-150">
             {/* Header info */}
             <div className="flex items-center gap-3 p-3">
               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-blue-50 dark:bg-zinc-900">
@@ -104,13 +130,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 />
               </div>
               <div className="overflow-hidden flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-zinc-100 truncate">{user.full_name}</h4>
-                <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">{user.email || `@${user.username}`}</p>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-zinc-100 truncate">
+                  {user.full_name}
+                </h4>
+                <p className="text-xs text-gray-500 dark:text-zinc-400 truncate">
+                  {user.email || `@${user.username}`}
+                </p>
               </div>
             </div>
-            
+
             <hr className="border-gray-100 dark:border-zinc-800 my-1" />
-            
+
             {/* Navigation links */}
             <button
               onClick={() => {
@@ -122,7 +152,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <Sparkles className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
               <span>Back to Home</span>
             </button>
-            
+
             <button
               onClick={() => {
                 navigate("/settings");
@@ -155,15 +185,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               <ShieldAlert className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
               <span>Appeal</span>
             </button>
-            
+
             <hr className="border-gray-100 dark:border-zinc-800 my-1" />
-            
+
             <button
               onClick={() => {
                 handleLogout();
                 setMenuOpen(false);
               }}
-              className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition w-full text-left text-sm font-medium"
+              className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition w-full text-left text-sm font-medium"
             >
               <LogOut className="w-4 h-4 text-red-600 dark:text-red-400" />
               <span>Logout</span>

@@ -2,6 +2,7 @@ import User from "../../models/User.js";
 import Post from "../../models/Post.js";
 import Report from "../../models/Report.js";
 import Comment from "../../models/Comment.js";
+import Conversation from "../../models/Conversation.js";
 import mongoose from "mongoose";
 
 class ReportService {
@@ -62,10 +63,7 @@ class ReportService {
         const isObjectId = mongoose.isValidObjectId(searchQuery);
 
         if (isObjectId) {
-          query.$or = [
-            { _id: searchQuery },
-            { targetId: searchQuery }
-          ];
+          query.$or = [{ _id: searchQuery }, { targetId: searchQuery }];
         } else {
           // Find users whose name or username matches search query
           const matchedUsers = await User.find({
@@ -118,10 +116,21 @@ class ReportService {
       );
 
       // Overall stats for reported posts
-      const totalReportsAll = await Report.countDocuments({ targetType: "post" });
-      const pendingCount = await Report.countDocuments({ targetType: "post", status: "pending" });
-      const resolvedCount = await Report.countDocuments({ targetType: "post", status: "resolved" });
-      const dismissedCount = await Report.countDocuments({ targetType: "post", status: "dismissed" });
+      const totalReportsAll = await Report.countDocuments({
+        targetType: "post",
+      });
+      const pendingCount = await Report.countDocuments({
+        targetType: "post",
+        status: "pending",
+      });
+      const resolvedCount = await Report.countDocuments({
+        targetType: "post",
+        status: "resolved",
+      });
+      const dismissedCount = await Report.countDocuments({
+        targetType: "post",
+        status: "dismissed",
+      });
 
       return {
         status: 200,
@@ -140,7 +149,7 @@ class ReportService {
             pending: pendingCount,
             resolved: resolvedCount,
             dismissed: dismissedCount,
-          }
+          },
         },
       };
     } catch (error) {
@@ -262,10 +271,7 @@ class ReportService {
         const isObjectId = mongoose.isValidObjectId(searchQuery);
 
         if (isObjectId) {
-          query.$or = [
-            { _id: searchQuery },
-            { targetId: searchQuery }
-          ];
+          query.$or = [{ _id: searchQuery }, { targetId: searchQuery }];
         } else {
           // Find users whose name or username matches search query
           const matchedUsers = await User.find({
@@ -311,7 +317,10 @@ class ReportService {
             .populate("user", "_id username full_name profile_picture email")
             .populate({
               path: "post",
-              populate: { path: "user", select: "_id username full_name profile_picture" }
+              populate: {
+                path: "user",
+                select: "_id username full_name profile_picture",
+              },
             })
             .select("content image_urls user isActive isDelete createdAt post");
           return {
@@ -322,10 +331,21 @@ class ReportService {
       );
 
       // Overall stats for reported comments
-      const totalReportsAll = await Report.countDocuments({ targetType: "comment" });
-      const pendingCount = await Report.countDocuments({ targetType: "comment", status: "pending" });
-      const resolvedCount = await Report.countDocuments({ targetType: "comment", status: "resolved" });
-      const dismissedCount = await Report.countDocuments({ targetType: "comment", status: "dismissed" });
+      const totalReportsAll = await Report.countDocuments({
+        targetType: "comment",
+      });
+      const pendingCount = await Report.countDocuments({
+        targetType: "comment",
+        status: "pending",
+      });
+      const resolvedCount = await Report.countDocuments({
+        targetType: "comment",
+        status: "resolved",
+      });
+      const dismissedCount = await Report.countDocuments({
+        targetType: "comment",
+        status: "dismissed",
+      });
 
       return {
         status: 200,
@@ -344,7 +364,7 @@ class ReportService {
             pending: pendingCount,
             resolved: resolvedCount,
             dismissed: dismissedCount,
-          }
+          },
         },
       };
     } catch (error) {
@@ -357,6 +377,296 @@ class ReportService {
         data: {
           success: false,
           message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
+
+  async getReportConversations(
+    searchQuery,
+    statusFilter,
+    startDate,
+    endDate,
+    page = 1,
+    reasonFilter,
+    reporterFilter,
+  ) {
+    try {
+      const limit = 10;
+      const pageNumber = Math.max(1, parseInt(page) || 1);
+      const skip = (pageNumber - 1) * limit;
+
+      let query = { targetType: "group" };
+
+      if (statusFilter && statusFilter !== "all") {
+        query.status = statusFilter;
+      }
+
+      if (reasonFilter && reasonFilter !== "all") {
+        query.reason = reasonFilter;
+      }
+
+      if (reporterFilter) {
+        const matchedReporters = await User.find({
+          $or: [
+            { full_name: { $regex: reporterFilter, $options: "i" } },
+            { username: { $regex: reporterFilter, $options: "i" } },
+          ],
+        }).select("_id");
+        const reporterIds = matchedReporters.map((r) => r._id);
+        query.reporterId = { $in: reporterIds };
+      }
+
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) {
+          query.createdAt.$gte = new Date(startDate);
+        }
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          query.createdAt.$lte = end;
+        }
+      }
+
+      if (searchQuery) {
+        const isObjectId = mongoose.isValidObjectId(searchQuery);
+
+        if (isObjectId) {
+          query.$or = [{ _id: searchQuery }, { targetId: searchQuery }];
+        } else {
+          const matchedUsers = await User.find({
+            $or: [
+              { full_name: { $regex: searchQuery, $options: "i" } },
+              { username: { $regex: searchQuery, $options: "i" } },
+            ],
+          }).select("_id");
+          const userIds = matchedUsers.map((u) => u._id);
+
+          const matchedConvs = await Conversation.find({
+            "group.name": { $regex: searchQuery, $options: "i" },
+          }).select("_id");
+          const convIds = matchedConvs.map((c) => c._id);
+
+          query.$or = [
+            { reporterId: { $in: userIds } },
+            { targetId: { $in: convIds } },
+            { reason: { $regex: searchQuery, $options: "i" } },
+            { details: { $regex: searchQuery, $options: "i" } },
+          ];
+        }
+      }
+
+      const totalReports = await Report.countDocuments(query);
+      const totalPages = Math.ceil(totalReports / limit);
+
+      const reportConversations = await Report.find(query)
+        .populate("reporterId", "_id username full_name profile_picture email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const populatedReports = await Promise.all(
+        reportConversations.map(async (report) => {
+          const targetConv = await Conversation.findById(report.targetId)
+            .populate(
+              "participants.userId",
+              "_id username full_name profile_picture email",
+            )
+            .select("type participants group isActive isDelete createdAt");
+          return {
+            ...report.toObject(),
+            conversation: targetConv,
+          };
+        }),
+      );
+
+      const totalReportsAll = await Report.countDocuments({
+        targetType: "group",
+      });
+      const pendingCount = await Report.countDocuments({
+        targetType: "group",
+        status: "pending",
+      });
+      const resolvedCount = await Report.countDocuments({
+        targetType: "group",
+        status: "resolved",
+      });
+      const dismissedCount = await Report.countDocuments({
+        targetType: "group",
+        status: "dismissed",
+      });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy danh sách Report Conversation thành công!",
+          reportConversations: populatedReports,
+          pagination: {
+            currentPage: pageNumber,
+            totalPages: totalPages || 1,
+            totalReports: totalReports,
+            limit,
+          },
+          stats: {
+            total: totalReportsAll,
+            pending: pendingCount,
+            resolved: resolvedCount,
+            dismissed: dismissedCount,
+          },
+        },
+      };
+    } catch (error) {
+      console.error(
+        "Lỗi hệ thống lấy danh sách báo cáo hộp thoại admin: ",
+        error,
+      );
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi hệ thống: " + error.message,
+        },
+      };
+    }
+  }
+
+  async getReportUsers(
+    searchQuery,
+    statusFilter,
+    startDate,
+    endDate,
+    page = 1,
+    reasonFilter,
+    reporterFilter,
+  ) {
+    try {
+      const limit = 10;
+      const pageNumber = Math.max(1, parseInt(page) || 1);
+      const skip = (pageNumber - 1) * limit;
+
+      let query = { targetType: "user" };
+
+      if (statusFilter && statusFilter !== "all") {
+        query.status = statusFilter;
+      }
+
+      if (reasonFilter && reasonFilter !== "all") {
+        query.reason = reasonFilter;
+      }
+
+      if (reporterFilter) {
+        const matchedReporters = await User.find({
+          $or: [
+            { full_name: { $regex: reporterFilter, $options: "i" } },
+            { username: { $regex: reporterFilter, $options: "i" } },
+            { email: { $regex: reporterFilter, $options: "i" } },
+          ],
+        }).select("_id");
+        const reporterIds = matchedReporters.map((r) => r._id);
+        query.reporterId = { $in: reporterIds };
+      }
+
+      if (startDate || endDate) {
+        query.createdAt = {};
+        if (startDate) {
+          query.createdAt.$gte = new Date(startDate);
+        }
+        if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          query.createdAt.$lte = end;
+        }
+      }
+
+      if (searchQuery) {
+        const isObjectId = mongoose.isValidObjectId(searchQuery);
+
+        if (isObjectId) {
+          query.$or = [{ _id: searchQuery }, { targetId: searchQuery }];
+        } else {
+          const matchedUsers = await User.find({
+            $or: [
+              { full_name: { $regex: searchQuery, $options: "i" } },
+              { username: { $regex: searchQuery, $options: "i" } },
+            ],
+          }).select("_id");
+          const userIds = matchedUsers.map((u) => u._id);
+
+          query.$or = [
+            { reporterId: { $in: userIds } },
+            { targetId: { $in: userIds } },
+            { reason: { $regex: searchQuery, $options: "i" } },
+            { details: { $regex: searchQuery, $options: "i" } },
+          ];
+        }
+      }
+
+      const totalReports = await Report.countDocuments(query);
+      const totalPages = Math.ceil(totalReports / limit);
+
+      const reportUsers = await Report.find(query)
+        .populate("reporterId", "_id username full_name profile_picture email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
+
+      const populatedReports = await Promise.all(
+        reportUsers.map(async (report) => {
+          const targetUser = await User.findById(report.targetId).select(
+            "_id username full_name profile_picture email isActive role",
+          );
+          return {
+            ...report.toObject(),
+            user: targetUser,
+          };
+        }),
+      );
+
+      const totalReportsAll = await Report.countDocuments({
+        targetType: "user",
+      });
+      const pendingCount = await Report.countDocuments({
+        targetType: "user",
+        status: "pending",
+      });
+      const resolvedCount = await Report.countDocuments({
+        targetType: "user",
+        status: "resolved",
+      });
+      const dismissedCount = await Report.countDocuments({
+        targetType: "user",
+        status: "dismissed",
+      });
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Lấy Danh Sách Report User Thành Công!",
+          reportUsers: populatedReports,
+          pagination: {
+            currentPage: pageNumber,
+            totalPages: totalPages || 1,
+            totalReports: totalReports,
+            limit,
+          },
+          stats: {
+            total: totalReportsAll,
+            pending: pendingCount,
+            resolved: resolvedCount,
+            dismissed: dismissedCount,
+          },
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi Hệ Thống Lấy Danh Sách Báo Cáo User admin: ", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi Hệ Thống: " + error.message,
         },
       };
     }

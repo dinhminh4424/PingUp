@@ -82,7 +82,7 @@ const Profile = () => {
 
         {/* Tabs */}
         <div className="mt-6">
-          <div className="bg-white rounded-xl shadow p-1 flex max-w-lg mx-auto">
+          <div className="bg-white rounded-lg shadow p-1 flex max-w-lg mx-auto">
             {["posts", "media", "likes", "shares"].map((tab) => {
               return (
                 <button
@@ -141,7 +141,9 @@ const Profile = () => {
           {activeTab === "likes" && (
             <div className="mt-6 flex flex-col items-center gap-6">
               {likedPosts.length === 0 ? (
-                <p className="text-gray-500 text-sm mt-4">Chưa thích bài viết nào</p>
+                <p className="text-gray-500 text-sm mt-4">
+                  Chưa thích bài viết nào
+                </p>
               ) : (
                 likedPosts.map((post) => (
                   <PostCard
@@ -149,12 +151,14 @@ const Profile = () => {
                     post={post}
                     onUpdate={(updated) => {
                       setLikedPosts((prev) =>
-                        prev.map((p) => (p._id === updated._id ? updated : p))
+                        prev.map((p) => (p._id === updated._id ? updated : p)),
                       );
                       handleUpdatePost(updated);
                     }}
                     onDelete={(deletedId) => {
-                      setLikedPosts((prev) => prev.filter((p) => p._id !== deletedId));
+                      setLikedPosts((prev) =>
+                        prev.filter((p) => p._id !== deletedId),
+                      );
                       handleDeletePost(deletedId);
                     }}
                   />
@@ -165,8 +169,11 @@ const Profile = () => {
           {/*   Shares */}
           {activeTab === "shares" && (
             <div className="mt-6 flex flex-col items-center gap-6">
-              {posts.filter((post) => post.post_type === "share").length === 0 ? (
-                <p className="text-gray-500 text-sm mt-4">Chưa chia sẻ bài viết nào</p>
+              {posts.filter((post) => post.post_type === "share").length ===
+              0 ? (
+                <p className="text-gray-500 text-sm mt-4">
+                  Chưa chia sẻ bài viết nào
+                </p>
               ) : (
                 posts
                   .filter((post) => post.post_type === "share")

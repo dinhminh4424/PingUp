@@ -31,7 +31,12 @@ export const updateInfoUser = async (updateData) => {
 
 export const findUserBySearch = async (search) => {
   const res = await api.get(`/api/user/search`, {
-    params: { search }
+    params: { search },
   });
+  return res.data;
+};
+
+export const createReportUser = async (id, formData) => {
+  const res = await api.post(`/api/user/${id}/report`, formData);
   return res.data;
 };
