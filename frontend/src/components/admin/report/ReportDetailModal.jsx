@@ -260,7 +260,7 @@ const ReportDetailModal = ({
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1 font-medium">
                   Chi tiết mô tả
                 </h4>
-                <p className="text-xs text-foreground/80 bg-muted/30 px-3 py-2 rounded-md border whitespace-pre-line leading-relaxed">
+                <p className="text-xs text-foreground/80 bg-muted/30 px-3 py-2 rounded-md border whitespace-pre-line leading-relaxed break-words">
                   {selectedReport.details ||
                     "(Không có mô tả chi tiết từ người báo cáo)"}
                 </p>

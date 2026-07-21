@@ -26,3 +26,8 @@ export const toggleUserRole = async (userId) => {
   const res = await api.put(`/api/admin/user/${userId}/toggle-role`);
   return res.data;
 };
+
+export const getUserDetail = async (userId) => {
+  const res = await api.get(`/api/admin/user/${userId}`);
+  return res.data;
+};

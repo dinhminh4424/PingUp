@@ -124,24 +124,21 @@ const AdminSidebar = ({ ...props }) => {
     },
     {
       title: "Thông báo hệ thống",
-      url: "#",
+      url: "/admin/notifications/create",
       icon: <Bell className="size-4" />,
       isActive: location.pathname.startsWith("/admin/notifications"),
       items: [
         {
           title: "Template",
-          url: "#",
-          badge: "soon",
+          url: "/admin/notifications/templates",
         },
         {
           title: "Tạo thông báo",
-          url: "#",
-          badge: "soon",
+          url: "/admin/notifications/create",
         },
         {
           title: "Lịch sử gửi",
-          url: "#",
-          badge: "soon",
+          url: "/admin/notifications/history",
         },
       ],
     },
