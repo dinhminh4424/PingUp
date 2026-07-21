@@ -48,6 +48,13 @@ const NotificationHistory = lazy(
   () => import("../pages/admin/notifications/NotificationHistory"),
 );
 
+const AdCampaigns = lazy(() => import("../pages/admin/ads/AdCampaigns"));
+const AdReview = lazy(() => import("../pages/admin/ads/AdReview"));
+const AdRevenue = lazy(() => import("../pages/admin/ads/AdRevenue"));
+const AdLeads = lazy(() => import("../pages/admin/ads/AdLeads"));
+const AdLeadsDetails = lazy(() => import("../pages/admin/ads/AdLeadsDetails"));
+
+
 const AdminRoutes = () => {
   return (
     <Suspense
@@ -90,6 +97,13 @@ const AdminRoutes = () => {
               element={<ReportConversationManagement />}
             />
             <Route path="reports/users" element={<ReportUserManagement />} />
+            
+            {/* Quảng cáo */}
+            <Route path="ads/campaigns" element={<AdCampaigns />} />
+            <Route path="ads/review" element={<AdReview />} />
+            <Route path="ads/revenue" element={<AdRevenue />} />
+            <Route path="ads/leads" element={<AdLeads />} />
+            <Route path="ads/leads/:id" element={<AdLeadsDetails />} />
           </Route>
         </Route>
       </Routes>

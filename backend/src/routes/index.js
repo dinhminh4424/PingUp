@@ -11,6 +11,7 @@ import messageRoutes from "./MessageRoutes.js";
 import storyRoutes from "./StoryRoutes.js";
 import feedbackRoutes from "./FeedbackRoutes.js";
 import appealRoutes from "./AppealRoutes.js";
+import adRoutes from "./AdRoutes.js";
 import adminRoutes from "./Admin/index.js";
 
 const router = express.Router();
@@ -38,6 +39,8 @@ router.use("/story", storyRoutes);
 router.use("/feedback", feedbackRoutes);
 
 router.use("/appeal", appealRoutes);
+
+router.use("/ads", adRoutes);
 
 router.use("/admin", adminRoutes);
 
