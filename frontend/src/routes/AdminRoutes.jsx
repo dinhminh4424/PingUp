@@ -38,6 +38,16 @@ const FeedbackManagement = lazy(
   () => import("../pages/admin/FeedbackManagement"),
 );
 
+const NotificationTemplates = lazy(
+  () => import("../pages/admin/notifications/NotificationTemplates"),
+);
+const CreateNotification = lazy(
+  () => import("../pages/admin/notifications/CreateNotification"),
+);
+const NotificationHistory = lazy(
+  () => import("../pages/admin/notifications/NotificationHistory"),
+);
+
 const AdminRoutes = () => {
   return (
     <Suspense
@@ -58,6 +68,9 @@ const AdminRoutes = () => {
             <Route path="messages" element={<MessageManagement />} />
             <Route path="appeals" element={<AppealManagement />} />
             <Route path="feedbacks" element={<FeedbackManagement />} />
+            <Route path="notifications/templates" element={<NotificationTemplates />} />
+            <Route path="notifications/create" element={<CreateNotification />} />
+            <Route path="notifications/history" element={<NotificationHistory />} />
             <Route path="dashboard/users" element={<UserStats />} />
             <Route path="dashboard/posts" element={<PostStats />} />
             <Route path="dashboard/stories" element={<StoryStats />} />
