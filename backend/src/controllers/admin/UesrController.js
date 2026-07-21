@@ -47,5 +47,19 @@ class UserController {
       });
     }
   }
+
+  async getUserDetail(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await UserService.getUserDetail(id);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy chi tiết user: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy chi tiết user: " + error.message,
+      });
+    }
+  }
 }
 export default new UserController();

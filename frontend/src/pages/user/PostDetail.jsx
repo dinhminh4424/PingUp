@@ -591,7 +591,7 @@ const PostDetail = () => {
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-gray-700 whitespace-pre-line leading-relaxed">
+              <p className="text-xs text-gray-700 whitespace-pre-line leading-relaxed break-words">
                 {post.shared_post.content}
               </p>
               {post.shared_post.image_urls &&

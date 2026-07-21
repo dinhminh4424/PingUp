@@ -1,5 +1,10 @@
 import User from "../../models/User.js";
 import Notification from "../../models/Notification.js";
+import Post from "../../models/Post.js";
+import Follow from "../../models/Follow.js";
+import Connection from "../../models/Connection.js";
+import Report from "../../models/Report.js";
+import Conversation from "../../models/Conversation.js";
 import { onlineUsers, io } from "../../socket/index.js";
 
 class UserService {
@@ -169,6 +174,71 @@ class UserService {
         },
       };
     } catch (error) {
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi hệ thống: " + error.message },
+      };
+    }
+  }
+
+  async getUserDetail(id) {
+    try {
+      const user = await User.findById(id).select("-password");
+      if (!user) {
+        return {
+          status: 404,
+          data: { success: false, message: "Không tìm thấy người dùng" },
+        };
+      }
+
+      const userObj = user.toObject();
+      userObj.activeOnline = onlineUsers ? onlineUsers.has(user._id.toString()) : false;
+
+      // Stats queries
+      const postsCount = await Post.countDocuments({ user: id, isDelete: false });
+      const followersCount = await Follow.countDocuments({ following: id });
+      const followingCount = await Follow.countDocuments({ follower: id });
+      const connectionsCount = await Connection.countDocuments({
+        $or: [{ userA: id }, { userB: id }],
+      });
+      const reportsCount = await Report.countDocuments({ targetId: id, targetType: "user" });
+
+      // Fetch lists
+      const posts = await Post.find({ user: id, isDelete: false })
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      const conversations = await Conversation.find({
+        "participants.userId": id,
+      })
+        .populate("participants.userId", "full_name username profile_picture email")
+        .sort({ lastMessageAt: -1 })
+        .limit(50);
+
+      const reports = await Report.find({ targetId: id, targetType: "user" })
+        .populate("reporterId", "full_name username profile_picture email")
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          user: userObj,
+          stats: {
+            postsCount,
+            followersCount,
+            followingCount,
+            connectionsCount,
+            reportsCount,
+          },
+          posts,
+          conversations,
+          reports,
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi khi lấy chi tiết user: ", error);
       return {
         status: 500,
         data: { success: false, message: "Lỗi hệ thống: " + error.message },

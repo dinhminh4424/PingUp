@@ -162,7 +162,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
         {post.content && (
           <>
             <div
-              className="text-gray-800 dark:text-zinc-200 text-sm whitespace-pre-line"
+              className="text-gray-800 dark:text-zinc-200 text-sm whitespace-pre-line break-words"
               dangerouslySetInnerHTML={{ __html: postWithHashTag }}
             ></div>
           </>
@@ -204,7 +204,7 @@ const PostCard = ({ post, onUpdate, onDelete, onToggleLikePost }) => {
                 </span>
               </div>
             </div>
-            <p className="text-xs text-gray-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed">
+            <p className="text-xs text-gray-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed break-words">
               {post.shared_post.content}
             </p>
             {post.shared_post.image_urls &&

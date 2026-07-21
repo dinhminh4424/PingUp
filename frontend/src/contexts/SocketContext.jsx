@@ -69,6 +69,25 @@ export const SocketProvider = ({ children }) => {
         });
       });
 
+      newSocket.on("system:modal_broadcast", (data) => {
+        setSystemModal({
+          open: true,
+          title: data.title || "Thông báo từ Hệ thống",
+          message: data.message || "",
+          isHtml: data.isHtml || false,
+          customCss: data.customCss || "",
+          type: data.type || "info",
+          size: data.size || "md",
+          image: data.image || "",
+          showCloseButton: data.showCloseButton ?? true,
+          actions: data.actions || [],
+          hasForm: data.hasForm || false,
+          formFields: data.formFields || [],
+          primaryAction: data.primaryAction,
+          secondaryAction: data.secondaryAction,
+        });
+      });
+
       return newSocket;
     });
   };

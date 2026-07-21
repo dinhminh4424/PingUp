@@ -5,6 +5,7 @@ const router = express.Router();
 
 // GET
 router.get("/", UserController.getUsers);
+router.get("/:id", UserController.getUserDetail);
 
 // PUT
 router.put("/:id/toggle-active", UserController.toggleActive);
