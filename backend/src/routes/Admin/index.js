@@ -9,6 +9,7 @@ import feedbackRoutes from "./FeedbackRoutes.js";
 import appealRoutes from "./AppealRoutes.js";
 import commentRoutes from "./CommentRoutes.js";
 import systemNotificationRoutes from "./SystemNotificationRoutes.js";
+import adRoutes from "./AdRoutes.js";
 
 import { isAdmin } from "../../middlewares/AuthMiddleware.js";
 
@@ -25,5 +26,6 @@ router.use("/report", reportRoutes);
 router.use("/feedback", feedbackRoutes);
 router.use("/appeal", appealRoutes);
 router.use("/notifications", systemNotificationRoutes);
+router.use("/ads", adRoutes);
 
 export default router;

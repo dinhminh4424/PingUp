@@ -148,9 +148,10 @@ const AdminSidebar = ({ ...props }) => {
       icon: <Megaphone className="size-4" />,
       isActive: location.pathname.startsWith("/admin/ads"),
       items: [
-        { title: "Chiến dịch", url: "/admin/ads/campaigns", badge: "soon" },
-        { title: "Phê duyệt", url: "/admin/ads/review", badge: "soon" },
-        { title: "Doanh thu", url: "/admin/ads/revenue", badge: "soon" },
+        { title: "Chiến dịch", url: "/admin/ads/campaigns" },
+        { title: "Phê duyệt", url: "/admin/ads/review" },
+        { title: "Doanh thu", url: "/admin/ads/revenue" },
+        { title: "Khách hàng (Leads)", url: "/admin/ads/leads" },
       ],
     },
     {

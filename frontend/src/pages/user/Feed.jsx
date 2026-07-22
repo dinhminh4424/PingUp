@@ -6,6 +6,7 @@ import ResentMessages from "../../components/feed/ResentMessages.jsx";
 import { Loader2 } from "lucide-react";
 import { useFeed } from "../../contexts/FeedContext.jsx";
 import Sponsored from "../../components/feed/Sponsored.jsx";
+import AdContainer from "../../components/ads/AdContainer.jsx";
 
 const Feed = () => {
   const loaderRef = useRef(null);
@@ -54,15 +55,23 @@ const Feed = () => {
         <StoryBar />
         {error && <h2 className="text-red-500">{error}</h2>}
         <div className="d-4 space-y-6">
-          {feeds.map((feed) => {
+          {feeds.map((feed, index) => {
+            const showAd = index > 0 && index % 4 === 0;
             return (
-              <PostCard
-                key={feed._id}
-                post={feed}
-                onUpdate={handleUpdatePost}
-                onDelete={handleDeletePost}
-                onToggleLikePost={handleToggleLikePost}
-              />
+              <React.Fragment key={feed._id}>
+                {showAd && (
+                  <AdContainer
+                    placementCode="FEED_NATIVE"
+                    className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-xl shadow p-4 w-full max-w-2xl flex flex-col gap-2.5 cursor-pointer"
+                  />
+                )}
+                <PostCard
+                  post={feed}
+                  onUpdate={handleUpdatePost}
+                  onDelete={handleDeletePost}
+                  onToggleLikePost={handleToggleLikePost}
+                />
+              </React.Fragment>
             );
           })}
         </div>
