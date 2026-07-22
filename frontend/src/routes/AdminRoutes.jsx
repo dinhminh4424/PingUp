@@ -34,6 +34,10 @@ const ReportUserManagement = lazy(
   () => import("../pages/admin/ReportUserManagement"),
 );
 const AppealManagement = lazy(() => import("../pages/admin/AppealManagement"));
+const ActivityLogManagement = lazy(
+  () => import("../pages/admin/ActivityLogManagement"),
+);
+
 const FeedbackManagement = lazy(
   () => import("../pages/admin/FeedbackManagement"),
 );
@@ -71,7 +75,9 @@ const AdminRoutes = () => {
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="users/:id" element={<UserDetail />} />
+            <Route path="logs" element={<ActivityLogManagement />} />
             <Route path="posts" element={<PostManagement />} />
+
             <Route path="messages" element={<MessageManagement />} />
             <Route path="appeals" element={<AppealManagement />} />
             <Route path="feedbacks" element={<FeedbackManagement />} />

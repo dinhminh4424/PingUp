@@ -1,4 +1,5 @@
 import CommentService from "../services/CommentService.js";
+import ActivityLogService from "../services/ActivityLogService.js";
 
 class CommentController {
   async createComment(req, res) {
@@ -21,7 +22,20 @@ class CommentController {
         parentCommentId,
         file
       );
+
+      if (result.status === 201 && result.data?.success) {
+        await ActivityLogService.log({
+          userId,
+          action: "CREATE_COMMENT",
+          entityType: "COMMENT",
+          entityId: result.data.comment?._id,
+          details: { postId, contentSnippet: content ? content.slice(0, 100) : "" },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.error("Lỗi khi thêm bình luận:", error);
       return res.status(500).json({
@@ -65,7 +79,19 @@ class CommentController {
       const { id } = req.params;
       const userId = req.user._id;
       const result = await CommentService.deleteComment(id, userId);
+
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId,
+          action: "DELETE_COMMENT",
+          entityType: "COMMENT",
+          entityId: id,
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.error("Lỗi khi xóa bình luận:", error);
       return res.status(500).json({
