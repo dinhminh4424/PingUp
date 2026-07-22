@@ -31,3 +31,14 @@ export const getUserDetail = async (userId) => {
   const res = await api.get(`/api/admin/user/${userId}`);
   return res.data;
 };
+
+export const getUserLogs = async (userId, page = 1, limit = 15, actionFilter = "") => {
+  const res = await api.get(`/api/admin/user/${userId}/logs`, {
+    params: {
+      page,
+      limit,
+      actionFilter,
+    },
+  });
+  return res.data;
+};

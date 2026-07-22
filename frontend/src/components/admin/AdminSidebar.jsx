@@ -156,9 +156,9 @@ const AdminSidebar = ({ ...props }) => {
     },
     {
       title: "Nhật ký hoạt động",
-      url: "#",
+      url: "/admin/logs",
       icon: <History className="size-4" />,
-      badge: "soon",
+      isActive: location.pathname === "/admin/logs",
     },
     {
       title: "Cấu hình hệ thống",

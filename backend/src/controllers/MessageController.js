@@ -1,5 +1,7 @@
 import MessageService from "../services/MessageService.js";
 import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
+import ActivityLogService from "../services/ActivityLogService.js";
+
 
 
 class MessageController {
@@ -127,7 +129,19 @@ class MessageController {
         parsedLinkPreview,
       );
 
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId: senderId,
+          action: "SEND_MESSAGE",
+          entityType: "MESSAGE",
+          entityId: result.data.message?._id,
+          details: { conversationId, contentSnippet: content ? content.slice(0, 100) : "" },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.error("Lỗi khi gửi tin nhắn: ", error);
       return res.status(500).json({
