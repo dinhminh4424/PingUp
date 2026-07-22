@@ -101,8 +101,9 @@ class AdController {
       const { id } = req.params;
       const { answers } = req.body;
       const userId = req.user ? req.user._id : null;
+      const files = req.files || [];
       
-      const result = await AdService.submitLead(id, answers, userId);
+      const result = await AdService.submitLead(id, answers, userId, files);
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.error("Lỗi trong AdController.submitLead:", error);

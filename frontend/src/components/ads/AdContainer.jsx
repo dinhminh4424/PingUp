@@ -5,7 +5,6 @@ import {
   ArrowRight, ShoppingCart, Mail, Info, MessageCircle, Play, Download, Phone, UserCheck, Gift, Send, X 
 } from "lucide-react";
 import toast from "react-hot-toast";
-import api from "../../lib/axios";
 
 const AdContainer = ({ placementCode, className }) => {
   const [ad, setAd] = useState(null);
@@ -102,26 +101,40 @@ const AdContainer = ({ placementCode, className }) => {
 
     const fields = getLeadFormFields();
     for (const f of fields) {
-      if (f.required && !answers[f.label]?.trim()) {
+      const val = answers[f.label];
+      const hasValue = f.fieldType === "file" ? !!val : !!(typeof val === "string" ? val.trim() : val);
+      if (f.required && !hasValue) {
         toast.error(`Vui lòng điền thông tin: ${f.label}`);
         return;
       }
     }
 
-    const answersArray = fields.map((f) => {
+    const answersArray = fields.map((f, index) => {
       let val = answers[f.label];
       if (f.fieldType === "range" && val === undefined) {
         val = String(f.min ?? 0);
       }
       return {
         label: f.label,
-        value: val || "",
+        value: val instanceof File ? "" : (val || ""),
+        fieldType: f.fieldType,
+        fileKey: f.fieldType === "file" && val instanceof File ? `file_${index}` : undefined,
       };
     });
 
     try {
       setSubmittingLead(true);
-      const res = await submitLead(ad._id, answersArray);
+      
+      const formData = new FormData();
+      formData.append("answers", JSON.stringify(answersArray));
+      
+      fields.forEach((f, index) => {
+        if (f.fieldType === "file" && answers[f.label] instanceof File) {
+          formData.append(`file_${index}`, answers[f.label]);
+        }
+      });
+
+      const res = await submitLead(ad._id, formData);
       if (res?.success) {
         toast.success("Gửi thông tin thành công! Chúng tôi sẽ liên hệ sớm.");
         setShowLeadForm(false);
@@ -366,27 +379,47 @@ const AdContainer = ({ placementCode, className }) => {
                       <div className="space-y-2">
                         {answers[field.label] ? (
                           <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 dark:border-zinc-850/50 dark:bg-zinc-950/20">
-                            {answers[field.label].match(/\.(jpeg|jpg|gif|png|webp)/i) ? (
-                              <img
-                                src={answers[field.label]}
-                                className="h-10 w-10 rounded-lg object-cover border border-slate-200 dark:border-zinc-700 bg-white"
-                                alt=""
-                              />
+                            {answers[field.label] instanceof File ? (
+                              answers[field.label].type.startsWith("image/") ? (
+                                <img
+                                  src={URL.createObjectURL(answers[field.label])}
+                                  className="h-10 w-10 rounded-lg object-cover border border-slate-200 dark:border-zinc-700 bg-white"
+                                  alt=""
+                                />
+                              ) : (
+                                <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-indigo-600 font-bold text-[10px] uppercase">
+                                  File
+                                </div>
+                              )
                             ) : (
-                              <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-indigo-600 font-bold text-[10px] uppercase">
-                                File
-                              </div>
+                              typeof answers[field.label] === "string" && answers[field.label].match(/\.(jpeg|jpg|gif|png|webp)/i) ? (
+                                <img
+                                  src={answers[field.label]}
+                                  className="h-10 w-10 rounded-lg object-cover border border-slate-200 dark:border-zinc-700 bg-white"
+                                  alt=""
+                                />
+                              ) : (
+                                <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-indigo-600 font-bold text-[10px] uppercase">
+                                  File
+                                </div>
+                              )
                             )}
                             <div className="flex-1 min-w-0">
-                              <a
-                                href={answers[field.label]}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline truncate block"
-                              >
-                                {answers[field.label].split("/").pop().slice(-30)}
-                              </a>
-                              <span className="text-[9px] text-emerald-500 block font-medium">Tải lên thành công</span>
+                              {answers[field.label] instanceof File ? (
+                                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 truncate block">
+                                  {answers[field.label].name}
+                                </span>
+                              ) : (
+                                <a
+                                  href={answers[field.label]}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline truncate block"
+                                >
+                                  {answers[field.label].split("/").pop().slice(-30)}
+                                </a>
+                              )}
+                              <span className="text-[9px] text-emerald-500 block font-medium">Tệp đã chọn</span>
                             </div>
                             <button
                               type="button"
@@ -401,29 +434,10 @@ const AdContainer = ({ placementCode, className }) => {
                             <input
                               type="file"
                               required={field.required && !answers[field.label]}
-                              onChange={async (e) => {
+                              onChange={(e) => {
                                 const file = e.target.files[0];
                                 if (!file) return;
-                                
-                                const uploadForm = new FormData();
-                                uploadForm.append("file", file);
-                                
-                                const uploadToast = toast.loading("Đang tải tệp lên...");
-                                try {
-                                  const res = await api.post("/api/ads/upload", uploadForm, {
-                                    headers: { "Content-Type": "multipart/form-data" }
-                                  });
-                                  
-                                  if (res.data?.success) {
-                                    handleInputChange(field.label, res.data.url);
-                                    toast.success("Tải tệp thành công!", { id: uploadToast });
-                                  } else {
-                                    toast.error("Tải tệp thất bại.", { id: uploadToast });
-                                  }
-                                } catch (err) {
-                                  console.error(err);
-                                  toast.error("Lỗi khi tải tệp lên.", { id: uploadToast });
-                                }
+                                handleInputChange(field.label, file);
                               }}
                               className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer border border-slate-200 dark:border-zinc-800 rounded-lg p-1.5"
                             />

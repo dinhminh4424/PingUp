@@ -247,7 +247,7 @@ class AdService {
     }
   }
 
-  async submitLead(campaignId, answers, userId = null) {
+  async submitLead(campaignId, answers, userId = null, files = []) {
     try {
       const campaign = await AdCampaign.findById(campaignId);
       if (!campaign) {
@@ -257,7 +257,21 @@ class AdService {
         };
       }
 
-      const parsedAnswers = typeof answers === "string" ? JSON.parse(answers) : answers;
+      let parsedAnswers = typeof answers === "string" ? JSON.parse(answers) : (answers || []);
+
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const uploadResult = await uploadImageFromBuffer(file.buffer, {
+            folder: "pingup_leads",
+            resource_type: "auto",
+          });
+          const secureUrl = uploadResult.secure_url;
+          const targetAns = parsedAnswers.find(ans => ans.fileKey === file.fieldname);
+          if (targetAns) {
+            targetAns.value = secureUrl;
+          }
+        }
+      }
 
       const lead = new AdLead({
         campaign: campaignId,
