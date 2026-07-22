@@ -32,6 +32,7 @@ const AdminLayout = () => {
       "/admin/ads/campaigns": "Chiến dịch quảng cáo",
       "/admin/ads/review": "Phê duyệt quảng cáo",
       "/admin/ads/revenue": "Doanh thu quảng cáo",
+      "/admin/ads/leads": "Khách hàng đăng ký (Leads)",
       "/admin/reports": "Báo cáo vi phạm",
       "/admin/reports/posts": "Báo cáo bài viết",
       "/admin/reports/comments": "Báo cáo bình luận",
