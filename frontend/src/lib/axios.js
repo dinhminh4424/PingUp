@@ -168,6 +168,14 @@ api.interceptors.response.use(
         console.error("Server Error");
         break;
 
+      case 503:
+        if (error.response?.data?.isMaintenance) {
+          if (window.location.pathname !== "/maintenance") {
+            window.location.href = "/maintenance";
+          }
+        }
+        break;
+
       default:
         break;
     }
