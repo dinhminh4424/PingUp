@@ -526,6 +526,31 @@ class AdService {
       };
     }
   }
+
+  /**
+   * Tải tệp tin/hình ảnh trong biểu mẫu quảng cáo lên Cloudinary
+   */
+  async uploadFile(file) {
+    try {
+      if (!file) {
+        return {
+          status: 400,
+          data: { success: false, message: "Không tìm thấy tệp tải lên." }
+        };
+      }
+      const result = await uploadImageFromBuffer(file.buffer);
+      return {
+        status: 200,
+        data: { success: true, url: result.secure_url }
+      };
+    } catch (error) {
+      console.error("Lỗi upload tệp trong AdService:", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi upload: " + error.message }
+      };
+    }
+  }
 }
 
 export default new AdService();

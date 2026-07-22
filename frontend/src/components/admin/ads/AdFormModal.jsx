@@ -1,15 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { 
-  X, Megaphone, Eye, Sparkles, Plus, Trash2, Link2, Palette, ListTodo,
-  ArrowRight, ShoppingCart, Mail, Info, MessageCircle, Play, Download, Phone, UserCheck, Gift
+import {
+  X,
+  Megaphone,
+  Eye,
+  Sparkles,
+  Plus,
+  Trash2,
+  Link2,
+  Palette,
+  ListTodo,
+  ArrowRight,
+  ShoppingCart,
+  Mail,
+  Info,
+  MessageCircle,
+  Play,
+  Download,
+  Phone,
+  UserCheck,
+  Gift,
 } from "lucide-react";
-import { createCampaign, updateCampaign } from "../../../services/admin/AdServices";
+import {
+  createCampaign,
+  updateCampaign,
+} from "../../../services/admin/AdServices";
 import toast from "react-hot-toast";
 
 const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  
+
   const [form, setForm] = useState({
     title: "",
     content: "",
@@ -23,7 +43,15 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
     category: "Khác",
     displayOption: "both",
     ctaButtons: [
-      { label: "Tìm hiểu thêm", actionType: "link", actionUrl: "", icon: "ArrowRight", backgroundColor: "#4f46e5", textColor: "#ffffff", iconColor: "#ffffff" }
+      {
+        label: "Tìm hiểu thêm",
+        actionType: "link",
+        actionUrl: "",
+        icon: "ArrowRight",
+        backgroundColor: "#4f46e5",
+        textColor: "#ffffff",
+        iconColor: "#ffffff",
+      },
     ],
     leadFormConfig: {
       title: "Đăng ký tư vấn / Nhận ưu đãi",
@@ -31,8 +59,13 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
       imageUrl: "",
       fields: [
         { label: "Họ và tên", fieldType: "text", required: true, options: [] },
-        { label: "Số điện thoại", fieldType: "tel", required: true, options: [] }
-      ]
+        {
+          label: "Số điện thoại",
+          fieldType: "tel",
+          required: true,
+          options: [],
+        },
+      ],
     },
     file: null,
   });
@@ -41,7 +74,8 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
     if (campaign) {
       let displayOption = "both";
       if (campaign.displayPlacements?.length === 1) {
-        displayOption = campaign.displayPlacements[0] === "FEED_NATIVE" ? "feed" : "sidebar";
+        displayOption =
+          campaign.displayPlacements[0] === "FEED_NATIVE" ? "feed" : "sidebar";
       }
 
       setForm({
@@ -56,17 +90,38 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
         ageMax: campaign.targeting?.ageMax || 100,
         category: campaign.category || "Khác",
         displayOption,
-        ctaButtons: campaign.ctaButtons && campaign.ctaButtons.length > 0
-          ? campaign.ctaButtons
-          : [{ label: "Tìm hiểu thêm", actionType: "link", actionUrl: "", icon: "ArrowRight", backgroundColor: "#4f46e5", textColor: "#ffffff", iconColor: "#ffffff" }],
+        ctaButtons:
+          campaign.ctaButtons && campaign.ctaButtons.length > 0
+            ? campaign.ctaButtons
+            : [
+                {
+                  label: "Tìm hiểu thêm",
+                  actionType: "link",
+                  actionUrl: "",
+                  icon: "ArrowRight",
+                  backgroundColor: "#4f46e5",
+                  textColor: "#ffffff",
+                  iconColor: "#ffffff",
+                },
+              ],
         leadFormConfig: campaign.leadFormConfig || {
           title: "Đăng ký tư vấn / Nhận ưu đãi",
           description: "Nhập thông tin bên dưới để kết nối với chúng tôi.",
           imageUrl: "",
           fields: [
-            { label: "Họ và tên", fieldType: "text", required: true, options: [] },
-            { label: "Số điện thoại", fieldType: "tel", required: true, options: [] }
-          ]
+            {
+              label: "Họ và tên",
+              fieldType: "text",
+              required: true,
+              options: [],
+            },
+            {
+              label: "Số điện thoại",
+              fieldType: "tel",
+              required: true,
+              options: [],
+            },
+          ],
         },
         file: null,
       });
@@ -85,16 +140,34 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
         category: "Khác",
         displayOption: "both",
         ctaButtons: [
-          { label: "Tìm hiểu thêm", actionType: "link", actionUrl: "", icon: "ArrowRight", backgroundColor: "#4f46e5", textColor: "#ffffff", iconColor: "#ffffff" }
+          {
+            label: "Tìm hiểu thêm",
+            actionType: "link",
+            actionUrl: "",
+            icon: "ArrowRight",
+            backgroundColor: "#4f46e5",
+            textColor: "#ffffff",
+            iconColor: "#ffffff",
+          },
         ],
         leadFormConfig: {
           title: "Đăng ký tư vấn / Nhận ưu đãi",
           description: "Nhập thông tin bên dưới để kết nối với chúng tôi.",
           imageUrl: "",
           fields: [
-            { label: "Họ và tên", fieldType: "text", required: true, options: [] },
-            { label: "Số điện thoại", fieldType: "tel", required: true, options: [] }
-          ]
+            {
+              label: "Họ và tên",
+              fieldType: "text",
+              required: true,
+              options: [],
+            },
+            {
+              label: "Số điện thoại",
+              fieldType: "tel",
+              required: true,
+              options: [],
+            },
+          ],
         },
         file: null,
       });
@@ -112,7 +185,7 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setForm((prev) => ({ ...prev, file: selectedFile }));
-    
+
     if (selectedFile) {
       const objectUrl = URL.createObjectURL(selectedFile);
       setPreviewImage(objectUrl);
@@ -125,8 +198,16 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
       ...prev,
       ctaButtons: [
         ...prev.ctaButtons,
-        { label: "Tìm hiểu thêm", actionType: "link", actionUrl: "", icon: "ArrowRight", backgroundColor: "#4f46e5", textColor: "#ffffff", iconColor: "#ffffff" }
-      ]
+        {
+          label: "Tìm hiểu thêm",
+          actionType: "link",
+          actionUrl: "",
+          icon: "ArrowRight",
+          backgroundColor: "#4f46e5",
+          textColor: "#ffffff",
+          iconColor: "#ffffff",
+        },
+      ],
     }));
   };
 
@@ -137,7 +218,7 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
     }
     setForm((prev) => ({
       ...prev,
-      ctaButtons: prev.ctaButtons.filter((_, i) => i !== index)
+      ctaButtons: prev.ctaButtons.filter((_, i) => i !== index),
     }));
   };
 
@@ -155,8 +236,8 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
       ...prev,
       leadFormConfig: {
         ...prev.leadFormConfig,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -167,9 +248,14 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
         ...prev.leadFormConfig,
         fields: [
           ...prev.leadFormConfig.fields,
-          { label: "Câu hỏi mới", fieldType: "text", required: true, options: [] }
-        ]
-      }
+          {
+            label: "Câu hỏi mới",
+            fieldType: "text",
+            required: true,
+            options: [],
+          },
+        ],
+      },
     }));
   };
 
@@ -182,8 +268,8 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
       ...prev,
       leadFormConfig: {
         ...prev.leadFormConfig,
-        fields: prev.leadFormConfig.fields.filter((_, i) => i !== index)
-      }
+        fields: prev.leadFormConfig.fields.filter((_, i) => i !== index),
+      },
     }));
   };
 
@@ -195,8 +281,8 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
         ...prev,
         leadFormConfig: {
           ...prev.leadFormConfig,
-          fields: fieldsCopy
-        }
+          fields: fieldsCopy,
+        },
       };
     });
   };
@@ -284,7 +370,9 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
       formData.append("leadFormConfig", JSON.stringify(form.leadFormConfig));
 
       const targeting = {
-        location: form.location ? form.location.split(",").map((s) => s.trim()) : [],
+        location: form.location
+          ? form.location.split(",").map((s) => s.trim())
+          : [],
         ageMin: Number(form.ageMin),
         ageMax: Number(form.ageMax),
       };
@@ -302,7 +390,11 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
       }
 
       if (res?.success) {
-        toast.success(campaign ? "Cập nhật thành công! Đang chờ duyệt lại." : "Tạo chiến dịch thành công! Đang chờ phê duyệt.");
+        toast.success(
+          campaign
+            ? "Cập nhật thành công! Đang chờ duyệt lại."
+            : "Tạo chiến dịch thành công! Đang chờ phê duyệt.",
+        );
         onSuccess();
         onClose();
       }
@@ -328,25 +420,36 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
   const renderCtaIconPreview = (iconName, color) => {
     const style = color ? { color } : {};
     switch (iconName) {
-      case "ShoppingCart": return <ShoppingCart className="h-3.5 w-3.5" style={style} />;
-      case "Mail": return <Mail className="h-3.5 w-3.5" style={style} />;
-      case "Info": return <Info className="h-3.5 w-3.5" style={style} />;
-      case "MessageCircle": return <MessageCircle className="h-3.5 w-3.5" style={style} />;
-      case "Play": return <Play className="h-3.5 w-3.5" style={style} />;
-      case "Download": return <Download className="h-3.5 w-3.5" style={style} />;
-      case "Phone": return <Phone className="h-3.5 w-3.5" style={style} />;
-      case "UserCheck": return <UserCheck className="h-3.5 w-3.5" style={style} />;
-      case "Gift": return <Gift className="h-3.5 w-3.5" style={style} />;
-      default: return <ArrowRight className="h-3.5 w-3.5" style={style} />;
+      case "ShoppingCart":
+        return <ShoppingCart className="h-3.5 w-3.5" style={style} />;
+      case "Mail":
+        return <Mail className="h-3.5 w-3.5" style={style} />;
+      case "Info":
+        return <Info className="h-3.5 w-3.5" style={style} />;
+      case "MessageCircle":
+        return <MessageCircle className="h-3.5 w-3.5" style={style} />;
+      case "Play":
+        return <Play className="h-3.5 w-3.5" style={style} />;
+      case "Download":
+        return <Download className="h-3.5 w-3.5" style={style} />;
+      case "Phone":
+        return <Phone className="h-3.5 w-3.5" style={style} />;
+      case "UserCheck":
+        return <UserCheck className="h-3.5 w-3.5" style={style} />;
+      case "Gift":
+        return <Gift className="h-3.5 w-3.5" style={style} />;
+      default:
+        return <ArrowRight className="h-3.5 w-3.5" style={style} />;
     }
   };
 
-  const isFormUsingLeadForm = form.ctaButtons.some((b) => b.actionType === "lead_form");
+  const isFormUsingLeadForm = form.ctaButtons.some(
+    (b) => b.actionType === "lead_form",
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 w-full max-w-5xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
-        
         {/* Header */}
         <div className="p-5 border-b border-slate-100 dark:border-zinc-800 flex justify-between items-center bg-slate-50 dark:bg-zinc-950/40">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -363,7 +466,6 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
 
         {/* Content Body */}
         <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
-          
           {/* Column 1: Form */}
           <form
             onSubmit={handleSubmit}
@@ -434,26 +536,44 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
 
-                    <div className="text-[10px] font-bold text-indigo-500 uppercase">Nút #{index + 1}</div>
+                    <div className="text-[10px] font-bold text-indigo-500 uppercase">
+                      Nút #{index + 1}
+                    </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Nhãn nút (Tự nhập)</label>
+                        <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                          Nhãn nút{" "}
+                        </label>
                         <input
                           type="text"
                           required
                           value={btn.label}
-                          onChange={(e) => handleCtaButtonChange(index, "label", e.target.value)}
+                          onChange={(e) =>
+                            handleCtaButtonChange(
+                              index,
+                              "label",
+                              e.target.value,
+                            )
+                          }
                           placeholder="Ví dụ: Đăng ký ngay, Mua ngay..."
                           className="w-full px-2.5 py-1.5 border border-slate-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Loại hành động</label>
+                        <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                          Loại hành động
+                        </label>
                         <select
                           value={btn.actionType}
-                          onChange={(e) => handleCtaButtonChange(index, "actionType", e.target.value)}
+                          onChange={(e) =>
+                            handleCtaButtonChange(
+                              index,
+                              "actionType",
+                              e.target.value,
+                            )
+                          }
                           className="w-full px-2 py-1.5 border border-slate-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                         >
                           <option value="link">Mở liên kết URL</option>
@@ -463,11 +583,19 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
 
                       {btn.actionType === "link" && (
                         <div className="col-span-2">
-                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">URL tuỳ chỉnh của nút</label>
+                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                            URL tuỳ chỉnh của nút
+                          </label>
                           <input
                             type="url"
                             value={btn.actionUrl || ""}
-                            onChange={(e) => handleCtaButtonChange(index, "actionUrl", e.target.value)}
+                            onChange={(e) =>
+                              handleCtaButtonChange(
+                                index,
+                                "actionUrl",
+                                e.target.value,
+                              )
+                            }
                             placeholder="Mặc định sử dụng URL chính"
                             className="w-full px-2 py-1 border border-slate-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                           />
@@ -475,17 +603,27 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                       )}
 
                       <div className="col-span-2">
-                        <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Biểu tượng</label>
+                        <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                          Biểu tượng
+                        </label>
                         <select
                           value={btn.icon}
-                          onChange={(e) => handleCtaButtonChange(index, "icon", e.target.value)}
+                          onChange={(e) =>
+                            handleCtaButtonChange(index, "icon", e.target.value)
+                          }
                           className="w-full px-2 py-1.5 border border-slate-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                         >
-                          <option value="ArrowRight">Mũi tên phải (ArrowRight)</option>
-                          <option value="ShoppingCart">Giỏ hàng (ShoppingCart)</option>
+                          <option value="ArrowRight">
+                            Mũi tên phải (ArrowRight)
+                          </option>
+                          <option value="ShoppingCart">
+                            Giỏ hàng (ShoppingCart)
+                          </option>
                           <option value="Mail">Hòm thư (Mail)</option>
                           <option value="Info">Thông tin (Info)</option>
-                          <option value="MessageCircle">Tin nhắn chat (MessageCircle)</option>
+                          <option value="MessageCircle">
+                            Tin nhắn chat (MessageCircle)
+                          </option>
                           <option value="Play">Xem video (Play)</option>
                           <option value="Download">Tải xuống (Download)</option>
                           <option value="Phone">Điện thoại (Phone)</option>
@@ -497,60 +635,101 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                       {/* Tùy chỉnh màu sắc nút bấm */}
                       <div className="col-span-2 grid grid-cols-3 gap-2 pt-1 border-t border-dashed border-slate-100 dark:border-zinc-800/80">
                         <div>
-                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Màu nền nút</label>
+                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                            Màu nền nút
+                          </label>
                           <div className="flex items-center gap-1.5">
                             <input
                               type="color"
                               value={btn.backgroundColor || "#4f46e5"}
-                              onChange={(e) => handleCtaButtonChange(index, "backgroundColor", e.target.value)}
+                              onChange={(e) =>
+                                handleCtaButtonChange(
+                                  index,
+                                  "backgroundColor",
+                                  e.target.value,
+                                )
+                              }
                               className="w-6 h-6 border-0 p-0 rounded cursor-pointer"
                             />
                             <input
                               type="text"
                               value={btn.backgroundColor || "#4f46e5"}
-                              onChange={(e) => handleCtaButtonChange(index, "backgroundColor", e.target.value)}
+                              onChange={(e) =>
+                                handleCtaButtonChange(
+                                  index,
+                                  "backgroundColor",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full px-1.5 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-[10px]"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Màu chữ nút</label>
+                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                            Màu chữ nút
+                          </label>
                           <div className="flex items-center gap-1.5">
                             <input
                               type="color"
                               value={btn.textColor || "#ffffff"}
-                              onChange={(e) => handleCtaButtonChange(index, "textColor", e.target.value)}
+                              onChange={(e) =>
+                                handleCtaButtonChange(
+                                  index,
+                                  "textColor",
+                                  e.target.value,
+                                )
+                              }
                               className="w-6 h-6 border-0 p-0 rounded cursor-pointer"
                             />
                             <input
                               type="text"
                               value={btn.textColor || "#ffffff"}
-                              onChange={(e) => handleCtaButtonChange(index, "textColor", e.target.value)}
+                              onChange={(e) =>
+                                handleCtaButtonChange(
+                                  index,
+                                  "textColor",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full px-1.5 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-[10px]"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">Màu Icon</label>
+                          <label className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                            Màu Icon
+                          </label>
                           <div className="flex items-center gap-1.5">
                             <input
                               type="color"
                               value={btn.iconColor || "#ffffff"}
-                              onChange={(e) => handleCtaButtonChange(index, "iconColor", e.target.value)}
+                              onChange={(e) =>
+                                handleCtaButtonChange(
+                                  index,
+                                  "iconColor",
+                                  e.target.value,
+                                )
+                              }
                               className="w-6 h-6 border-0 p-0 rounded cursor-pointer"
                             />
                             <input
                               type="text"
                               value={btn.iconColor || "#ffffff"}
-                              onChange={(e) => handleCtaButtonChange(index, "iconColor", e.target.value)}
+                              onChange={(e) =>
+                                handleCtaButtonChange(
+                                  index,
+                                  "iconColor",
+                                  e.target.value,
+                                )
+                              }
                               className="w-full px-1.5 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-[10px]"
                             />
                           </div>
                         </div>
                       </div>
-
                     </div>
                   </div>
                 ))}
@@ -576,31 +755,43 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[9px] font-semibold text-amber-600 mb-0.5">Tiêu đề Form</label>
+                    <label className="block text-[9px] font-semibold text-amber-600 mb-0.5">
+                      Tiêu đề Form
+                    </label>
                     <input
                       type="text"
                       value={form.leadFormConfig.title}
-                      onChange={(e) => handleLeadFormMetaChange("title", e.target.value)}
+                      onChange={(e) =>
+                        handleLeadFormMetaChange("title", e.target.value)
+                      }
                       className="w-full px-2 py-1 border border-slate-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[9px] font-semibold text-amber-600 mb-0.5">Mô tả Form ngắn</label>
+                    <label className="block text-[9px] font-semibold text-amber-600 mb-0.5">
+                      Mô tả Form ngắn
+                    </label>
                     <input
                       type="text"
                       value={form.leadFormConfig.description}
-                      onChange={(e) => handleLeadFormMetaChange("description", e.target.value)}
+                      onChange={(e) =>
+                        handleLeadFormMetaChange("description", e.target.value)
+                      }
                       className="w-full px-2 py-1 border border-slate-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                     />
                   </div>
 
                   <div className="col-span-2">
-                    <label className="block text-[9px] font-semibold text-amber-600 mb-0.5">Link ảnh Banner Form (tuỳ chọn)</label>
+                    <label className="block text-[9px] font-semibold text-amber-600 mb-0.5">
+                      Link ảnh Banner Form (tuỳ chọn)
+                    </label>
                     <input
                       type="url"
                       value={form.leadFormConfig.imageUrl || ""}
-                      onChange={(e) => handleLeadFormMetaChange("imageUrl", e.target.value)}
+                      onChange={(e) =>
+                        handleLeadFormMetaChange("imageUrl", e.target.value)
+                      }
                       placeholder="Dán link ảnh https://... để làm ảnh banner đại diện trên đầu form"
                       className="w-full px-2 py-1 border border-slate-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-xs text-slate-900 dark:text-white"
                     />
@@ -614,7 +805,9 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                       className="p-3 bg-white dark:bg-zinc-900 rounded border border-slate-100 dark:border-zinc-800 relative space-y-2"
                     >
                       <div className="flex justify-between items-center">
-                        <div className="text-[10px] font-bold text-slate-400">Câu hỏi #{index + 1}</div>
+                        <div className="text-[10px] font-bold text-slate-400">
+                          Câu hỏi #{index + 1}
+                        </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveField(index)}
@@ -623,33 +816,61 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-2">
                         <div className="col-span-2">
-                          <label className="block text-[8px] font-bold text-slate-400 uppercase">Tiêu đề câu hỏi</label>
+                          <label className="block text-[8px] font-bold text-slate-400 uppercase">
+                            Tiêu đề câu hỏi
+                          </label>
                           <input
                             type="text"
                             value={field.label}
                             required
                             placeholder="Ví dụ: Bạn sinh năm bao nhiêu?..."
-                            onChange={(e) => handleFieldChange(index, "label", e.target.value)}
+                            onChange={(e) =>
+                              handleFieldChange(index, "label", e.target.value)
+                            }
                             className="w-full px-2 py-1 border border-slate-200 dark:border-zinc-800 rounded text-xs"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-[8px] font-bold text-slate-400 uppercase">Loại câu trả lời</label>
+                          <label className="block text-[8px] font-bold text-slate-400 uppercase">
+                            Loại câu trả lời
+                          </label>
                           <select
                             value={field.fieldType}
-                            onChange={(e) => handleFieldChange(index, "fieldType", e.target.value)}
+                            onChange={(e) =>
+                              handleFieldChange(
+                                index,
+                                "fieldType",
+                                e.target.value,
+                              )
+                            }
                             className="w-full px-1.5 py-1 border border-slate-200 dark:border-zinc-800 rounded text-xs bg-white dark:bg-zinc-900"
                           >
-                            <option value="text">Nhập văn bản ngắn (Text)</option>
+                            <option value="text">
+                              Nhập văn bản ngắn (Text)
+                            </option>
                             <option value="email">Nhập Email (Email)</option>
-                            <option value="tel">Nhập Số điện thoại (Tel)</option>
-                            <option value="textarea">Nhập Văn bản dài (Textarea)</option>
-                            <option value="select">Hộp lựa chọn thả xuống (Dropdown)</option>
-                            <option value="radio">Nút chọn một phương án (Radio Button)</option>
+                            <option value="tel">
+                              Nhập Số điện thoại (Tel)
+                            </option>
+                            <option value="textarea">
+                              Nhập Văn bản dài (Textarea)
+                            </option>
+                            <option value="select">
+                              Hộp lựa chọn thả xuống (Dropdown)
+                            </option>
+                            <option value="radio">
+                              Nút chọn một phương án (Radio Button)
+                            </option>
+                            <option value="file">
+                              Tải lên tệp/Hình ảnh (Upload File)
+                            </option>
+                            <option value="range">
+                              Thanh kéo phạm vi (Range Slider)
+                            </option>
                           </select>
                         </div>
 
@@ -658,18 +879,89 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                             <input
                               type="checkbox"
                               checked={field.required}
-                              onChange={(e) => handleFieldChange(index, "required", e.target.checked)}
+                              onChange={(e) =>
+                                handleFieldChange(
+                                  index,
+                                  "required",
+                                  e.target.checked,
+                                )
+                              }
                               className="rounded border-slate-200 dark:border-zinc-800 text-indigo-600 focus:ring-0"
                             />
                             Bắt buộc trả lời
                           </label>
                         </div>
 
+                        {/* Quản lý cấu hình Min, Max, Step cho range slider */}
+                        {field.fieldType === "range" && (
+                          <div className="col-span-2 bg-slate-50 dark:bg-zinc-950/40 p-3 rounded border border-slate-100 dark:border-zinc-800/80 space-y-2">
+                            <label className="block text-[8px] font-bold text-slate-400 uppercase">
+                              Cấu hình thanh kéo (Range Slider)
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <label className="block text-[8px] text-slate-400 font-bold">
+                                  Min
+                                </label>
+                                <input
+                                  type="number"
+                                  value={field.min ?? 0}
+                                  onChange={(e) =>
+                                    handleFieldChange(
+                                      index,
+                                      "min",
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full px-2 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-xs bg-white dark:bg-zinc-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] text-slate-400 font-bold">
+                                  Max
+                                </label>
+                                <input
+                                  type="number"
+                                  value={field.max ?? 100}
+                                  onChange={(e) =>
+                                    handleFieldChange(
+                                      index,
+                                      "max",
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full px-2 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-xs bg-white dark:bg-zinc-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] text-slate-400 font-bold">
+                                  Bước (Step)
+                                </label>
+                                <input
+                                  type="number"
+                                  value={field.step ?? 1}
+                                  onChange={(e) =>
+                                    handleFieldChange(
+                                      index,
+                                      "step",
+                                      Number(e.target.value),
+                                    )
+                                  }
+                                  className="w-full px-2 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-xs bg-white dark:bg-zinc-900"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Quản lý lựa chọn option cho dropdown/radio bằng nút thêm */}
-                        {(field.fieldType === "select" || field.fieldType === "radio") && (
+                        {(field.fieldType === "select" ||
+                          field.fieldType === "radio") && (
                           <div className="col-span-2 bg-slate-50 dark:bg-zinc-950/40 p-3 rounded border border-slate-100 dark:border-zinc-800/80 space-y-2">
                             <div className="flex justify-between items-center">
-                              <label className="block text-[8px] font-bold text-slate-400 uppercase">Danh sách các lựa chọn</label>
+                              <label className="block text-[8px] font-bold text-slate-400 uppercase">
+                                Danh sách các lựa chọn
+                              </label>
                               <button
                                 type="button"
                                 onClick={() => handleAddFieldOption(index)}
@@ -681,18 +973,29 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
 
                             <div className="space-y-1.5">
                               {(field.options || []).map((opt, oIdx) => (
-                                <div key={oIdx} className="flex items-center gap-1.5">
+                                <div
+                                  key={oIdx}
+                                  className="flex items-center gap-1.5"
+                                >
                                   <input
                                     type="text"
                                     required
                                     value={opt}
-                                    onChange={(e) => handleFieldOptionChange(index, oIdx, e.target.value)}
+                                    onChange={(e) =>
+                                      handleFieldOptionChange(
+                                        index,
+                                        oIdx,
+                                        e.target.value,
+                                      )
+                                    }
                                     placeholder={`Lựa chọn ${oIdx + 1}`}
                                     className="w-full px-2 py-0.5 border border-slate-200 dark:border-zinc-800 rounded text-xs bg-white dark:bg-zinc-900"
                                   />
                                   <button
                                     type="button"
-                                    onClick={() => handleRemoveFieldOption(index, oIdx)}
+                                    onClick={() =>
+                                      handleRemoveFieldOption(index, oIdx)
+                                    }
                                     className="text-slate-400 hover:text-rose-600 transition shrink-0"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
@@ -700,7 +1003,9 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                                 </div>
                               ))}
                               {(field.options || []).length === 0 && (
-                                <div className="text-[10px] text-slate-400 italic">Chưa có lựa chọn nào. Hãy nhấn thêm!</div>
+                                <div className="text-[10px] text-slate-400 italic">
+                                  Chưa có lựa chọn nào. Hãy nhấn thêm!
+                                </div>
                               )}
                             </div>
                           </div>
@@ -745,14 +1050,17 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                   className="w-full px-3 py-2 border border-slate-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-950 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="feed">Chỉ hiện trên Feed (Bảng tin)</option>
-                  <option value="sidebar">Chỉ hiện trên Sidebar (Thanh bên)</option>
+                  <option value="sidebar">
+                    Chỉ hiện trên Sidebar (Thanh bên)
+                  </option>
                   <option value="both">Hiển thị ở cả Feed và Sidebar</option>
                 </select>
               </div>
 
               <div className="col-span-2">
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                  Liên kết đích chung (Target URL chính khi nhấn vào ảnh) <span className="text-rose-500">*</span>
+                  Liên kết đích chung (Target URL chính khi nhấn vào ảnh){" "}
+                  <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="url"
@@ -853,7 +1161,12 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
 
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Hình ảnh/Video quảng cáo {campaign && <span className="text-slate-400 font-normal">(để trống nếu không đổi)</span>}
+                Hình ảnh/Video quảng cáo{" "}
+                {campaign && (
+                  <span className="text-slate-400 font-normal">
+                    (để trống nếu không đổi)
+                  </span>
+                )}
               </label>
               <input
                 type="file"
@@ -875,23 +1188,32 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition disabled:opacity-50"
               >
-                {isSubmitting ? "Đang xử lý..." : campaign ? "Cập nhật" : "Tạo chiến dịch"}
+                {isSubmitting
+                  ? "Đang xử lý..."
+                  : campaign
+                    ? "Cập nhật"
+                    : "Tạo chiến dịch"}
               </button>
             </div>
           </form>
 
           {/* Column 2: Live Preview */}
-          <div 
+          <div
             className="w-full lg:w-2/5 p-6 bg-slate-50 dark:bg-zinc-950/20 flex flex-col items-center justify-start border-t lg:border-t-0 border-slate-100 dark:border-zinc-800/80 overflow-y-auto no-scrollbar"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5 self-start">
               <Eye className="h-4 w-4" />
-              Xem trước quảng cáo ({form.displayOption === "both" ? "Cả hai" : form.displayOption === "feed" ? "Bảng tin" : "Thanh bên"})
+              Xem trước quảng cáo (
+              {form.displayOption === "both"
+                ? "Cả hai"
+                : form.displayOption === "feed"
+                  ? "Bảng tin"
+                  : "Thanh bên"}
+              )
             </div>
 
             <div className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800/80 p-5 rounded-2xl shadow-md flex flex-col gap-3.5 transition-all mb-4">
-              
               {/* Click target link headers */}
               <a
                 href={form.targetUrl || "#"}
@@ -905,7 +1227,10 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                       {form.title || "Tiêu đề chiến dịch"}
                     </span>
                     <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">
-                      Phân loại: <strong className="text-slate-600 dark:text-zinc-300">{form.category}</strong>
+                      Phân loại:{" "}
+                      <strong className="text-slate-600 dark:text-zinc-300">
+                        {form.category}
+                      </strong>
                     </span>
                   </div>
                   <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 rounded-full shrink-0">
@@ -915,13 +1240,27 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
 
                 <div className="w-full aspect-[3/2] overflow-hidden rounded-lg bg-slate-50 dark:bg-zinc-950 flex items-center justify-center border border-dashed border-slate-200 dark:border-zinc-800">
                   {previewImage ? (
-                    previewImage.endsWith(".mp4") || previewImage.includes("video") || (form.file && form.file.type.includes("video")) ? (
-                      <video src={previewImage} className="w-full h-full object-cover" muted autoPlay loop />
+                    previewImage.endsWith(".mp4") ||
+                    previewImage.includes("video") ||
+                    (form.file && form.file.type.includes("video")) ? (
+                      <video
+                        src={previewImage}
+                        className="w-full h-full object-cover"
+                        muted
+                        autoPlay
+                        loop
+                      />
                     ) : (
-                      <img src={previewImage} className="w-full h-full object-cover" alt="Preview" />
+                      <img
+                        src={previewImage}
+                        className="w-full h-full object-cover"
+                        alt="Preview"
+                      />
                     )
                   ) : (
-                    <span className="text-slate-400 text-xs">Không có hình ảnh/video</span>
+                    <span className="text-slate-400 text-xs">
+                      Không có hình ảnh/video
+                    </span>
                   )}
                 </div>
               </a>
@@ -933,9 +1272,10 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
               {/* Dynamic CTA Buttons List Preview with Custom Colors & Icons */}
               <div className="pt-2.5 border-t border-slate-50 dark:border-zinc-800/80 space-y-2">
                 <div className="text-[9px] text-slate-400 font-semibold uppercase flex items-center gap-1">
-                  <Link2 className="h-3 w-3" /> Nút liên kết hành động ({form.ctaButtons.length})
+                  <Link2 className="h-3 w-3" /> Nút liên kết hành động (
+                  {form.ctaButtons.length})
                 </div>
-                
+
                 <div className="flex flex-wrap gap-2">
                   {form.ctaButtons.map((btn, i) => (
                     <button
@@ -943,17 +1283,19 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                       type="button"
                       style={{
                         backgroundColor: btn.backgroundColor || "#4f46e5",
-                        color: btn.textColor || "#ffffff"
+                        color: btn.textColor || "#ffffff",
                       }}
                       className="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
                     >
                       <span>{btn.label || "Nút"}</span>
-                      {renderCtaIconPreview(btn.icon, btn.iconColor || btn.textColor || "#ffffff")}
+                      {renderCtaIconPreview(
+                        btn.icon,
+                        btn.iconColor || btn.textColor || "#ffffff",
+                      )}
                     </button>
                   ))}
                 </div>
               </div>
-
             </div>
 
             {/* Live Form Preview overlay (Dành cho Lead Form tự thiết kế) */}
@@ -962,11 +1304,15 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                 <div className="text-[9px] font-bold text-amber-600 bg-amber-50/50 p-2 uppercase border-b border-slate-100 flex items-center gap-1 shrink-0">
                   Xem trước Lead Form tự thiết kế
                 </div>
-                
+
                 {/* Ảnh banner Form */}
                 {form.leadFormConfig.imageUrl && (
                   <div className="w-full aspect-[4/1] overflow-hidden bg-slate-50 border-b border-slate-100 shrink-0">
-                    <img src={form.leadFormConfig.imageUrl} className="w-full h-full object-cover" alt="Form Banner" />
+                    <img
+                      src={form.leadFormConfig.imageUrl}
+                      className="w-full h-full object-cover"
+                      alt="Form Banner"
+                    />
                   </div>
                 )}
 
@@ -977,18 +1323,28 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                   <p className="text-[10px] text-slate-400 dark:text-zinc-500">
                     {form.leadFormConfig.description || "Mô tả Form ngắn"}
                   </p>
-                  
+
                   <div className="space-y-2 pt-1">
                     {form.leadFormConfig.fields.map((f, index) => (
                       <div key={index}>
                         <label className="block text-[9px] text-slate-400 mb-0.5">
-                          {f.label || `Trường nhập #${index+1}`} {f.required && <span className="text-red-500">*</span>}
+                          {f.label || `Trường nhập #${index + 1}`}{" "}
+                          {f.required && (
+                            <span className="text-red-500">*</span>
+                          )}
                         </label>
-                        
+
                         {f.fieldType === "textarea" ? (
-                          <textarea disabled className="w-full p-1 border border-slate-100 dark:border-zinc-800 rounded text-[10px] bg-slate-50/50" rows="1" />
+                          <textarea
+                            disabled
+                            className="w-full p-1 border border-slate-100 dark:border-zinc-800 rounded text-[10px] bg-slate-50/50"
+                            rows="1"
+                          />
                         ) : f.fieldType === "select" ? (
-                          <select disabled className="w-full p-1 border border-slate-100 dark:border-zinc-800 rounded text-[10px] bg-slate-50/50">
+                          <select
+                            disabled
+                            className="w-full p-1 border border-slate-100 dark:border-zinc-800 rounded text-[10px] bg-slate-50/50"
+                          >
                             {f.options && f.options.length > 0 ? (
                               f.options.map((opt, oIdx) => (
                                 <option key={oIdx}>{opt}</option>
@@ -1001,17 +1357,53 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
                           <div className="flex flex-wrap gap-2 pt-0.5">
                             {f.options && f.options.length > 0 ? (
                               f.options.map((opt, oIdx) => (
-                                <label key={oIdx} className="flex items-center gap-1 text-[10px] text-slate-500">
-                                  <input type="radio" disabled className="h-3 w-3 text-indigo-600 focus:ring-0" />
+                                <label
+                                  key={oIdx}
+                                  className="flex items-center gap-1 text-[10px] text-slate-500"
+                                >
+                                  <input
+                                    type="radio"
+                                    disabled
+                                    className="h-3 w-3 text-indigo-600 focus:ring-0"
+                                  />
                                   {opt}
                                 </label>
                               ))
                             ) : (
-                              <span className="text-[9px] text-slate-400">Chưa cấu hình các lựa chọn</span>
+                              <span className="text-[9px] text-slate-400">
+                                Chưa cấu hình các lựa chọn
+                              </span>
                             )}
                           </div>
+                        ) : f.fieldType === "range" ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              disabled
+                              min={f.min ?? 0}
+                              max={f.max ?? 100}
+                              step={f.step ?? 1}
+                              className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                            />
+                            <span className="text-[8px] text-slate-400 font-mono">
+                              {f.min ?? 0} - {f.max ?? 100}
+                            </span>
+                          </div>
+                        ) : f.fieldType === "file" ? (
+                          <div className="w-full p-2 border border-dashed border-slate-200 dark:border-zinc-800 rounded bg-slate-50/50 flex flex-col items-center justify-center gap-1 cursor-not-allowed">
+                            <span className="text-[9px] text-slate-400">
+                              Tải lên tài liệu hoặc ảnh
+                            </span>
+                            <span className="text-[7px] text-slate-300">
+                              Dung lượng tối đa 5MB
+                            </span>
+                          </div>
                         ) : (
-                          <input type="text" disabled className="w-full p-1 border border-slate-100 dark:border-zinc-800 rounded text-[10px] bg-slate-50/50" />
+                          <input
+                            type="text"
+                            disabled
+                            className="w-full p-1 border border-slate-100 dark:border-zinc-800 rounded text-[10px] bg-slate-50/50"
+                          />
                         )}
                       </div>
                     ))}
@@ -1020,7 +1412,6 @@ const AdFormModal = ({ isOpen, onClose, campaign, onSuccess }) => {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>

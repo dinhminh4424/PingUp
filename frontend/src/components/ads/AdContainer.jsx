@@ -5,6 +5,7 @@ import {
   ArrowRight, ShoppingCart, Mail, Info, MessageCircle, Play, Download, Phone, UserCheck, Gift, Send, X 
 } from "lucide-react";
 import toast from "react-hot-toast";
+import api from "../../lib/axios";
 
 const AdContainer = ({ placementCode, className }) => {
   const [ad, setAd] = useState(null);
@@ -107,10 +108,16 @@ const AdContainer = ({ placementCode, className }) => {
       }
     }
 
-    const answersArray = fields.map((f) => ({
-      label: f.label,
-      value: answers[f.label] || "",
-    }));
+    const answersArray = fields.map((f) => {
+      let val = answers[f.label];
+      if (f.fieldType === "range" && val === undefined) {
+        val = String(f.min ?? 0);
+      }
+      return {
+        label: f.label,
+        value: val || "",
+      };
+    });
 
     try {
       setSubmittingLead(true);
@@ -331,6 +338,96 @@ const AdContainer = ({ placementCode, className }) => {
                           ))
                         ) : (
                           <span className="text-xs text-slate-400">Chưa cấu hình các lựa chọn</span>
+                        )}
+                      </div>
+                    ) : field.fieldType === "range" ? (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <input
+                            type="range"
+                            min={field.min ?? 0}
+                            max={field.max ?? 100}
+                            step={field.step ?? 1}
+                            required={field.required}
+                            value={answers[field.label] || field.min || 0}
+                            onChange={(e) => handleInputChange(field.label, e.target.value)}
+                            className="w-full h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                          />
+                          <span className="text-xs font-bold font-mono text-indigo-600 dark:text-indigo-400 pl-4">
+                            {answers[field.label] || field.min || 0}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-[9px] text-slate-400">
+                          <span>Min: {field.min ?? 0}</span>
+                          <span>Max: {field.max ?? 100}</span>
+                        </div>
+                      </div>
+                    ) : field.fieldType === "file" ? (
+                      <div className="space-y-2">
+                        {answers[field.label] ? (
+                          <div className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 dark:border-zinc-850/50 dark:bg-zinc-950/20">
+                            {answers[field.label].match(/\.(jpeg|jpg|gif|png|webp)/i) ? (
+                              <img
+                                src={answers[field.label]}
+                                className="h-10 w-10 rounded-lg object-cover border border-slate-200 dark:border-zinc-700 bg-white"
+                                alt=""
+                              />
+                            ) : (
+                              <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 flex items-center justify-center text-indigo-600 font-bold text-[10px] uppercase">
+                                File
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <a
+                                href={answers[field.label]}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline truncate block"
+                              >
+                                {answers[field.label].split("/").pop().slice(-30)}
+                              </a>
+                              <span className="text-[9px] text-emerald-500 block font-medium">Tải lên thành công</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleInputChange(field.label, "")}
+                              className="text-[10px] font-bold text-rose-500 hover:underline cursor-pointer"
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <input
+                              type="file"
+                              required={field.required && !answers[field.label]}
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                
+                                const uploadForm = new FormData();
+                                uploadForm.append("file", file);
+                                
+                                const uploadToast = toast.loading("Đang tải tệp lên...");
+                                try {
+                                  const res = await api.post("/api/ads/upload", uploadForm, {
+                                    headers: { "Content-Type": "multipart/form-data" }
+                                  });
+                                  
+                                  if (res.data?.success) {
+                                    handleInputChange(field.label, res.data.url);
+                                    toast.success("Tải tệp thành công!", { id: uploadToast });
+                                  } else {
+                                    toast.error("Tải tệp thất bại.", { id: uploadToast });
+                                  }
+                                } catch (err) {
+                                  console.error(err);
+                                  toast.error("Lỗi khi tải tệp lên.", { id: uploadToast });
+                                }
+                              }}
+                              className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer border border-slate-200 dark:border-zinc-800 rounded-lg p-1.5"
+                            />
+                          </div>
                         )}
                       </div>
                     ) : (

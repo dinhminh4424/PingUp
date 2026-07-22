@@ -15,6 +15,7 @@ router.put("/campaigns/:id/status", AdController.toggleCampaignStatus);
 router.put("/campaigns/:id", upload.single("image"), AdController.updateCampaign);
 router.delete("/campaigns/:id", AdController.deleteCampaign);
 router.post("/campaigns/:id/lead", AdController.submitLead);
+router.post("/upload", upload.single("file"), AdController.uploadFile);
 router.get("/leads", AdController.getLeads);
 router.delete("/leads/:id", AdController.deleteLead);
 
