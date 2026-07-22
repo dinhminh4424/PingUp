@@ -1,4 +1,5 @@
 import UserService from "../services/UserService.js";
+import ActivityLogService from "../services/ActivityLogService.js";
 
 class UserController {
   async authMe(req, res) {
@@ -85,7 +86,23 @@ class UserController {
         cover_photo,
       );
 
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId: user._id,
+          action: "UPDATE_PROFILE",
+          entityType: "USER",
+          entityId: user._id,
+          details: {
+            updatedFields: Object.keys({ username, full_name, bio, location }).filter(
+              k => req.body[k] !== undefined
+            )
+          },
+          req,
+        });
+      }
+
       res.status(result.status).json(result.data);
+
     } catch (error) {
       console.error("Lỗi khi chỉnh sửa thông tin user updateInfoUser:", error);
       res.status(500).json({

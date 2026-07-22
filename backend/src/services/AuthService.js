@@ -3,6 +3,8 @@ import Session from "../models/Session.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import ActivityLogService from "./ActivityLogService.js";
+
 
 const REFRESH_TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 ngày (ms)
 
@@ -158,10 +160,19 @@ class AuthService {
     }
   }
 
-  async logOut(refreshToken) {
+  async logOut(refreshToken, req) {
     try {
       if (refreshToken) {
-        await Session.deleteOne({ refreshToken });
+        const session = await Session.findOne({ refreshToken });
+        if (session) {
+          await ActivityLogService.log({
+            userId: session.userId,
+            action: "LOGOUT",
+            entityType: "AUTH",
+            req,
+          });
+          await Session.deleteOne({ _id: session._id });
+        }
       }
       return {
         status: 200,

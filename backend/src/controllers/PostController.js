@@ -1,4 +1,5 @@
 import PostService from "../services/PostService.js";
+import ActivityLogService from "../services/ActivityLogService.js";
 
 class PostController {
   async getPost(req, res) {
@@ -39,7 +40,20 @@ class PostController {
       const userId = req.user._id;
 
       const result = await PostService.createPost(content, files, userId);
+      
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId,
+          action: "CREATE_POST",
+          entityType: "POST",
+          entityId: result.data.post._id,
+          details: { contentSnippet: content ? content.slice(0, 100) : "" },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.log("Lỗi khi thêm bài viết: ", error);
       return res.status(500).json({
@@ -88,7 +102,20 @@ class PostController {
         files,
         userId,
       );
+
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId,
+          action: "UPDATE_POST",
+          entityType: "POST",
+          entityId: id,
+          details: { contentSnippet: content ? content.slice(0, 100) : "" },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.log("Lỗi khi Cập nhật bài viết: ", error);
       return res.status(500).json({
@@ -104,7 +131,19 @@ class PostController {
       const userId = req.user._id;
 
       const result = await PostService.deletePost(id, userId);
+
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId,
+          action: "DELETE_POST",
+          entityType: "POST",
+          entityId: id,
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.log("Lỗi khi xóa bài viết: ", error);
       return res.status(500).json({
@@ -128,7 +167,21 @@ class PostController {
 
       const result = await PostService.toggleLike(id, userId);
 
+      if (result.status === 200 && result.data?.success && result.data?.post) {
+        const isLiked = result.data.post.likes_count.some(
+          (uid) => uid.toString() === userId.toString()
+        );
+        await ActivityLogService.log({
+          userId,
+          action: isLiked ? "LIKE_POST" : "UNLIKE_POST",
+          entityType: "POST",
+          entityId: id,
+          req,
+        });
+      }
+
       res.status(result.status).json(result.data);
+
     } catch (error) {
       console.error("Lỗi khi lấy thông tin người dùng:", error);
       res.status(500).json({
@@ -161,7 +214,20 @@ class PostController {
         content,
         userId,
       );
+
+      if (result.status === 200 && result.data?.success) {
+        await ActivityLogService.log({
+          userId,
+          action: "SHARE_POST",
+          entityType: "POST",
+          entityId: result.data.post._id,
+          details: { originalPostId, contentSnippet: content ? content.slice(0, 100) : "" },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.log("Lỗi khi share bài viết: ", error);
       return res.status(500).json({

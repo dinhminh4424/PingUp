@@ -1,4 +1,5 @@
 import UserService from "../../services/admin/UserService.js";
+import ActivityLogService from "../../services/ActivityLogService.js";
 
 class UserController {
   async getUsers(req, res) {
@@ -24,6 +25,19 @@ class UserController {
     try {
       const { id } = req.params;
       const result = await UserService.toggleActive(id);
+
+      if (result.status === 200 && result.data?.success && result.data?.user) {
+        const targetUser = result.data.user;
+        await ActivityLogService.log({
+          userId: targetUser._id,
+          action: targetUser.isActive ? "UNLOCK_ACCOUNT" : "LOCK_ACCOUNT",
+          entityType: "USER",
+          entityId: targetUser._id,
+          details: { adminId: req.user._id },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.error("Lỗi khi toggle active: ", error);
@@ -38,6 +52,19 @@ class UserController {
     try {
       const { id } = req.params;
       const result = await UserService.toggleRole(id);
+
+      if (result.status === 200 && result.data?.success && result.data?.user) {
+        const targetUser = result.data.user;
+        await ActivityLogService.log({
+          userId: targetUser._id,
+          action: targetUser.role === "admin" ? "PROMOTE_ADMIN" : "DEMOTE_USER",
+          entityType: "USER",
+          entityId: targetUser._id,
+          details: { adminId: req.user._id },
+          req,
+        });
+      }
+
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.error("Lỗi khi toggle role: ", error);
@@ -58,6 +85,26 @@ class UserController {
       res.status(500).json({
         success: false,
         message: "Lỗi khi lấy chi tiết user: " + error.message,
+      });
+    }
+  }
+
+  async getUserLogs(req, res) {
+    try {
+      const { id } = req.params;
+      const { page = 1, limit = 15, actionFilter = "" } = req.query;
+      const result = await ActivityLogService.getUserLogs(
+        id,
+        parseInt(page),
+        parseInt(limit),
+        actionFilter
+      );
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("Lỗi khi lấy nhật ký hoạt động: ", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi khi lấy nhật ký hoạt động: " + error.message,
       });
     }
   }

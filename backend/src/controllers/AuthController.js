@@ -1,4 +1,5 @@
 import AuthService from "../services/AuthService.js";
+import ActivityLogService from "../services/ActivityLogService.js";
 
 const REFRESH_TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000; // 14 ngày (ms)
 class AuthController {
@@ -50,7 +51,30 @@ class AuthController {
         });
       }
 
+      if (result.data?.success && result.data?.user) {
+        await ActivityLogService.log({
+          userId: result.data.user._id,
+          action: "LOGIN",
+          entityType: "AUTH",
+          details: { email: result.data.user.email },
+          req,
+        });
+      } else {
+        const User = (await import("../models/User.js")).default;
+        const attemptedUser = await User.findOne({ email }).select("_id");
+        if (attemptedUser) {
+          await ActivityLogService.log({
+            userId: attemptedUser._id,
+            action: "LOGIN_FAILED",
+            entityType: "AUTH",
+            details: { emailAttempted: email, reason: result.data?.message || "Đăng nhập thất bại" },
+            req,
+          });
+        }
+      }
+
       return res.status(result.status).json(result.data);
+
     } catch (error) {
       console.log("Lỗi server: ", error);
       return res.status(500).json({
@@ -63,7 +87,8 @@ class AuthController {
   async logOut(req, res) {
     try {
       const refreshToken = req.cookies?.refreshToken;
-      const result = await AuthService.logOut(refreshToken);
+      const result = await AuthService.logOut(refreshToken, req);
+
 
       res.clearCookie("refreshToken", {
         httpOnly: true,
