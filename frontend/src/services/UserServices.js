@@ -40,3 +40,8 @@ export const createReportUser = async (id, formData) => {
   const res = await api.post(`/api/user/${id}/report`, formData);
   return res.data;
 };
+
+export const updatePrivacySettings = async (isPrivate) => {
+  const res = await api.put(`/api/user/privacy`, { isPrivate });
+  return res.data;
+};
