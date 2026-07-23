@@ -3,6 +3,7 @@ import Loading from "../../components/Loading.jsx";
 import StoryBar from "../../components/story/StoryBar.jsx";
 import PostCard from "../../components/post/PostCard.jsx";
 import ResentMessages from "../../components/feed/ResentMessages.jsx";
+import OnlineUsers from "../../components/feed/OnlineUsers.jsx";
 import { Loader2 } from "lucide-react";
 import { useFeed } from "../../contexts/FeedContext.jsx";
 import Sponsored from "../../components/feed/Sponsored.jsx";
@@ -90,8 +91,9 @@ const Feed = () => {
         </div>
       </div>
       {/* Right Sidebar */}
-      <div className="max-xl:hidden sticky top-0 w-80 flex flex-col gap-4">
+      <div className="max-xl:hidden sticky top-4 max-h-[calc(100vh-80px)] overflow-y-auto no-scrollbar w-80 flex flex-col gap-4">
         <Sponsored />
+        <OnlineUsers />
         <ResentMessages />
       </div>
     </div>
