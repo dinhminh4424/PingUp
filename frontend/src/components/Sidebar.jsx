@@ -20,7 +20,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const navigate = useNavigate();
-  const { logout: logoutAuth, userCurrent: user } = useAuth();
+  const { logout: logoutAuth, userCurrent: user, systemConfigs } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -56,8 +56,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       <div className="w-full">
         <img
           onClick={() => navigate("/")}
-          src={assets.logo}
-          className="w-26 ml-7 my-2 cursor-pointer"
+          src={systemConfigs["system.logo_url"] || assets.logo}
+          className="w-26 ml-7 my-2 cursor-pointer object-contain h-12"
           alt=""
         />
         <hr className="border-gray-300 dark:border-zinc-800 mb-8" />

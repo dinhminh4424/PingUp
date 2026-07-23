@@ -9,6 +9,7 @@ import ProfileModal from "../../components/profile/ProfileModal";
 import { useAuth } from "../../contexts/AuthContext";
 import { getUserById } from "../../services/UserServices";
 import { getPostsByIdUser, getLikedPosts } from "../../services/PostServices";
+import { Lock } from "lucide-react";
 const Profile = () => {
   const { profileId } = useParams();
   const [user, setUser] = useState(null);
@@ -29,16 +30,17 @@ const Profile = () => {
 
     try {
       const resultUser = await getUserById(id);
-      const resultPosts = await getPostsByIdUser(id);
-      const resultLiked = await getLikedPosts(id);
-
       setUser(resultUser.user);
-      setPosts(resultPosts.posts);
-      setLikedPosts(resultLiked.posts || []);
+
+      if (!resultUser.user.isProfileHidden) {
+        const resultPosts = await getPostsByIdUser(id);
+        const resultLiked = await getLikedPosts(id);
+        setPosts(resultPosts.posts || []);
+        setLikedPosts(resultLiked.posts || []);
+      }
     } catch (error) {
-      console.log("Lỗi: ", error);
-      setError(error.response?.data?.message || "Đăng bài thất bại");
-      throw error;
+      console.log("Lỗi tải thông tin trang cá nhân: ", error);
+      setError(error.response?.data?.message || "Không thể tải thông tin trang cá nhân");
     }
   };
 
@@ -80,115 +82,129 @@ const Profile = () => {
           />
         </div>
 
-        {/* Tabs */}
-        <div className="mt-6">
-          <div className="bg-white rounded-lg shadow p-1 flex max-w-lg mx-auto">
-            {["posts", "media", "likes", "shares"].map((tab) => {
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${activeTab === tab ? "bg-indigo-600 text-white" : "text-gray-600 hover:text-gray-900"} `}
-                >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
-              );
-            })}
+        {/* Tabs hoặc Màn hình khóa riêng tư */}
+        {user.isProfileHidden ? (
+          <div className="mt-10 max-w-lg mx-auto bg-white/70 dark:bg-zinc-900/70 border border-gray-200/50 dark:border-zinc-800/50 backdrop-blur-md shadow-lg rounded-2xl p-10 text-center space-y-4">
+            <div className="size-16 mx-auto bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center border border-amber-100 dark:border-amber-900/30 shadow-inner">
+              <Lock className="size-7 animate-pulse" />
+            </div>
+            <div className="space-y-1.5">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Tài khoản này là riêng tư</h2>
+              <p className="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">
+                Chỉ những người đã kết nối với người dùng này mới có thể xem các thông tin chi tiết và bài đăng của họ.
+              </p>
+            </div>
           </div>
-          {/*   Posts */}
-          {activeTab === "posts" && (
-            <div className="mt-6 flex flex-col items-center gap-6">
-              {posts.map((post) => {
+        ) : (
+          <div className="mt-6">
+            <div className="bg-white rounded-lg shadow p-1 flex max-w-lg mx-auto">
+              {["posts", "media", "likes", "shares"].map((tab) => {
                 return (
-                  <PostCard
-                    key={post._id}
-                    post={post}
-                    onUpdate={handleUpdatePost}
-                    onDelete={handleDeletePost}
-                  />
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors cursor-pointer ${activeTab === tab ? "bg-indigo-600 text-white" : "text-gray-600 hover:text-gray-900"} `}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
                 );
               })}
             </div>
-          )}
-          {/*   Media */}
-          {activeTab === "media" && (
-            <div className=" flex flex-wrap mt-6 max-w-6xl">
-              {posts
-                .filter((post) => post.image_urls.length > 0)
-                .map((post) => {
-                  return post.image_urls.map((image, index) => (
-                    <Link
-                      target="_blank"
-                      to={image}
-                      key={`${post._id}-${index}`}
-                      className="relative group"
-                    >
-                      <img
-                        key={index}
-                        src={image}
-                        className="w-64 aspect-video object-cover "
-                        alt=""
-                      />
-                      <p className="absolute bottom-0 right-0 text-xs p-1 px-3 backdrop-blur-xl text-white opacity-0 group-hover:opacity-100 transition duration-300">
-                        Posted {moment(post.createdAt).fromNow()}
-                      </p>
-                    </Link>
-                  ));
-                })}
-            </div>
-          )}
-          {/*   Likes */}
-          {activeTab === "likes" && (
-            <div className="mt-6 flex flex-col items-center gap-6">
-              {likedPosts.length === 0 ? (
-                <p className="text-gray-500 text-sm mt-4">
-                  Chưa thích bài viết nào
-                </p>
-              ) : (
-                likedPosts.map((post) => (
-                  <PostCard
-                    key={post._id}
-                    post={post}
-                    onUpdate={(updated) => {
-                      setLikedPosts((prev) =>
-                        prev.map((p) => (p._id === updated._id ? updated : p)),
-                      );
-                      handleUpdatePost(updated);
-                    }}
-                    onDelete={(deletedId) => {
-                      setLikedPosts((prev) =>
-                        prev.filter((p) => p._id !== deletedId),
-                      );
-                      handleDeletePost(deletedId);
-                    }}
-                  />
-                ))
-              )}
-            </div>
-          )}
-          {/*   Shares */}
-          {activeTab === "shares" && (
-            <div className="mt-6 flex flex-col items-center gap-6">
-              {posts.filter((post) => post.post_type === "share").length ===
-              0 ? (
-                <p className="text-gray-500 text-sm mt-4">
-                  Chưa chia sẻ bài viết nào
-                </p>
-              ) : (
-                posts
-                  .filter((post) => post.post_type === "share")
-                  .map((post) => (
+            {/*   Posts */}
+            {activeTab === "posts" && (
+              <div className="mt-6 flex flex-col items-center gap-6">
+                {posts.map((post) => {
+                  return (
                     <PostCard
                       key={post._id}
                       post={post}
                       onUpdate={handleUpdatePost}
                       onDelete={handleDeletePost}
                     />
+                  );
+                })}
+              </div>
+            )}
+            {/*   Media */}
+            {activeTab === "media" && (
+              <div className=" flex flex-wrap mt-6 max-w-6xl">
+                {posts
+                  .filter((post) => post.image_urls.length > 0)
+                  .map((post) => {
+                    return post.image_urls.map((image, index) => (
+                      <Link
+                        target="_blank"
+                        to={image}
+                        key={`${post._id}-${index}`}
+                        className="relative group"
+                      >
+                        <img
+                          key={index}
+                          src={image}
+                          className="w-64 aspect-video object-cover "
+                          alt=""
+                        />
+                        <p className="absolute bottom-0 right-0 text-xs p-1 px-3 backdrop-blur-xl text-white opacity-0 group-hover:opacity-100 transition duration-300">
+                          Posted {moment(post.createdAt).fromNow()}
+                        </p>
+                      </Link>
+                    ));
+                  })}
+              </div>
+            )}
+            {/*   Likes */}
+            {activeTab === "likes" && (
+              <div className="mt-6 flex flex-col items-center gap-6">
+                {likedPosts.length === 0 ? (
+                  <p className="text-gray-500 text-sm mt-4">
+                    Chưa thích bài viết nào
+                  </p>
+                ) : (
+                  likedPosts.map((post) => (
+                    <PostCard
+                      key={post._id}
+                      post={post}
+                      onUpdate={(updated) => {
+                        setLikedPosts((prev) =>
+                          prev.map((p) => (p._id === updated._id ? updated : p)),
+                        );
+                        handleUpdatePost(updated);
+                      }}
+                      onDelete={(deletedId) => {
+                        setLikedPosts((prev) =>
+                          prev.filter((p) => p._id !== deletedId),
+                        );
+                        handleDeletePost(deletedId);
+                      }}
+                    />
                   ))
-              )}
-            </div>
-          )}
-        </div>
+                )}
+              </div>
+            )}
+            {/*   Shares */}
+            {activeTab === "shares" && (
+              <div className="mt-6 flex flex-col items-center gap-6">
+                {posts.filter((post) => post.post_type === "share").length ===
+                0 ? (
+                  <p className="text-gray-500 text-sm mt-4">
+                    Chưa chia sẻ bài viết nào
+                  </p>
+                ) : (
+                  posts
+                    .filter((post) => post.post_type === "share")
+                    .map((post) => (
+                      <PostCard
+                        key={post._id}
+                        post={post}
+                        onUpdate={handleUpdatePost}
+                        onDelete={handleDeletePost}
+                      />
+                    ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
       {/* Edit Profile Modal */}
       {showEdit && <ProfileModal setShowEdit={setShowEdit} />}

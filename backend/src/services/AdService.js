@@ -247,7 +247,7 @@ class AdService {
     }
   }
 
-  async submitLead(campaignId, answers, userId = null) {
+  async submitLead(campaignId, answers, userId = null, files = []) {
     try {
       const campaign = await AdCampaign.findById(campaignId);
       if (!campaign) {
@@ -257,7 +257,21 @@ class AdService {
         };
       }
 
-      const parsedAnswers = typeof answers === "string" ? JSON.parse(answers) : answers;
+      let parsedAnswers = typeof answers === "string" ? JSON.parse(answers) : (answers || []);
+
+      if (files && files.length > 0) {
+        for (const file of files) {
+          const uploadResult = await uploadImageFromBuffer(file.buffer, {
+            folder: "pingup_leads",
+            resource_type: "auto",
+          });
+          const secureUrl = uploadResult.secure_url;
+          const targetAns = parsedAnswers.find(ans => ans.fileKey === file.fieldname);
+          if (targetAns) {
+            targetAns.value = secureUrl;
+          }
+        }
+      }
 
       const lead = new AdLead({
         campaign: campaignId,
@@ -523,6 +537,31 @@ class AdService {
       return {
         status: 500,
         data: { success: false, message: "Lỗi server: " + error.message },
+      };
+    }
+  }
+
+  /**
+   * Tải tệp tin/hình ảnh trong biểu mẫu quảng cáo lên Cloudinary
+   */
+  async uploadFile(file) {
+    try {
+      if (!file) {
+        return {
+          status: 400,
+          data: { success: false, message: "Không tìm thấy tệp tải lên." }
+        };
+      }
+      const result = await uploadImageFromBuffer(file.buffer);
+      return {
+        status: 200,
+        data: { success: true, url: result.secure_url }
+      };
+    } catch (error) {
+      console.error("Lỗi upload tệp trong AdService:", error);
+      return {
+        status: 500,
+        data: { success: false, message: "Lỗi upload: " + error.message }
       };
     }
   }

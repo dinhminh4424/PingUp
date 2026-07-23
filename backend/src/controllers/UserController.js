@@ -24,7 +24,7 @@ class UserController {
     try {
       const { id } = req.params;
 
-      const result = await UserService.getUserById(id);
+      const result = await UserService.getUserById(id, req.user);
 
       res.status(result.status).json(result.data);
     } catch (error) {
@@ -152,6 +152,30 @@ class UserController {
       return res.status(500).json({
         success: false,
         message: "Lỗi Khi Tạo Báo Cáo User: " + error.message,
+      });
+    }
+  }
+
+  /**
+   * Cập nhật cài đặt quyền riêng tư
+   */
+  async updatePrivacySettings(req, res) {
+    try {
+      const { isPrivate } = req.body;
+      if (isPrivate === undefined || typeof isPrivate !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          message: "Dữ liệu không hợp lệ. Phải gửi giá trị boolean cho isPrivate."
+        });
+      }
+
+      const result = await UserService.updatePrivacySettings(req.user._id, isPrivate);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi updatePrivacySettings:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi server khi cập nhật quyền riêng tư."
       });
     }
   }

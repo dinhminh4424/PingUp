@@ -5,9 +5,10 @@ import { uploadImageFromBuffer } from "../middlewares/UpLoadMiddleware.js";
 import Connection from "../models/Connection.js";
 import mongoose from "mongoose";
 import ConnectionRequest from "../models/ConnectionRequest.js";
+import { isConnected } from "../utils/connectionHelper.js";
 
 class UserService {
-  async getUserById(id) {
+  async getUserById(id, viewer = null) {
     try {
       const user = await User.findOne({
         _id: id,
@@ -29,6 +30,29 @@ class UserService {
       const userObj = user.toObject();
       userObj.followersCount = followersCount;
       userObj.followingCount = followingCount;
+
+      // Kiểm tra quyền riêng tư (isPrivate)
+      const viewerId = viewer ? viewer._id : null;
+      const viewerRole = viewer ? viewer.role : null;
+      
+      const isSelf = viewerId && viewerId.toString() === id.toString();
+      const isAdmin = viewerRole === "admin";
+      
+      let isProfileHidden = false;
+
+      if (user.isPrivate && !isSelf && !isAdmin) {
+        // Kiểm tra quan hệ bạn bè (đã kết nối)
+        const connected = await isConnected(id, viewerId);
+        if (!connected) {
+          isProfileHidden = true;
+          // Ẩn thông tin nhạy cảm
+          userObj.bio = "Tài khoản này là riêng tư.";
+          userObj.location = "Bảo mật";
+          userObj.cover_photo = "";
+        }
+      }
+
+      userObj.isProfileHidden = isProfileHidden;
 
       return {
         status: 200,
@@ -295,6 +319,37 @@ class UserService {
         data: {
           success: false,
           message: "Lỗi Hệ Thống Khi Báo Cáo Người Dùng: " + error.message,
+        },
+      };
+    }
+  }
+
+  /**
+   * Cập nhật cài đặt tài khoản riêng tư (isPrivate)
+   */
+  async updatePrivacySettings(userId, isPrivate) {
+    try {
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { isPrivate },
+        { returnDocument: "after" }
+      ).select("-password");
+
+      return {
+        status: 200,
+        data: {
+          success: true,
+          message: "Cập nhật quyền riêng tư thành công!",
+          user,
+        },
+      };
+    } catch (error) {
+      console.error("Lỗi trong UserService.updatePrivacySettings:", error);
+      return {
+        status: 500,
+        data: {
+          success: false,
+          message: "Lỗi cơ sở dữ liệu khi cập nhật quyền riêng tư.",
         },
       };
     }

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import seedPlacements from "./seedPlacements.js";
+import seedConfig from "./seedConfig.js";
 
 const connectDB = async () => {
   try {
@@ -12,6 +13,8 @@ const connectDB = async () => {
     );
     // Tự động seed các vị trí quảng cáo
     await seedPlacements();
+    // Tự động seed các cấu hình hệ thống mặc định
+    await seedConfig();
   } catch (error) {
     console.log(" ===== ❌❌❌❌❌❌❌ Kết Nối Thất Bại ===== ", error);
   }

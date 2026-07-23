@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cloudinary from "cloudinary";
 import { app, server } from "./socket/index.js";
+import configCache from "./services/ConfigCache.js";
 
 dotenv.config(); //Khởi tạo biên môi trường
 
@@ -30,13 +31,20 @@ cloudinary.config({
 
 // ================================ PUBLIC ROUTER =====================================
 import AuthRoutes from "./routes/AuthRoutes.js";
+import SystemConfigRoutes from "./routes/SystemConfigRoutes.js";
+import { publicMaintenanceMiddleware, privateMaintenanceMiddleware } from "./middlewares/MaintenanceMiddleware.js";
+
+app.use("/api/auth/login", publicMaintenanceMiddleware);
+app.use("/api/auth/register", publicMaintenanceMiddleware);
 app.use("/api/auth", AuthRoutes);
+app.use("/api/config", SystemConfigRoutes);
 
 // =============================== END PUBLIC ROUTER ===============================
 
 // ================================ PRIVATE ROUTER =====================================
 import { protectedRoute } from "./middlewares/AuthMiddleware.js";
 app.use(protectedRoute);
+app.use(privateMaintenanceMiddleware);
 // =============================== END PRIVATE ROUTER ===============================
 
 // =========================  GỌI API ==================
@@ -50,7 +58,10 @@ const PORT = process.env.PORT;
 
 import connectDB from "./config/db.js";
 
-connectDB().then(() => {
+connectDB().then(async () => {
+  // Khởi tạo Cache cấu hình hệ thống
+  await configCache.initialize();
+
   // Khởi động server
   server.listen(PORT, () => {
     console.log(`Server bắt đầu trên cổng ${PORT}`);

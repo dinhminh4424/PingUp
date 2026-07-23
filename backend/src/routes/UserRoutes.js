@@ -18,6 +18,7 @@ router.put(
   ]),
   UserController.updateInfoUser,
 );
+router.put("/privacy", UserController.updatePrivacySettings);
 
 // POST
 router.post(

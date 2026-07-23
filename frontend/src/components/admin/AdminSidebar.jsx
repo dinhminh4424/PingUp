@@ -162,9 +162,9 @@ const AdminSidebar = ({ ...props }) => {
     },
     {
       title: "Cấu hình hệ thống",
-      url: "#",
+      url: "/admin/system-config",
       icon: <Settings className="size-4" />,
-      badge: "soon",
+      isActive: location.pathname === "/admin/system-config",
     },
   ];
 

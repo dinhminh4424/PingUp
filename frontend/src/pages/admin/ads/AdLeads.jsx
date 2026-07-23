@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { getLeads, getAdminLeads } from "../../../services/admin/AdServices";
 import { useAuth } from "../../../contexts/AuthContext";
 import { 
-  Users, Search, RefreshCw, Layers, ArrowRight, UserCheck
+  Users, Search, RefreshCw, Layers
 } from "lucide-react";
 import toast from "react-hot-toast";
+import LeadCampaignCard from "../../../components/admin/ads/leads/LeadCampaignCard";
 
 const AdLeads = () => {
   const { userCurrent } = useAuth();
@@ -118,45 +119,12 @@ const AdLeads = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCampaignItems.map((item) => (
-            <div 
+            <LeadCampaignCard
               key={item.campaign._id}
-              className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl shadow-sm p-5 hover:shadow-md transition duration-200 flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-2.5">
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold px-2 py-0.5 bg-indigo-50 dark:bg-indigo-950/40 rounded-full">
-                    {item.campaign.category || "Khác"}
-                  </span>
-                  
-                  <div className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-full">
-                    <UserCheck className="h-3 w-3" />
-                    <span>{item.leadsList.length} Leads</span>
-                  </div>
-                </div>
-
-                <h3 className="font-bold text-slate-900 dark:text-white text-base line-clamp-1">
-                  {item.campaign.title}
-                </h3>
-                
-                <p className="text-xs text-slate-400 dark:text-zinc-500 line-clamp-2">
-                  ID: <span className="font-mono text-[10px] text-slate-500">{item.campaign._id}</span>
-                </p>
-
-                {isAdmin && (
-                  <div className="text-[11px] text-slate-500 border-t border-slate-50 dark:border-zinc-800/80 pt-2.5">
-                    <span className="text-slate-400">Nhà quảng cáo:</span> <strong className="text-slate-700 dark:text-zinc-300">{item.advertiser?.full_name || "N/A"}</strong>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={() => navigate(`/admin/ads/leads/${item.campaign._id}`)}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-xs transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <span>Xem danh sách câu trả lời</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
+              item={item}
+              isAdmin={isAdmin}
+              onSelect={(campaign) => navigate(`/admin/ads/leads/${campaign._id}`)}
+            />
           ))}
         </div>
       )}
