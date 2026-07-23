@@ -40,7 +40,10 @@ const Profile = () => {
       }
     } catch (error) {
       console.log("Lỗi tải thông tin trang cá nhân: ", error);
-      setError(error.response?.data?.message || "Không thể tải thông tin trang cá nhân");
+      setError(
+        error.response?.data?.message ||
+          "Không thể tải thông tin trang cá nhân",
+      );
     }
   };
 
@@ -52,6 +55,12 @@ const Profile = () => {
 
   const handleDeletePost = (deletePostId) => {
     setPosts((prev) => prev.filter((post) => post._id !== deletePostId));
+  };
+
+  const handleLikePost = (likePost) => {
+    setPosts((prev) =>
+      prev.map((post) => (post._id === likePost._id ? likePost : post)),
+    );
   };
 
   useEffect(() => {
@@ -89,9 +98,12 @@ const Profile = () => {
               <Lock className="size-7 animate-pulse" />
             </div>
             <div className="space-y-1.5">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Tài khoản này là riêng tư</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                Tài khoản này là riêng tư
+              </h2>
               <p className="text-sm text-gray-500 dark:text-zinc-400 leading-relaxed">
-                Chỉ những người đã kết nối với người dùng này mới có thể xem các thông tin chi tiết và bài đăng của họ.
+                Chỉ những người đã kết nối với người dùng này mới có thể xem các
+                thông tin chi tiết và bài đăng của họ.
               </p>
             </div>
           </div>
@@ -120,6 +132,7 @@ const Profile = () => {
                       post={post}
                       onUpdate={handleUpdatePost}
                       onDelete={handleDeletePost}
+                      onToggleLikePost={handleLikePost}
                     />
                   );
                 })}
@@ -166,7 +179,9 @@ const Profile = () => {
                       post={post}
                       onUpdate={(updated) => {
                         setLikedPosts((prev) =>
-                          prev.map((p) => (p._id === updated._id ? updated : p)),
+                          prev.map((p) =>
+                            p._id === updated._id ? updated : p,
+                          ),
                         );
                         handleUpdatePost(updated);
                       }}
@@ -176,6 +191,7 @@ const Profile = () => {
                         );
                         handleDeletePost(deletedId);
                       }}
+                      onToggleLikePost={handleLikePost}
                     />
                   ))
                 )}
@@ -198,6 +214,7 @@ const Profile = () => {
                         post={post}
                         onUpdate={handleUpdatePost}
                         onDelete={handleDeletePost}
+                        onToggleLikePost={handleLikePost}
                       />
                     ))
                 )}
