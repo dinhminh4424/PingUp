@@ -6,6 +6,7 @@ import User from "../models/User.js";
 import NotificationService from "./NotificationService.js";
 import Comment from "../models/Comment.js";
 import Report from "../models/Report.js";
+import { isConnected } from "../utils/connectionHelper.js";
 
 class PostService {
   async getPost(page = 1, limit = 10) {
@@ -77,7 +78,38 @@ class PostService {
 
   async getPostsByIdUser(id, currentUserId) {
     try {
+      const targetUser = await User.findById(id);
+      if (!targetUser) {
+        return {
+          status: 404,
+          data: {
+            success: false,
+            message: "Không tìm thấy người dùng",
+          },
+        };
+      }
+
       const isOwnProfile = currentUserId && currentUserId.toString() === id.toString();
+      
+      if (!isOwnProfile) {
+        const viewer = currentUserId ? await User.findById(currentUserId) : null;
+        const isAdmin = viewer && viewer.role === "admin";
+        
+        if (targetUser.isPrivate && !isAdmin) {
+          const connected = await isConnected(id, currentUserId);
+          if (!connected) {
+            return {
+              status: 403,
+              data: {
+                success: false,
+                isPrivate: true,
+                message: "Tài khoản này là riêng tư. Kết nối để xem bài viết.",
+                posts: []
+              }
+            };
+          }
+        }
+      }
       
       const query = {
         isDelete: false,

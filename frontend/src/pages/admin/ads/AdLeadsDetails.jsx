@@ -3,9 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { getLeads, getAdminLeads, deleteLead } from "../../../services/admin/AdServices";
 import { useAuth } from "../../../contexts/AuthContext";
 import { 
-  ArrowLeft, Users, Calendar, Trash2, CheckCircle2, FileSpreadsheet, RefreshCw, Search
+  ArrowLeft, Users, CheckCircle2, FileSpreadsheet, RefreshCw, Search
 } from "lucide-react";
 import toast from "react-hot-toast";
+import LeadTableRow from "../../../components/admin/ads/leads/LeadTableRow";
+import LeadDetailDialog from "../../../components/admin/ads/leads/LeadDetailDialog";
 
 const AdLeadsDetails = () => {
   const { id } = useParams();
@@ -17,6 +19,9 @@ const AdLeadsDetails = () => {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  const [selectedLead, setSelectedLead] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -32,8 +37,6 @@ const AdLeadsDetails = () => {
         if (campaignLeads.length > 0) {
           setCampaign(campaignLeads[0].campaign);
         } else {
-          // Trường hợp chiến dịch chưa có lead nào, ta vẫn lấy thông tin từ leads nếu có
-          // Hoặc có thể hiển thị trống thông tin chiến dịch
           setCampaign(null);
         }
       }
@@ -61,6 +64,11 @@ const AdLeadsDetails = () => {
       console.error(err);
       toast.error("Không thể xóa bản ghi.");
     }
+  };
+
+  const handleViewDetails = (lead) => {
+    setSelectedLead(lead);
+    setIsModalOpen(true);
   };
 
   const filteredLeads = leads.filter((lead) => {
@@ -176,60 +184,18 @@ const AdLeadsDetails = () => {
                 <tr>
                   <th className="p-4">Thời gian</th>
                   <th className="p-4">Khách hàng</th>
-                  <th className="p-4">Nội dung câu trả lời</th>
+                  <th className="p-4">Câu trả lời</th>
                   <th className="p-4 text-center">Hành động</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/60 text-slate-700 dark:text-zinc-300">
                 {filteredLeads.map((lead) => (
-                  <tr key={lead._id} className="hover:bg-slate-50/50 dark:hover:bg-zinc-950/30 transition">
-                    
-                    {/* Thời gian */}
-                    <td className="p-4 whitespace-nowrap text-slate-500">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                        <span>{new Date(lead.createdAt).toLocaleString("vi-VN")}</span>
-                      </div>
-                    </td>
-
-                    {/* Khách hàng */}
-                    <td className="p-4">
-                      <div className="font-semibold text-slate-900 dark:text-white">
-                        {lead.user?.full_name || "Khách vãng lai"}
-                      </div>
-                      {lead.user?.email && (
-                        <div className="text-[10px] text-slate-400">{lead.user.email}</div>
-                      )}
-                    </td>
-
-                    {/* Nội dung câu trả lời động */}
-                    <td className="p-4 max-w-md">
-                      <div className="space-y-1 bg-slate-50 dark:bg-zinc-950/50 p-3 rounded-lg border border-slate-100 dark:border-zinc-800/40">
-                        {lead.answers.map((answer, index) => (
-                          <div key={index} className="flex gap-1.5 text-[11px]">
-                            <span className="font-bold text-slate-400 dark:text-zinc-500 min-w-[100px] shrink-0 uppercase tracking-wider text-[9px] mt-0.5">
-                              {answer.label}:
-                            </span>
-                            <span className="text-slate-800 dark:text-zinc-200 font-medium break-all">
-                              {answer.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* Hành động */}
-                    <td className="p-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={() => handleDelete(lead._id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition"
-                        title="Xóa thông tin này"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </td>
-
-                  </tr>
+                  <LeadTableRow
+                    key={lead._id}
+                    lead={lead}
+                    onViewDetails={handleViewDetails}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </tbody>
             </table>
@@ -240,6 +206,13 @@ const AdLeadsDetails = () => {
           </div>
         </div>
       )}
+
+      {/* Modal chi tiết phản hồi */}
+      <LeadDetailDialog
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedLead={selectedLead}
+      />
 
     </div>
   );

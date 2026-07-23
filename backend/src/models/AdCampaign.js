@@ -80,9 +80,12 @@ const adCampaignSchema = new mongoose.Schema(
       fields: [
         {
           label: { type: String, required: true }, 
-          fieldType: { type: String, enum: ["text", "email", "tel", "textarea", "select", "radio"], default: "text" },
+          fieldType: { type: String, enum: ["text", "email", "tel", "textarea", "select", "radio", "file", "range"], default: "text" },
           required: { type: Boolean, default: true },
           options: [{ type: String }], // Các lựa chọn cho select/radio
+          min: { type: Number, default: 0 },
+          max: { type: Number, default: 100 },
+          step: { type: Number, default: 1 },
         }
       ]
     },

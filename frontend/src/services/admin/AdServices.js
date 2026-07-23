@@ -56,8 +56,10 @@ export const deleteCampaign = async (id) => {
   return res.data;
 };
 
-export const submitLead = async (id, answers) => {
-  const res = await api.post(`/api/ads/campaigns/${id}/lead`, { answers });
+export const submitLead = async (id, formData) => {
+  const res = await api.post(`/api/ads/campaigns/${id}/lead`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return res.data;
 };
 

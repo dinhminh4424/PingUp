@@ -101,8 +101,9 @@ class AdController {
       const { id } = req.params;
       const { answers } = req.body;
       const userId = req.user ? req.user._id : null;
+      const files = req.files || [];
       
-      const result = await AdService.submitLead(id, answers, userId);
+      const result = await AdService.submitLead(id, answers, userId, files);
       return res.status(result.status).json(result.data);
     } catch (error) {
       console.error("Lỗi trong AdController.submitLead:", error);
@@ -132,6 +133,19 @@ class AdController {
     } catch (error) {
       console.error("Lỗi trong AdController.deleteLead:", error);
       return res.status(500).json({ success: false, message: "Lỗi xóa đăng ký" });
+    }
+  }
+
+  /**
+   * Tải tệp tin trong biểu mẫu quảng cáo lên Cloudinary
+   */
+  async uploadFile(req, res) {
+    try {
+      const result = await AdService.uploadFile(req.file);
+      return res.status(result.status).json(result.data);
+    } catch (error) {
+      console.error("Lỗi trong AdController.uploadFile:", error);
+      return res.status(500).json({ success: false, message: "Lỗi tải tệp: " + error.message });
     }
   }
 }

@@ -20,7 +20,8 @@ const adLeadSchema = new mongoose.Schema(
     answers: [
       {
         label: { type: String, required: true },
-        value: { type: String, required: true },
+        value: { type: String },
+        fieldType: { type: String, default: "text" },
       }
     ],
   },

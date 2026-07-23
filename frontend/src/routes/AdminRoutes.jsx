@@ -57,6 +57,9 @@ const AdReview = lazy(() => import("../pages/admin/ads/AdReview"));
 const AdRevenue = lazy(() => import("../pages/admin/ads/AdRevenue"));
 const AdLeads = lazy(() => import("../pages/admin/ads/AdLeads"));
 const AdLeadsDetails = lazy(() => import("../pages/admin/ads/AdLeadsDetails"));
+const SystemConfigManagement = lazy(
+  () => import("../pages/admin/SystemConfigManagement"),
+);
 
 
 const AdminRoutes = () => {
@@ -110,6 +113,9 @@ const AdminRoutes = () => {
             <Route path="ads/revenue" element={<AdRevenue />} />
             <Route path="ads/leads" element={<AdLeads />} />
             <Route path="ads/leads/:id" element={<AdLeadsDetails />} />
+            
+            {/* Cấu hình hệ thống */}
+            <Route path="system-config" element={<SystemConfigManagement />} />
           </Route>
         </Route>
       </Routes>
